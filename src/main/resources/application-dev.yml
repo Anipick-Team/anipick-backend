@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: anipick-backend
+---
+mybatis:
+  mapper-locations: mapper/**/*.xml
+---
+spring:
+  config:
+    activate:
+      on-profile: dev-mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+---
