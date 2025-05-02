@@ -8,14 +8,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 	private int code;
 	private String value;
-	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private T result;
-	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String errorReason;
-	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String errorValue;
 
 	// 성공 응답 (데이터 있는 경우)
