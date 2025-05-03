@@ -1,6 +1,6 @@
 package com.anipick.backend.common.auth.service;
 
-import com.anipick.backend.common.auth.domain.CustomUserDetails;
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;

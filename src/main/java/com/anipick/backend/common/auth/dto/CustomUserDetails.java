@@ -1,4 +1,4 @@
-package com.anipick.backend.common.auth.domain;
+package com.anipick.backend.common.auth.dto;
 
 import com.anipick.backend.user.domain.User;
 import lombok.Getter;
