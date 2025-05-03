@@ -29,7 +29,7 @@
             r.content AS reviewContent,
             u.nickname,
             u.profile_image_url AS profileImageUrl,
-            DATE_FORMAT(r.created_at, '%Y-%m-%d') AS createdAt,
+            r.created_at AS createdAt,
             r.like_count AS likeCount,
         -- 내가 좋아요 눌렀는지
             EXISTS(
