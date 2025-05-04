@@ -48,7 +48,7 @@ class ReviewServiceTest {
                 .willReturn(List.of(sampleDto));
 
         // when
-        RecentReviewPageDto result = service.findRecentReviews(userId, null, 20);
+        RecentReviewPageDto result = service.getRecentReviews(userId, null, 20);
 
         // then
         assertThat(result.getCount()).isEqualTo(50L);
