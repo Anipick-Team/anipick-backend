@@ -1,6 +1,6 @@
 package com.anipick.backend.anime.controller;
 
-import com.anipick.backend.anime.dto.MetaDataGroupResult;
+import com.anipick.backend.anime.dto.MetaDataGroupResultDto;
 import com.anipick.backend.anime.service.MetaDataService;
 import com.anipick.backend.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,8 @@ public class MetaDataController {
     private final MetaDataService service;
 
     @GetMapping("/meta-data-group")
-    public ApiResponse<MetaDataGroupResult> getMetaDataGroup() {
-        MetaDataGroupResult result = service.getMetaDataGroup();
+    public ApiResponse<MetaDataGroupResultDto> getMetaDataGroup() {
+        MetaDataGroupResultDto result = service.getMetaDataGroup();
         return ApiResponse.success(result);
     }
 }
