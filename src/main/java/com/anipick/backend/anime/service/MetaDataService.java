@@ -4,6 +4,7 @@ import com.anipick.backend.anime.domain.AnimeFormat;
 import com.anipick.backend.anime.domain.Season;
 import com.anipick.backend.anime.dto.GenreDto;
 import com.anipick.backend.anime.dto.MetaDataGroupResultDto;
+import com.anipick.backend.anime.dto.SeasonDto;
 import com.anipick.backend.anime.mapper.MetaDataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,10 @@ public class MetaDataService {
                 .boxed().sorted(Comparator.reverseOrder())
                 .toList();
 
-        List<Integer> seasons = Arrays.stream(Season.values())
-                .map(Season::getCode)
+        List<SeasonDto> seasons = Arrays.stream(Season.values())
+                .map(SeasonDto::from)
                 .collect(Collectors.toList());
+
         List<GenreDto> genreDtos = mapper.selectAllGenres();
         List<AnimeFormat> types = Arrays.stream(AnimeFormat.values()).toList();
 
