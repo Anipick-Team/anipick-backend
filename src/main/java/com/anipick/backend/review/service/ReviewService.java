@@ -1,6 +1,6 @@
 package com.anipick.backend.review.service;
 
-import com.anipick.backend.review.dto.CursorDto;
+import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.review.dto.RecentReviewItemDto;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
@@ -57,7 +57,7 @@ public class ReviewService {
 
         return RecentReviewPageDto.builder()
                 .count(total)
-                .cursor(new CursorDto(nextLastId))
+                .cursor(CursorDto.of(nextLastId))
                 .reviews(items)
                 .build();
     }

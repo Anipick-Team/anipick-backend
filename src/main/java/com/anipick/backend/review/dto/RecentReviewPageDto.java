@@ -1,5 +1,6 @@
 package com.anipick.backend.review.dto;
 
+import com.anipick.backend.common.dto.CursorDto;
 import lombok.*;
 
 import java.util.List;
