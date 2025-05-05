@@ -19,6 +19,10 @@ public class ReviewService {
 
     private final RecentReviewMapper reviewMapper;
 
+    private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+
+
     @Transactional(readOnly = true)
     public RecentReviewPageDto getRecentReviews(Long userId, Long lastId, Integer size) {
 
@@ -26,10 +30,6 @@ public class ReviewService {
 
         List<RecentReviewItemDto> raws =
                 reviewMapper.selectRecentReviews(userId, lastId, size);
-
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-
 
         List<RecentReviewItemDto> items = raws.stream()
                 .map(dto -> {
