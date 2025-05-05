@@ -52,7 +52,8 @@ public class ReviewService {
                             .build();
                 }).collect(Collectors.toList());
 
-        Long nextLastId = items.isEmpty() ? null : items.get(items.size() - 1).getReviewId();
+        int lastIndex = items.size() - 1;
+        Long nextLastId = items.isEmpty() ? null : items.get(lastIndex).getReviewId();
 
         return RecentReviewPageDto.builder()
                 .count(total)
