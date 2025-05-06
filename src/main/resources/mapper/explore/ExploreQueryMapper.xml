@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.explore.mapper.ExploreMapper">
+
+    <!-- 공통 필터링(년도/분기/타입) -->
+    <sql id="commonFilters">
+        <if test="year != null">AND a.season_year = #{year}</if>
+        <if test="season != null and year != null">AND a.season_int = #{season}</if>
+        <if test="typeConvertSize &gt; 0">
+            AND a.format IN
+            <foreach item="f" collection="types" open="(" separator="," close=")">
+                #{f}
+            </foreach>
+        </if>
+    </sql>
+
+    <!-- 전체 카운터 -->
+    <select id="countExplored" resultType="long">
+        SELECT COUNT(DISTINCT a.anime_id)
+        FROM Anime a
+            <if test="genresSize > 0">
+            <choose>
+            <!-- 옵션 OR 일 경우 -->
+                <when test="genreOp == 'OR'">
+                    JOIN AnimeGenres ag ON ag.anime_id = a.anime_id
+                    AND ag.genre_id IN
+                    <foreach item="g" collection="genres" open="(" separator="," close=")">
+                        #{g}
+                    </foreach>
+                </when>
+            <!-- 옵션 AND 일 경우 -->
+                <otherwise>
+                    JOIN (
+                        SELECT anime_id
+                        FROM AnimeGenres
+                        WHERE genre_id IN
+                        <foreach item="g" collection="genres" open="(" separator="," close=")">
+                            #{g}
+                        </foreach>
+                        GROUP BY anime_id
+                        HAVING COUNT(DISTINCT genre_id) = #{genresSize}
+                    ) ag2 ON ag2.anime_id = a.anime_id
+                </otherwise>
+            </choose>
+        </if>
+        <where>
+            <include refid="commonFilters"/>
+        </where>
+    </select>
+
+    <!-- 탐색 조회 -->
+    <select id="selectExplored" resultType="com.anipick.backend.explore.dto.ExploreItemDto">
+        SELECT
+        a.anime_id        AS id,
+        a.title_kor       AS title,
+        a.cover_image_url AS coverImageUrl,
+        a.average_score   AS averageScore
+        FROM Anime a
+
+        <!-- 장르 필터링 -->
+        <if test="genres != null and genres.size() &gt; 0">
+            <choose>
+                <!-- 옵션 OR 일 경우 -->
+                <when test="genreOp == 'OR'">
+                    JOIN (
+                    SELECT DISTINCT anime_id
+                    FROM AnimeGenres
+                    WHERE genre_id IN
+                    <foreach item="g" collection="genres" open="(" separator="," close=")">
+                        #{g}
+                    </foreach>
+                    ) ag2 ON ag2.anime_id = a.anime_id
+                </when>
+                <!-- 옵션 AND 일 경우 -->
+                <otherwise>
+                    JOIN (
+                    SELECT anime_id
+                    FROM AnimeGenres
+                    WHERE genre_id IN
+                    <foreach item="g" collection="genres" open="(" separator="," close=")">
+                        #{g}
+                    </foreach>
+                    GROUP BY anime_id
+                    HAVING COUNT(DISTINCT genre_id) = #{genresSize}
+                    ) ag2 ON ag2.anime_id = a.anime_id
+                </otherwise>
+            </choose>
+        </if>
+
+        <!-- 커서 / 정렬 조인 / 조건 -->
+        <choose>
+            <!-- 인기순 -->
+            <when test="sort == 'popularity'">
+                JOIN PopularityAnimeOrder pao
+                ON pao.anime_id = a.anime_id
+                <if test="lastId != null">
+                    AND pao.popularity_anime_order_id > #{lastId}
+                </if>
+                <where>1=1<include refid="commonFilters"/></where>
+                ORDER BY ${orderByQuery}
+            </when>
+            <!-- 평점순 -->
+            <otherwise>
+                <where>
+                    <if test="lastValue != null">
+                        ( a.average_score &lt; #{lastValue}
+                        OR (a.average_score = #{lastValue} AND a.anime_id &gt; #{lastId})
+                        )
+                    </if>
+                    <include refid="commonFilters"/>
+                </where>
+                ORDER BY ${orderByQuery}, a.anime_id ASC
+            </otherwise>
+        </choose>
+
+        LIMIT #{size}
+    </select>
+
+</mapper>
