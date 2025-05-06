@@ -8,10 +8,16 @@ mybatis:
 spring:
   config:
     activate:
-      on-profile: prod-mysql
+      on-profile: local-mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 ---
+jwt:
+  secret-key: ${SECRET_KEY}
+  access-token-expire-time: ${ACCESS_TOKEN_EXPIRE_TIME} # 1시간
+  refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME} # 7일
+
+
