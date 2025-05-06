@@ -1,8 +1,9 @@
 package com.anipick.backend.common.auth;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
+import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,39 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now.getTime() + expireTime))
                 .signWith(jwtSecretKey())
                 .compact();
+    }
+
+    public String getEmailFromToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(jwtSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.REQUESTED_TOKEN_INVALID);
+        }
+    }
+
+    public void validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(jwtSecretKey()).build().parseClaimsJws(token);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.REQUESTED_TOKEN_INVALID);
+        }
+    }
+
+    public String resolveAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     private SecretKey jwtSecretKey() {
