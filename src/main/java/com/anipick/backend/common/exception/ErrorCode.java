@@ -29,6 +29,7 @@ public enum ErrorCode {
 	NICKNAME_NOT_PROVIDED(118, "닉네임 미 입력", "닉네임을 입력해 주세요."),
 	REQUESTED_TOKEN_INVALID(119, "토큰 값이 유효 X", "토큰의 요청 값이 유효하지 않습니다."),
 	PASSWORD_INVALID_FORMAT(120, "비밀번호 형식 X", "8~16자의 영문 대/소문자, 숫자, 특수문자를 조합하여 입력해주세요."),
+	EXPIRED_TOKEN(121, "토큰 만료", "토큰이 만료되었습니다."),
 	/**
 	 * Review
 	 */
