@@ -23,7 +23,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public SignUpResponse signUp(SignUpRequest request) {
-        log.info("signUp request={}", request);
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -53,7 +52,6 @@ public class UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        log.info("user={}", user);
         userMapper.insertUser(user);
 
         return SignUpResponse.from(user);
