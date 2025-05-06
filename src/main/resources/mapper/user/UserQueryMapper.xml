@@ -5,11 +5,11 @@
 
 <mapper namespace="com.anipick.backend.user.mapper.UserMapper">
     <select id="findByUserId" resultType="com.anipick.backend.user.domain.User">
-        select * from user where user_id = #{userId}
+        select * from User where user_id = #{userId}
     </select>
 
     <select id="findByEmail" resultType="com.anipick.backend.user.domain.User">
-        select * from user where email = #{email}
+        select * from User where email = #{email}
     </select>
 
 </mapper>
