@@ -32,12 +32,12 @@ public class UserService {
         }
 
         // 이메일 형식 확인
-        if(SignUpValidator.checkValidationEmail(requestEmail)) {
+        if(!SignUpValidator.checkValidationEmail(requestEmail)) {
             throw new CustomException(ErrorCode.EMAIL_INVALID_FORMAT);
         }
 
         // 비밀번호 형식 확인
-        if(SignUpValidator.checkValidationPassword(requestPassword)) {
+        if(!SignUpValidator.checkValidationPassword(requestPassword)) {
             throw new CustomException(ErrorCode.PASSWORD_INVALID_FORMAT);
         }
 
