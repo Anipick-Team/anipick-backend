@@ -30,7 +30,7 @@ public class ExploreService {
 		Long lastId, Integer lastValue,
 		int size
 	) {
-		log.info(
+		log.debug(
 			"Anime Explore log : 년도={}, 분기={}, 장르 ID={}, 장르 옵션={}, 타입={}, 정렬={}, 마지막 ID={}, 마지막 값={}, 페이지 크기={}",
 			year, season, genres, genreOp, type, sort, lastId, lastValue, size
 		);
