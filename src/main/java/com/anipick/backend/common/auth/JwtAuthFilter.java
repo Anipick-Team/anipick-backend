@@ -1,7 +1,9 @@
 package com.anipick.backend.common.auth;
 
 import com.anipick.backend.common.auth.service.CustomUserDetailsService;
+import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -51,7 +53,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.error(e.getMessage());
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
-            response.getWriter().write(ErrorCode.REQUESTED_TOKEN_INVALID.getErrorValue());
+
+            ApiResponse<Object> apiResponse = ApiResponse.error(ErrorCode.REQUESTED_TOKEN_INVALID);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(apiResponse);
+            response.getWriter().write(json);
         }
     }
 }
