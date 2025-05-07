@@ -7,6 +7,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.explore.domain.GenresOption;
 import com.anipick.backend.explore.dto.ExploreItemDto;
 import com.anipick.backend.explore.dto.ExplorePageDto;
+import com.anipick.backend.explore.dto.ExploreRequestDto;
 import com.anipick.backend.explore.mapper.ExploreMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,31 +35,37 @@ public class ExploreService {
 			"Anime Explore log : 년도={}, 분기={}, 장르 ID={}, 장르 옵션={}, 타입={}, 정렬={}, 마지막 ID={}, 마지막 값={}, 페이지 크기={}",
 			year, season, genres, genreOp, type, sort, lastId, lastValue, size
 		);
+
 		int genresSize = genres == null ? 0 : genres.size();
 
-		List<String> convert = FormatConvert.toConvert(type);
-		int typeConvertSize = convert.size();
+        List<String> convert = FormatConvert.toConvert(type);
 
-		SortOption sortOption = SortOption.of(sort);
-		String orderByQuery = sortOption.getOrderByQuery();
+        int typeConvertSize = convert.size();
 
-		String genreOpName = genreOp.name();
+        SortOption sortOption = SortOption.of(sort);
+        String orderByQuery = sortOption.getOrderByQuery();
 
-		long total = mapper.countExplored(
-			year, season,
-			genres, genresSize,
-			convert, typeConvertSize,
-			genreOpName, type);
+        String genreOpName = genreOp.name();
 
-		List<ExploreItemDto> internal = mapper.selectExplored(
-			year, season,
-			genres, genresSize,
-			convert, typeConvertSize,
-			genreOpName, type,
-			sort, orderByQuery,
-			lastId, lastValue,
-			size);
+        ExploreRequestDto exploreRequestDto = ExploreRequestDto.builder()
+                .year(year)
+                .season(season)
+                .genres(genres)
+                .genresSize(genresSize)
+                .genreOp(genreOpName)
+                .types(convert)
+                .typeConvertSize(typeConvertSize)
+                .type(type)
+                .sort(sort)
+                .orderByQuery(orderByQuery)
+                .lastId(lastId)
+                .lastValue(lastValue)
+                .size(size)
+                .build();
 
+        long total = mapper.countExplored(exploreRequestDto);
+
+        List<ExploreItemDto> internal = mapper.selectExplored(exploreRequestDto);
 
 		int lastIndex = internal.size() - 1;
 
