@@ -56,7 +56,8 @@
         a.anime_id        AS id,
         a.title_kor       AS title,
         a.cover_image_url AS coverImageUrl,
-        a.average_score   AS averageScore
+        a.average_score   AS averageScore,
+        pao.popularity_anime_order_id AS popularId
         FROM Anime a
 
         <!-- 장르 필터링 -->
@@ -103,6 +104,8 @@
             </when>
             <!-- 평점순 -->
             <otherwise>
+                JOIN PopularityAnimeOrder pao
+                ON pao.anime_id = a.anime_id
                 <where>
                     <if test="lastValue != null">
                         ( a.average_score &lt; #{lastValue}

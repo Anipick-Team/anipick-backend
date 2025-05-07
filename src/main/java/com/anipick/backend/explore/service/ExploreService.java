@@ -65,6 +65,8 @@ public class ExploreService {
 		Long nextId;
 		if (internal.isEmpty()) {
 			nextId = null;
+		} else if ("popularity".equalsIgnoreCase(sort)){
+			nextId = internal.get(lastIndex).getPopularId();
 		} else {
 			nextId = internal.get(lastIndex).getId();
 		}
