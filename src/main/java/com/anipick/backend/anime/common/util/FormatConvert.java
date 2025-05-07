@@ -14,7 +14,9 @@ public class FormatConvert {
 	);
 
 	public static List<String> toConvert(String clientFromType) {
-		if (clientFromType == null) return Collections.emptyList();
+		if (clientFromType == null) {
+			return Collections.emptyList();
+		}
 		return MAP.getOrDefault(clientFromType, Collections.emptyList())
 			.stream()
 			.map(Enum::name)
