@@ -1,13 +1,18 @@
 package com.anipick.backend.user.service;
 
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.user.mapper.UserMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public final class NicknameInitializer {
     private static final List<String> PREFIX_WORDS = List.of(
             "푸른", "달콤한", "반짝이는", "작은", "하얀", "노란", "새벽의", "기쁜", "조용한",
@@ -35,5 +40,18 @@ public final class NicknameInitializer {
                 .collect(Collectors.joining());
 
         return base + number;
+    }
+
+    public static String generateUniqueNickname(Predicate<String> isDuplicate) {
+        int attempts = 0;
+        while(attempts < 1000) { // 닉네임 생성 1000번 시도
+            String nickname = generateNickname();
+            if(!isDuplicate.test(nickname)) {
+                return nickname;
+            }
+            attempts++;
+        }
+
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }
