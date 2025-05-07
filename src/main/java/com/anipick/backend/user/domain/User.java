@@ -17,6 +17,7 @@ public class User {
     private LoginFormat loginFormat;
     private Boolean termsAndConditions;
     private Boolean adultYn;
+    private Boolean reviewCompletedYn;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
