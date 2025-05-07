@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserMapper {
     Optional<User> findByUserId(Long userId);
     Optional<User> findByEmail(String email);
+    Optional<User> findByNickname(String nickname);
+    boolean existsByNickname(String nickname);
 
     void insertUser(User user);
     void updateUser(User user);

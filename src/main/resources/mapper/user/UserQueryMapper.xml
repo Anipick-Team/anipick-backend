@@ -12,4 +12,14 @@
         select * from User where email = #{email}
     </select>
 
+    <select id="findByNickname" resultType="com.anipick.backend.user.domain.User">
+        select * from User where nickname = #{nickname}
+    </select>
+
+    <select id="existsByNickname" resultType="boolean">
+        select exists(
+            select 1 from User where nickname = #{nickname}
+        )
+    </select>
+
 </mapper>
