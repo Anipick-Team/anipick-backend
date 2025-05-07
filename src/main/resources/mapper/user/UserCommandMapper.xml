@@ -5,8 +5,11 @@
 
 <mapper namespace="com.anipick.backend.user.mapper.UserMapper">
     <insert id="insertUser" parameterType="com.anipick.backend.user.domain.User" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO User (email, password, nickname, profile_image_url, login_format, created_at, terms_and_conditions, adult_yn)
-        VALUES (#{email}, #{password}, #{nickname}, #{profileImageUrl}, #{loginFormat}, #{createdAt}, #{termsAndConditions}, #{adultYn})
+        INSERT INTO User
+            (email, password, nickname, profile_image_url, login_format, created_at, updated_at, terms_and_conditions, adult_yn, review_completed_yn)
+        VALUES
+            (#{email}, #{password}, #{nickname}, #{profileImageUrl}, #{loginFormat},
+             #{createdAt}, #{updatedAt}, #{termsAndConditions}, #{adultYn}, #{reviewCompletedYn})
     </insert>
 
 </mapper>
