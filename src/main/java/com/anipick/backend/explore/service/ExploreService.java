@@ -61,11 +61,27 @@ public class ExploreService {
 
 
 		int lastIndex = internal.size() - 1;
-		Long nextId = internal.isEmpty() ? null : internal.get(lastIndex).getId();
-		Integer nextValue = (!"rating".equalsIgnoreCase(sort) || internal.isEmpty())
-			? null : internal.get(lastIndex).getAverageScore();
 
-		String nextValStr = nextValue != null ? nextValue.toString() : null;
+		Long nextId;
+		if (internal.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = internal.get(lastIndex).getId();
+		}
+
+		Integer nextValue;
+		if (!"rating".equalsIgnoreCase(sort) || internal.isEmpty()) {
+			nextValue = null;
+		} else {
+			nextValue = internal.get(lastIndex).getAverageScore();
+		}
+
+		String nextValStr;
+		if (nextValue != null) {
+			nextValStr = nextValue.toString();
+		} else {
+			nextValStr = null;
+		}
 
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValStr);
 
