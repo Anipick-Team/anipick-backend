@@ -36,7 +36,7 @@ public enum Season {
         final Season currentSeason = Arrays.stream(values)
                 .filter(season -> season.contains(now))
                 .findFirst()
-                .orElseThrow(); // 예외처리 테스트
+                .orElseThrow();
         return currentSeason.next();
     }
 
@@ -60,10 +60,10 @@ public enum Season {
     }
 
     // 날짜 -> 분기
-    public Season containsSeason(LocalDate date) {
+    public static Season containsSeason(LocalDate date) {
         return Arrays.stream(values()).
                 filter(season -> season.contains(date))
                 .findFirst()
-                .orElseThrow(); // 예외 테스트
+                .orElseThrow();
     }
 }
