@@ -61,8 +61,8 @@ public enum Season {
 
     // 날짜 -> 분기
     public static Season containsSeason(LocalDate date) {
-        return Arrays.stream(values()).
-                filter(season -> season.contains(date))
+        return Arrays.stream(values())
+                .filter(season -> season.contains(date))
                 .findFirst()
                 .orElseThrow();
     }
