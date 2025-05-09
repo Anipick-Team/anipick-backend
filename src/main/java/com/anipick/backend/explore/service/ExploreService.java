@@ -2,6 +2,8 @@ package com.anipick.backend.explore.service;
 
 import com.anipick.backend.anime.common.dto.AnimeItemDto;
 import com.anipick.backend.anime.common.util.FormatConvert;
+import com.anipick.backend.anime.domain.RangeDate;
+import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.explore.domain.GenresOption;
@@ -47,21 +49,9 @@ public class ExploreService {
 
         String genreOpName = genreOp.name();
 
-        ExploreRequestDto exploreRequestDto = ExploreRequestDto.builder()
-                .year(year)
-                .season(season)
-                .genres(genres)
-                .genresSize(genresSize)
-                .genreOp(genreOpName)
-                .types(convert)
-                .typeConvertSize(typeConvertSize)
-                .type(type)
-                .sort(sort)
-                .orderByQuery(orderByQuery)
-                .lastId(lastId)
-                .lastValue(lastValue)
-                .size(size)
-                .build();
+        ExploreRequestDto exploreRequestDto = makeExploreRequestDto(
+				year, season, genres, type, sort, lastId, lastValue, size,
+				genresSize, genreOpName, convert, typeConvertSize, orderByQuery);
 
         long total = mapper.countExplored(exploreRequestDto);
 
@@ -100,4 +90,55 @@ public class ExploreService {
 
 		return ExplorePageDto.of(total, cursor, responseItems);
 	}
+
+	private static ExploreRequestDto makeExploreRequestDto(Integer year, Integer season, List<Long> genres, String type,
+        String sort, Long lastId, Integer lastValue, int size, int genresSize, String genreOpName, List<String> convert,
+        int typeConvertSize, String orderByQuery) {
+        if (year != null && season != null) {
+            RangeDate dateRange = SeasonConverter.getRangDate(year, season);
+            return ExploreRequestDto.of(
+                dateRange,
+                genres,
+                genresSize,
+                genreOpName,
+                convert,
+                typeConvertSize,
+                type,
+                sort,
+                orderByQuery,
+                lastId,
+                lastValue,
+                size
+            );
+        } else if (year != null) {
+            RangeDate dateRange = SeasonConverter.getYearRangDate(year);
+            return ExploreRequestDto.of(
+                dateRange,
+                genres,
+                genresSize,
+                genreOpName,
+                convert,
+                typeConvertSize,
+                type,
+                sort,
+                orderByQuery,
+                lastId,
+                lastValue,
+                size
+            );
+        }
+        return ExploreRequestDto.dateNullOf(
+            genres,
+            genresSize,
+            genreOpName,
+            convert,
+            typeConvertSize,
+            type,
+            sort,
+            orderByQuery,
+            lastId,
+            lastValue,
+            size
+        );
+    }
 }
