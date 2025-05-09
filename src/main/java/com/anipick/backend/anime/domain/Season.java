@@ -46,12 +46,7 @@ public enum Season {
 
     public boolean contains(LocalDate date) {
         int month = date.getMonthValue();
-        return switch (this) {
-            case Q1 -> (month >= 1 && month <= 3);
-            case Q2 -> (month >= 4 && month <= 6);
-            case Q3 -> (month >= 7 && month <= 9);
-            case Q4 -> (month >= 10 && month <= 12);
-        };
+        return month >= startMonth.getValue() && month <= endMonth.getValue();
     }
 
     private Season next() {
