@@ -6,8 +6,9 @@
 
     <!-- 공통 필터링(년도/분기/타입) -->
     <sql id="commonFilters">
-        <if test="year != null">AND a.season_year = #{year}</if>
-        <if test="season != null and year != null">AND a.season_int = #{season}</if>
+        <if test="startDate != null and endDate != null">
+            AND a.start_date BETWEEN #{startDate} AND #{endDate}
+        </if>
         <if test="typeConvertSize &gt; 0">
             AND a.format IN
             <foreach item="f" collection="types" open="(" separator="," close=")">

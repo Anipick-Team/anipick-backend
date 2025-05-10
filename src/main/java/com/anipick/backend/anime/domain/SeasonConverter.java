@@ -7,6 +7,9 @@ public class SeasonConverter {
 
     // 년도만 눌렀을 때의 범위 날짜 (탐색용)
     public static RangeDate getYearRangDate(int year) {
+        if (year < 0) {
+            return null;
+        }
         final String startDate = "%d-01-01".formatted(year);
         final String endDate = "%d-12-31".formatted(year);
         return new RangeDate(startDate, endDate);
@@ -14,6 +17,9 @@ public class SeasonConverter {
 
     // 년도+분기 눌렀을 때의 범위 날짜 (탐색용)
     public static RangeDate getRangDate(int year, int quarter) {
+        if (year < 0 || quarter < 0) {
+            return null;
+        }
         final Season nextSeason = Season.getByCode(quarter);
         final int startMonth = nextSeason.getStartMonth().getValue();
         final int endMonth = nextSeason.getEndMonth().getValue();
