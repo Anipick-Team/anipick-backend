@@ -1,4 +1,4 @@
-package com.anipick.backend.user.dto;
+package com.anipick.backend.user.controller.dto;
 
 import lombok.Getter;
 

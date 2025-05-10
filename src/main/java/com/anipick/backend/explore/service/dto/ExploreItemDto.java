@@ -1,4 +1,4 @@
-package com.anipick.backend.explore.dto;
+package com.anipick.backend.explore.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

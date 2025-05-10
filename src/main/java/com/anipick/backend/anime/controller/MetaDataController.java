@@ -1,6 +1,6 @@
 package com.anipick.backend.anime.controller;
 
-import com.anipick.backend.anime.dto.MetaDataGroupResultDto;
+import com.anipick.backend.anime.controller.dto.MetaDataGroupResultDto;
 import com.anipick.backend.anime.service.MetaDataService;
 import com.anipick.backend.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;

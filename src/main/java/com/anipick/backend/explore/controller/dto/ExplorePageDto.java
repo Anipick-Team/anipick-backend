@@ -1,4 +1,4 @@
-package com.anipick.backend.explore.dto;
+package com.anipick.backend.explore.controller.dto;
 
 import com.anipick.backend.anime.common.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;

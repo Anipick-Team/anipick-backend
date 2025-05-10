@@ -1,6 +1,8 @@
-package com.anipick.backend.review.dto;
+package com.anipick.backend.review.controller.dto;
 
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.review.service.dto.RecentReviewItemDto;
+
 import lombok.*;
 
 import java.util.List;
