@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.anime.mapper.AnimeMapper">
+    <select id="selectUpcomingSeasonAnimes"
+            parameterType="com.anipick.backend.anime.service.dto.RangeDateRequestDto"
+            resultType="com.anipick.backend.anime.service.dto.AnimeIdTitleImgItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS tile,
+               a.cover_image_url AS coverImageUrl
+        FROM Anime a
+        JOIN PopularityAnimeOrder pao
+            ON a.anime_id = pao.anime_id
+        WHERE a.start_date BETWEEN #{startDate} AND #{endDate}
+        AND a.status = 'NOT_YET_RELEASED'
+        ORDER BY pao.popularity_anime_order_id
+            LIMIT 30
+    </select>
+</mapper>
