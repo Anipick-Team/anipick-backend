@@ -1,7 +1,7 @@
 package com.anipick.backend.review.controller;
 
 import com.anipick.backend.common.dto.ApiResponse;
-import com.anipick.backend.review.dto.RecentReviewPageDto;
+import com.anipick.backend.review.controller.dto.RecentReviewPageDto;
 import com.anipick.backend.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -2,9 +2,9 @@ package com.anipick.backend.anime.service;
 
 import com.anipick.backend.anime.domain.AnimeFormat;
 import com.anipick.backend.anime.domain.Season;
-import com.anipick.backend.anime.dto.GenreDto;
-import com.anipick.backend.anime.dto.MetaDataGroupResultDto;
-import com.anipick.backend.anime.dto.SeasonDto;
+import com.anipick.backend.anime.service.dto.GenreDto;
+import com.anipick.backend.anime.controller.dto.MetaDataGroupResultDto;
+import com.anipick.backend.anime.service.dto.SeasonDto;
 import com.anipick.backend.anime.mapper.MetaDataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

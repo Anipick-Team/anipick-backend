@@ -19,7 +19,7 @@
 
     <!-- 전체 카운터 -->
     <select id="countExplored"
-            parameterType="com.anipick.backend.explore.dto.ExploreRequestDto"
+            parameterType="com.anipick.backend.explore.service.dto.ExploreRequestDto"
             resultType="long">
         SELECT COUNT(DISTINCT a.anime_id)
         FROM Anime a
@@ -55,8 +55,8 @@
 
     <!-- 탐색 조회 -->
     <select id="selectExplored"
-            parameterType="com.anipick.backend.explore.dto.ExploreRequestDto"
-            resultType="com.anipick.backend.explore.dto.ExploreItemDto">
+            parameterType="com.anipick.backend.explore.service.dto.ExploreRequestDto"
+            resultType="com.anipick.backend.explore.service.dto.ExploreItemDto">
         SELECT
         a.anime_id        AS id,
         a.title_kor       AS title,

@@ -6,7 +6,7 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
-import com.anipick.backend.user.dto.SignUpRequest;
+import com.anipick.backend.user.controller.dto.SignUpRequest;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

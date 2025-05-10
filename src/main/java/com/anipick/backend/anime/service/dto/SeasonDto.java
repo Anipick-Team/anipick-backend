@@ -1,4 +1,4 @@
-package com.anipick.backend.anime.dto;
+package com.anipick.backend.anime.service.dto;
 
 import com.anipick.backend.anime.domain.Season;
 import lombok.AllArgsConstructor;
