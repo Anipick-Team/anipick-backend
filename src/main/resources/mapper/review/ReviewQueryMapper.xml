@@ -19,7 +19,7 @@
           AND R.is_spoiler = false
     </select>
 
-    <select id="selectRecentReviews" resultType="com.anipick.backend.review.service.dto.RecentReviewItemDto">
+    <select id="selectRecentReviews" resultType="com.anipick.backend.review.dto.RecentReviewItemDto">
         SELECT
             r.review_id AS reviewId,
             r.anime_id AS animeId,

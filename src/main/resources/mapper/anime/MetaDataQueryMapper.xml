@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.anipick.backend.anime.mapper.MetaDataMapper">
-    <select id="selectAllGenres" resultType="com.anipick.backend.anime.service.dto.GenreDto">
+    <select id="selectAllGenres" resultType="com.anipick.backend.anime.dto.GenreDto">
         SELECT genre_id AS id, genre_kor AS name
         FROM Genres
         ORDER BY genre_id

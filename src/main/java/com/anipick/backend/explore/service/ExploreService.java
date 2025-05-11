@@ -1,15 +1,15 @@
 package com.anipick.backend.explore.service;
 
-import com.anipick.backend.anime.common.dto.AnimeItemDto;
-import com.anipick.backend.anime.common.util.FormatConvert;
+import com.anipick.backend.anime.dto.AnimeItemDto;
+import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.anime.domain.RangeDate;
 import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.explore.domain.GenresOption;
-import com.anipick.backend.explore.service.dto.ExploreItemDto;
-import com.anipick.backend.explore.controller.dto.ExplorePageDto;
-import com.anipick.backend.explore.service.dto.ExploreRequestDto;
+import com.anipick.backend.explore.dto.ExploreItemDto;
+import com.anipick.backend.explore.dto.ExplorePageDto;
+import com.anipick.backend.explore.dto.ExploreRequestDto;
 import com.anipick.backend.explore.mapper.ExploreMapper;
 
 import lombok.RequiredArgsConstructor;
