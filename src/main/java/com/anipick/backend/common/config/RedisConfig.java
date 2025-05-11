@@ -1,5 +1,6 @@
 package com.anipick.backend.common.config;
 
+import com.anipick.backend.token.domain.RefreshToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,19 @@ public class RedisConfig {
         redisTemplate.setKeySerializer(new StringRedisSerializer());
 
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, RefreshToken> refreshTokenRedisTemplate() {
+        RedisTemplate<String, RefreshToken> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+
+        Jackson2JsonRedisSerializer<RefreshToken> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(RefreshToken.class);
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 
         return redisTemplate;
