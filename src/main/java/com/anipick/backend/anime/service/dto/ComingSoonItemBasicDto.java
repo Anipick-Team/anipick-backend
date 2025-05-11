@@ -19,6 +19,8 @@ public class ComingSoonItemBasicDto {
     private String format;
     private Boolean isAdult;
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+
     public ComingSoonItemBasicDto typeToReleaseDate() {
         if (this.startDate == null || this.startDate.isBlank()) {
             this.startDate = "미정";
@@ -42,8 +44,7 @@ public class ComingSoonItemBasicDto {
         } else {
             //YYYY. MM. DD
             LocalDate date = LocalDate.parse(this.startDate);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-            this.startDate = date.format(formatter);
+            this.startDate = date.format(FORMATTER);
         }
         return this;
     }
