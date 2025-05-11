@@ -1,11 +1,13 @@
 package com.anipick.backend.anime.service.dto;
 
+import com.anipick.backend.anime.common.util.FormatConvert;
 import com.anipick.backend.anime.domain.Season;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -23,9 +25,9 @@ public class ComingSoonItemBasicDto {
             return this;
         }
 
-        if (this.format.equalsIgnoreCase("TV")
-                || this.format.equalsIgnoreCase("TV_SHORT")
-                || this.format.equalsIgnoreCase("ONA")) {
+        List<String> tvFormats = FormatConvert.toConvert("TVA");
+
+        if (tvFormats.stream().anyMatch(f -> f.equalsIgnoreCase(this.format))) {
             // YY년 Q분기
             String startDateStr = this.startDate;
             LocalDate date = LocalDate.parse(startDateStr);
