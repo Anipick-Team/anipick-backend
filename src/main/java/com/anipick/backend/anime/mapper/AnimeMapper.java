@@ -2,7 +2,7 @@ package com.anipick.backend.anime.mapper;
 
 import java.util.List;
 
-import com.anipick.backend.anime.service.dto.*;
+import com.anipick.backend.anime.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

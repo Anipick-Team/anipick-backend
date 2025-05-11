@@ -1,12 +1,10 @@
 package com.anipick.backend.anime.service;
 
-import com.anipick.backend.anime.controller.dto.ComingSoonPageDto;
-import com.anipick.backend.anime.controller.dto.UpcomingSeasonResultDto;
+import com.anipick.backend.anime.dto.*;
 import com.anipick.backend.anime.domain.RangeDate;
 import com.anipick.backend.anime.domain.Season;
 import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.AnimeMapper;
-import com.anipick.backend.anime.service.dto.*;
 
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;

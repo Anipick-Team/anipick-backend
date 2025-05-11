@@ -1,4 +1,4 @@
-package com.anipick.backend.explore.service.dto;
+package com.anipick.backend.explore.dto;
 
 import com.anipick.backend.anime.domain.RangeDate;
 import lombok.AllArgsConstructor;

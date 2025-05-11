@@ -1,7 +1,6 @@
-package com.anipick.backend.review.controller.dto;
+package com.anipick.backend.review.dto;
 
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.review.service.dto.RecentReviewItemDto;
 
 import lombok.*;
 

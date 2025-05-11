@@ -1,9 +1,7 @@
-package com.anipick.backend.anime.service.dto;
+package com.anipick.backend.anime.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor

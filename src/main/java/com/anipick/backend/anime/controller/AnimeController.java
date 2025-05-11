@@ -1,7 +1,7 @@
 package com.anipick.backend.anime.controller;
 
-import com.anipick.backend.anime.controller.dto.ComingSoonPageDto;
-import com.anipick.backend.anime.controller.dto.UpcomingSeasonResultDto;
+import com.anipick.backend.anime.dto.ComingSoonPageDto;
+import com.anipick.backend.anime.dto.UpcomingSeasonResultDto;
 import com.anipick.backend.anime.service.AnimeService;
 import com.anipick.backend.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;

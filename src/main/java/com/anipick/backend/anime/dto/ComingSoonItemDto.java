@@ -1,4 +1,4 @@
-package com.anipick.backend.anime.service;
+package com.anipick.backend.anime.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

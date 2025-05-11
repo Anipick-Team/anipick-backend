@@ -1,5 +1,6 @@
 package com.anipick.backend.anime.service.dto;
 
+import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
-package com.anipick.backend.anime.service.dto;
+package com.anipick.backend.anime.dto;
 
-import com.anipick.backend.anime.common.util.FormatConvert;
+import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.anime.domain.Season;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

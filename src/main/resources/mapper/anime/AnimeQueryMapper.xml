@@ -5,8 +5,8 @@
 
 <mapper namespace="com.anipick.backend.anime.mapper.AnimeMapper">
     <select id="selectUpcomingSeasonAnimes"
-            parameterType="com.anipick.backend.anime.service.dto.RangeDateRequestDto"
-            resultType="com.anipick.backend.anime.service.dto.AnimeIdTitleImgItemDto">
+            parameterType="com.anipick.backend.anime.dto.RangeDateRequestDto"
+            resultType="com.anipick.backend.anime.dto.AnimeIdTitleImgItemDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
                a.cover_image_url AS coverImageUrl
@@ -20,7 +20,7 @@
     </select>
 
     <select id="countComingSoon"
-        parameterType="com.anipick.backend.anime.service.dto.ComingSoonRequestDto"
+        parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
         resultType="long">
         SELECT COUNT(*)
         FROM Anime a
@@ -34,8 +34,8 @@
     </select>
 
     <select id="selectComingSoonLatestAnimes"
-            parameterType="com.anipick.backend.anime.service.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.service.dto.ComingSoonItemBasicDto">
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
                a.cover_image_url AS coverImageUrl,
@@ -58,8 +58,8 @@
     </select>
 
     <select id="selectComingSoonPopularityAnimes"
-            parameterType="com.anipick.backend.anime.service.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.service.dto.ComingSoonItemPopularityDto">
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemPopularityDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
                a.cover_image_url AS coverImageUrl,
@@ -85,8 +85,8 @@
     </select>
 
     <select id="selectComingSoonStartDateAnimes"
-            parameterType="com.anipick.backend.anime.service.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.service.dto.ComingSoonItemBasicDto">
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
                a.cover_image_url AS coverImageUrl,
