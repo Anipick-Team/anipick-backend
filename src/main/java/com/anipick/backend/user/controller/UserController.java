@@ -2,9 +2,9 @@ package com.anipick.backend.user.controller;
 
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.token.dto.TokenResponse;
-import com.anipick.backend.user.controller.dto.LoginRequest;
+import com.anipick.backend.user.dto.LoginRequest;
 import com.anipick.backend.user.domain.User;
-import com.anipick.backend.user.controller.dto.SignUpRequest;
+import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
