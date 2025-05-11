@@ -102,9 +102,15 @@
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <if test="lastValue != null">
-            AND ( a.start_date &gt; #{lastValue}
+            AND (
+            a.start_date &gt; #{lastValue}
             OR (a.start_date = #{lastValue} AND a.anime_id > #{lastId})
+            OR a.start_date IS NULL
             )
+        </if>
+        <if test="lastValue == null and lastId != null">
+            AND a.anime_id > #{lastId}
+            AND a.start_date IS NULL
         </if>
         ORDER BY a.start_date IS NULL ASC,
                  ${orderByQuery},
