@@ -65,102 +65,114 @@ public class AnimeService {
 
 		if (sort.equalsIgnoreCase("latest")) {
 			// 최신등록순
-			List<ComingSoonItemBasicDto> latestSortAnimes =
-					mapper.selectComingSoonLatestAnimes(comingSoonRequestDto);
-			List<ComingSoonItemBasicDto> imgFilterItems = latestSortAnimes.stream()
-					.map(ComingSoonItemBasicDto::typeToReleaseDate)
-					.collect(Collectors.toList());
-
-			List<ComingSoonItemDto> items = imgFilterItems.stream()
-					.map(b -> new ComingSoonItemDto(
-							b.getAnimeId(),
-							b.getTitle(),
-							b.getCoverImageUrl(),
-							b.getStartDate(),
-							b.getIsAdult()
-					))
-					.collect(Collectors.toList());
-
-			Long nextId;
-
-			if (items.isEmpty()) {
-				nextId = null;
-			} else {
-				nextId = items.get(items.size() - 1).getAnimeId();
-			}
-
-			CursorDto cursor = CursorDto.of(sort, nextId, null);
-			return ComingSoonPageDto.of(totalCount, cursor, items);
+			return getSortLatestComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
 
 		} else if (sort.equalsIgnoreCase("popularity")) {
 			// 인기순
-			List<ComingSoonItemPopularityDto> popularitySortAnimes =
-					mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto);
-			List<ComingSoonItemPopularityDto> imgFilterItems = popularitySortAnimes.stream()
-					.map(ComingSoonItemPopularityDto::typeToReleaseDate)
-					.collect(Collectors.toList());
-
-			Long nextId;
-
-			if (imgFilterItems.isEmpty()) {
-				nextId = null;
-			} else {
-				nextId = imgFilterItems.get(imgFilterItems.size() - 1).getPopularId();
-			}
-
-			List<ComingSoonItemDto> items = imgFilterItems.stream()
-					.map(b -> new ComingSoonItemDto(
-							b.getAnimeId(),
-							b.getTitle(),
-							b.getCoverImageUrl(),
-							b.getStartDate(),
-							b.getIsAdult()
-					))
-					.collect(Collectors.toList());
-
-			CursorDto cursor = CursorDto.of(sort, nextId, null);
-			return ComingSoonPageDto.of(totalCount, cursor, items);
+			return getSortPopularityComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
 
 		} else {
 			// 방영예정일순
-			List<ComingSoonItemBasicDto> starDateSortAnimes =
-					mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
-			List<ComingSoonItemBasicDto> imgFilterItems = starDateSortAnimes.stream()
-					.collect(Collectors.toList());
-
-			String nextValue;
-
-			if (imgFilterItems.isEmpty()) {
-				nextValue = null;
-			} else {
-				int lastIndex = imgFilterItems.size() - 1;
-				nextValue = imgFilterItems.get(lastIndex).getStartDate();
-			}
-
-			List<ComingSoonItemBasicDto> typeCovertAnimes = imgFilterItems.stream()
-					.map(ComingSoonItemBasicDto::typeToReleaseDate)
-					.collect(Collectors.toList());
-
-			List<ComingSoonItemDto> items = typeCovertAnimes.stream()
-					.map(b -> new ComingSoonItemDto(
-							b.getAnimeId(),
-							b.getTitle(),
-							b.getCoverImageUrl(),
-							b.getStartDate(),
-							b.getIsAdult()
-					))
-					.collect(Collectors.toList());
-
-			Long nextId;
-
-			if (starDateSortAnimes.isEmpty()) {
-				nextId = null;
-			} else {
-				int lastIndex = imgFilterItems.size() - 1;
-				nextId = imgFilterItems.get(lastIndex).getAnimeId();
-			}
-			CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
-			return ComingSoonPageDto.of(totalCount, cursor, items);
+			return getSortStartDateComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
 		}
+	}
+
+	private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+		List<ComingSoonItemBasicDto> latestSortAnimes =
+				mapper.selectComingSoonLatestAnimes(comingSoonRequestDto);
+		List<ComingSoonItemBasicDto> imgFilterItems = latestSortAnimes.stream()
+				.map(ComingSoonItemBasicDto::typeToReleaseDate)
+				.collect(Collectors.toList());
+
+		List<ComingSoonItemDto> items = imgFilterItems.stream()
+				.map(b -> new ComingSoonItemDto(
+						b.getAnimeId(),
+						b.getTitle(),
+						b.getCoverImageUrl(),
+						b.getStartDate(),
+						b.getIsAdult()
+				))
+				.collect(Collectors.toList());
+
+		Long nextId;
+
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.get(items.size() - 1).getAnimeId();
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId, null);
+		return ComingSoonPageDto.of(totalCount, cursor, items);
+	}
+
+	private ComingSoonPageDto getSortPopularityComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+		List<ComingSoonItemPopularityDto> popularitySortAnimes =
+				mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto);
+		List<ComingSoonItemPopularityDto> imgFilterItems = popularitySortAnimes.stream()
+				.map(ComingSoonItemPopularityDto::typeToReleaseDate)
+				.collect(Collectors.toList());
+
+		Long nextId;
+
+		if (imgFilterItems.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = imgFilterItems.get(imgFilterItems.size() - 1).getPopularId();
+		}
+
+		List<ComingSoonItemDto> items = imgFilterItems.stream()
+				.map(b -> new ComingSoonItemDto(
+						b.getAnimeId(),
+						b.getTitle(),
+						b.getCoverImageUrl(),
+						b.getStartDate(),
+						b.getIsAdult()
+				))
+				.collect(Collectors.toList());
+
+		CursorDto cursor = CursorDto.of(sort, nextId, null);
+		return ComingSoonPageDto.of(totalCount, cursor, items);
+	}
+
+	private ComingSoonPageDto getSortStartDateComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+		List<ComingSoonItemBasicDto> starDateSortAnimes =
+				mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
+		List<ComingSoonItemBasicDto> imgFilterItems = starDateSortAnimes.stream()
+				.collect(Collectors.toList());
+
+		String nextValue;
+
+		if (imgFilterItems.isEmpty()) {
+			nextValue = null;
+		} else {
+			int lastIndex = imgFilterItems.size() - 1;
+			nextValue = imgFilterItems.get(lastIndex).getStartDate();
+		}
+
+		List<ComingSoonItemBasicDto> typeCovertAnimes = imgFilterItems.stream()
+				.map(ComingSoonItemBasicDto::typeToReleaseDate)
+				.collect(Collectors.toList());
+
+		List<ComingSoonItemDto> items = typeCovertAnimes.stream()
+				.map(b -> new ComingSoonItemDto(
+						b.getAnimeId(),
+						b.getTitle(),
+						b.getCoverImageUrl(),
+						b.getStartDate(),
+						b.getIsAdult()
+				))
+				.collect(Collectors.toList());
+
+		Long nextId;
+
+		if (starDateSortAnimes.isEmpty()) {
+			nextId = null;
+		} else {
+			int lastIndex = imgFilterItems.size() - 1;
+			nextId = imgFilterItems.get(lastIndex).getAnimeId();
+		}
+		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
+		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
 }
