@@ -30,7 +30,7 @@
             AND
         </if>
             a.status = 'NOT_YET_RELEASED'
-        AND a.cover_image_url != 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg'
+        AND a.cover_image_url != #{defaultCoverUrl}
     </select>
 
     <select id="selectComingSoonLatestAnimes"
@@ -49,7 +49,7 @@
             AND
         </if>
             a.status = 'NOT_YET_RELEASED'
-        AND a.cover_image_url != 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg'
+        AND a.cover_image_url != #{defaultCoverUrl}
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
         </if>
@@ -76,7 +76,7 @@
             AND
         </if>
             a.status = 'NOT_YET_RELEASED'
-        AND a.cover_image_url != 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg'
+        AND a.cover_image_url != #{defaultCoverUrl}
         <if test="lastId != null">
             AND pao.popularity_anime_order_id > #{lastId}
         </if>
@@ -100,7 +100,7 @@
             AND
         </if>
             a.status = 'NOT_YET_RELEASED'
-        AND a.cover_image_url != 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg'
+        AND a.cover_image_url != #{defaultCoverUrl}
         <if test="lastValue != null">
             AND ( a.start_date &gt; #{lastValue}
             OR (a.start_date = #{lastValue} AND a.anime_id > #{lastId})

@@ -13,8 +13,16 @@ public class ComingSoonRequestDto {
     private Long size;
     private Long includeAdult;
     private String orderByQuery;
+    private String defaultCoverUrl;
 
-    public static ComingSoonRequestDto of(Long lastId, String lastValue, Long size, Long includeAdult, String orderByQuery) {
-        return new ComingSoonRequestDto(lastId, lastValue, size, includeAdult, orderByQuery);
+    public static ComingSoonRequestDto of(
+            Long lastId,
+            String lastValue,
+            Long size,
+            Long includeAdult,
+            String orderByQuery,
+            String defaultCoverUrl
+    ) {
+        return new ComingSoonRequestDto(lastId, lastValue, size, includeAdult, orderByQuery, defaultCoverUrl);
     }
 }

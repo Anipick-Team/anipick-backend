@@ -13,6 +13,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +26,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AnimeService {
 	private final AnimeMapper mapper;
+	@Value("${anime.default-cover-url}")
+	private String defaultCoverUrl;
 
 	public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
 		LocalDate now = LocalDate.now();
@@ -64,7 +67,7 @@ public class AnimeService {
 		String orderByQuery = sortOption.getOrderByQuery();
 
 		ComingSoonRequestDto comingSoonRequestDto =
-				ComingSoonRequestDto.of(lastId, lastValue, size, includeAdult, orderByQuery);
+				ComingSoonRequestDto.of(lastId, lastValue, size, includeAdult, orderByQuery, defaultCoverUrl);
 
 		long totalCount = mapper.countComingSoon(comingSoonRequestDto);
 
