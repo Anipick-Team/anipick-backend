@@ -63,7 +63,6 @@ public class AnimeService {
 			String sort, Long lastId, Long size, Long includeAdult, String lastValue
 	) {
 		SortOption sortOption = SortOption.of(sort);
-		String sortName = sortOption.getCode();
 		String orderByQuery = sortOption.getOrderByQuery();
 
 		ComingSoonRequestDto comingSoonRequestDto =
@@ -72,11 +71,11 @@ public class AnimeService {
 		long totalCount = mapper.countComingSoon(comingSoonRequestDto);
 
 
-        switch (sortName) {
-            case "latest" -> {
+        switch (sortOption) {
+			case LATEST -> {
                 return getSortLatestComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
             }
-            case "popularity" -> {
+			case POPULARITY -> {
                 return getSortPopularityComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
             }
             default -> {

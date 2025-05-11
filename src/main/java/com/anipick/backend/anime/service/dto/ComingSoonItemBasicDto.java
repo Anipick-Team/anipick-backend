@@ -29,7 +29,7 @@ public class ComingSoonItemBasicDto {
 
         List<String> tvFormats = FormatConvert.toConvert("TVA");
 
-        if (tvFormats.stream().anyMatch(f -> f.equalsIgnoreCase(this.format))) {
+        if (tvFormats.contains(this.format)) {
             // YY년 Q분기
             String startDateStr = this.startDate;
             LocalDate date = LocalDate.parse(startDateStr);
