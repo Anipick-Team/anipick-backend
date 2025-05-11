@@ -8,6 +8,7 @@ import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.anime.service.dto.*;
 
+import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,23 +59,27 @@ public class AnimeService {
 	public ComingSoonPageDto getComingSoonAnimes(
 			String sort, Long lastId, int size, int includeAdult, String lastValue
 	) {
+		SortOption sortOption = SortOption.of(sort);
+		String sortName = sortOption.getCode();
+		String orderByQuery = sortOption.getOrderByQuery();
+
 		ComingSoonRequestDto comingSoonRequestDto =
-				ComingSoonRequestDto.of(lastId, lastValue, size, includeAdult);
+				ComingSoonRequestDto.of(lastId, lastValue, size, includeAdult, orderByQuery);
 
 		long totalCount = mapper.countComingSoon(comingSoonRequestDto);
 
-		if (sort.equalsIgnoreCase("latest")) {
-			// 최신등록순
-			return getSortLatestComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
 
-		} else if (sort.equalsIgnoreCase("popularity")) {
-			// 인기순
-			return getSortPopularityComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
-
-		} else {
-			// 방영예정일순
-			return getSortStartDateComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
-		}
+        switch (sortName) {
+            case "latest" -> {
+                return getSortLatestComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
+            }
+            case "popularity" -> {
+                return getSortPopularityComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
+            }
+            default -> {
+                return getSortStartDateComingSoonAnimes(sort, comingSoonRequestDto, totalCount);
+            }
+        }
 	}
 
 	private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
