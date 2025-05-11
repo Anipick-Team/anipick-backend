@@ -28,8 +28,8 @@ public class AnimeController {
 	public ApiResponse<ComingSoonPageDto> getComingSoonAnimes(
 			@RequestParam(value = "sort", defaultValue = "latest") String sort,
 			@RequestParam(value = "lastId", required = false) Long lastId,
-			@RequestParam(value = "size", defaultValue = "18") int size,
-			@RequestParam(value = "includeAdult", defaultValue = "0") int includeAdult,
+			@RequestParam(value = "size", defaultValue = "18") Long size,
+			@RequestParam(value = "includeAdult", defaultValue = "0") Long includeAdult,
 			@RequestParam(value = "lastValue", required = false) String lastValue
 	) {
 		// TODO: JWT 연동 후 실제 user parameter 추가

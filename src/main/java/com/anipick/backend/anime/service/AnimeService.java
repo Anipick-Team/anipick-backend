@@ -57,7 +57,7 @@ public class AnimeService {
 	}
 
 	public ComingSoonPageDto getComingSoonAnimes(
-			String sort, Long lastId, int size, int includeAdult, String lastValue
+			String sort, Long lastId, Long size, Long includeAdult, String lastValue
 	) {
 		SortOption sortOption = SortOption.of(sort);
 		String sortName = sortOption.getCode();
