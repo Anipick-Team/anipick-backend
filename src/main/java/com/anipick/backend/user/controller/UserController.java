@@ -7,7 +7,6 @@ import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,14 +16,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<User>> signUp(@RequestBody SignUpRequest request) {
-        ApiResponse<User> response = userService.signUp(request);
-        return ResponseEntity.ok(response);
+    public ApiResponse<User> signUp(@RequestBody SignUpRequest request) {
+        User user = userService.signUp(request);
+        return ApiResponse.success(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody LoginRequest request) {
-        ApiResponse<TokenResponse> response = userService.doLogin(request);
-        return ResponseEntity.ok(response);
+    public ApiResponse<TokenResponse> login(@RequestBody LoginRequest request) {
+        TokenResponse response = userService.doLogin(request);
+        return ApiResponse.success(response);
     }
 }

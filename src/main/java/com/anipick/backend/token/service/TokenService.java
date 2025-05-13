@@ -33,7 +33,7 @@ public class TokenService {
         return TokenResponse.fromPairToken(accessToken, refreshToken);
     }
 
-    public ApiResponse<TokenResponse> reissueToken(HttpServletRequest request) {
+    public TokenResponse reissueToken(HttpServletRequest request) {
         String requestedToken = jwtTokenProvider.resolveAccessToken(request);
         String email = jwtTokenProvider.getEmailFromToken(requestedToken);
 
@@ -45,6 +45,6 @@ public class TokenService {
 
         String newAccessToken = jwtTokenProvider.createAccessToken(email);
 
-        return ApiResponse.success(TokenResponse.fromPairToken(newAccessToken, requestedToken));
+        return TokenResponse.fromPairToken(newAccessToken, requestedToken);
     }
 }

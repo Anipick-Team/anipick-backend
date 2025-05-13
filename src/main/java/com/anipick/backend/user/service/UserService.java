@@ -26,7 +26,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
-    public ApiResponse<User> signUp(SignUpRequest request) {
+    public User signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -61,14 +61,14 @@ public class UserService {
 
         userMapper.insertUser(user);
 
-        return ApiResponse.success(user);
+        return user;
     }
 
     private boolean checkDuplicateEmail(String email) {
         return userMapper.findByEmail(email).isPresent();
     }
 
-    public ApiResponse<TokenResponse> doLogin(LoginRequest request) {
+    public TokenResponse doLogin(LoginRequest request) {
         User user = userMapper.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
 
@@ -76,7 +76,6 @@ public class UserService {
             throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
         }
 
-        TokenResponse tokenResponse = tokenService.generateAndSaveTokens(user.getEmail());
-        return ApiResponse.success(tokenResponse);
+        return tokenService.generateAndSaveTokens(user.getEmail());
     }
 }
