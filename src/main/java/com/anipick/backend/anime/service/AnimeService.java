@@ -104,7 +104,7 @@ public class AnimeService {
 		if (items.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = items.get(items.size() - 1).getAnimeId();
+			nextId = items.getLast().getAnimeId();
 		}
 
 		CursorDto cursor = CursorDto.of(sort, nextId, null);
@@ -123,7 +123,7 @@ public class AnimeService {
 		if (imgFilterItems.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.get(imgFilterItems.size() - 1).getPopularId();
+			nextId = imgFilterItems.getLast().getPopularId();
 		}
 
 		List<ComingSoonItemDto> items = imgFilterItems.stream()
@@ -151,8 +151,7 @@ public class AnimeService {
 		if (imgFilterItems.isEmpty()) {
 			nextValue = null;
 		} else {
-			int lastIndex = imgFilterItems.size() - 1;
-			nextValue = imgFilterItems.get(lastIndex).getStartDate();
+			nextValue = imgFilterItems.getLast().getStartDate();
 		}
 
 		List<ComingSoonItemBasicDto> typeCovertAnimes = imgFilterItems.stream()
@@ -174,8 +173,7 @@ public class AnimeService {
 		if (starDateSortAnimes.isEmpty()) {
 			nextId = null;
 		} else {
-			int lastIndex = imgFilterItems.size() - 1;
-			nextId = imgFilterItems.get(lastIndex).getAnimeId();
+			nextId = imgFilterItems.getLast().getAnimeId();
 		}
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);
