@@ -51,4 +51,26 @@
         ORDER BY v.voiceactor_id DESC
         LIMIT #{size}
     </select>
+
+    <select id="countSearchStudio" parameterType="string" resultType="long">
+        SELECT COUNT(*)
+        FROM Studio s
+        WHERE s.name_kor LIKE #{queryPattern}
+           OR s.name_eng LIKE #{queryPattern}
+    </select>
+
+    <select id="selectSearchStudios" parameterType="map" resultType="com.anipick.backend.search.dto.StudioItemDto">
+        SELECT s.studio_id AS studioId,
+        s.name_kor AS name
+        FROM Studio s
+        WHERE (
+        s.name_kor LIKE #{queryPattern}
+        OR s.name_eng LIKE #{queryPattern}
+        )
+        <if test="lastId != null">
+            AND s.studio_id &lt; #{lastId}
+        </if>
+        ORDER BY s.studio_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>

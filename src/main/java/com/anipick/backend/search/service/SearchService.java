@@ -9,6 +9,8 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.search.dto.PersonItemDto;
 import com.anipick.backend.search.dto.SearchAnimePageDto;
 import com.anipick.backend.search.dto.SearchPersonPageDto;
+import com.anipick.backend.search.dto.SearchStudioPageDto;
+import com.anipick.backend.search.dto.StudioItemDto;
 import com.anipick.backend.search.mapper.SearchMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -56,5 +58,25 @@ public class SearchService {
 		CursorDto cursor = 	CursorDto.of(nextId);
 
 		return new SearchPersonPageDto(totalCount, cursor, items);
+	}
+
+	public SearchStudioPageDto findSearchStudios(String query, Long lastId, Long size) {
+		String queryPattern = "%" + query + "%";
+
+		long totalCount = mapper.countSearchStudio(queryPattern);
+
+		List<StudioItemDto> items = mapper.selectSearchStudios(queryPattern, lastId, size);
+
+		Long nextId;
+
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getStudioId();
+		}
+
+		CursorDto cursor = 	CursorDto.of(nextId);
+
+		return new SearchStudioPageDto(totalCount, cursor, items);
 	}
 }
