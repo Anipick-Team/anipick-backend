@@ -35,7 +35,7 @@ public class SearchService {
 			nextId = items.getLast().getId();
 		}
 
-		CursorDto cursor = 	CursorDto.of(nextId);
+		CursorDto cursor = CursorDto.of(nextId);
 
 		return new SearchAnimePageDto(totalCount, cursor, items);
 	}
@@ -55,7 +55,7 @@ public class SearchService {
 			nextId = items.getLast().getPersonId();
 		}
 
-		CursorDto cursor = 	CursorDto.of(nextId);
+		CursorDto cursor = CursorDto.of(nextId);
 
 		return new SearchPersonPageDto(totalCount, cursor, items);
 	}
@@ -75,7 +75,7 @@ public class SearchService {
 			nextId = items.getLast().getStudioId();
 		}
 
-		CursorDto cursor = 	CursorDto.of(nextId);
+		CursorDto cursor = CursorDto.of(nextId);
 
 		return new SearchStudioPageDto(totalCount, cursor, items);
 	}
