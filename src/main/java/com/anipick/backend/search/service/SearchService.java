@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.search.dto.PersonItemDto;
 import com.anipick.backend.search.dto.SearchAnimePageDto;
+import com.anipick.backend.search.dto.SearchPersonPageDto;
 import com.anipick.backend.search.mapper.SearchMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,5 +36,25 @@ public class SearchService {
 		CursorDto cursor = 	CursorDto.of(nextId);
 
 		return new SearchAnimePageDto(totalCount, cursor, items);
+	}
+
+	public SearchPersonPageDto findSearchPersons(String query, Long lastId, Long size) {
+		String queryPattern = "%" + query + "%";
+
+		long totalCount = mapper.countSearchPerson(queryPattern);
+
+		List<PersonItemDto> items = mapper.selectSearchPersons(queryPattern, lastId, size);
+
+		Long nextId;
+
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getPersonId();
+		}
+
+		CursorDto cursor = 	CursorDto.of(nextId);
+
+		return new SearchPersonPageDto(totalCount, cursor, items);
 	}
 }

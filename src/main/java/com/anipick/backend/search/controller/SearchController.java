@@ -9,6 +9,7 @@ import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.search.dto.SearchAnimePageDto;
+import com.anipick.backend.search.dto.SearchPersonPageDto;
 import com.anipick.backend.search.service.SearchService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,19 @@ public class SearchController {
 		}
 		SearchAnimePageDto searchAnimes = searchService.findSearchAnimes(query, lastId, size);
 		return ApiResponse.success(searchAnimes);
+	}
+
+	@GetMapping("/persons")
+	public ApiResponse<SearchPersonPageDto> findSearchPersons(
+		@RequestParam("query") String query,
+		@RequestParam(value = "lastId", required = false) Long lastId,
+		@RequestParam(value = "size", defaultValue = "18") Long size
+	) {
+		// TODO: JWT 연동 후 실제 user parameter 추가
+		if (query == null || query.isBlank()) {
+			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
+		}
+		SearchPersonPageDto searchPersons = searchService.findSearchPersons(query, lastId, size);
+		return ApiResponse.success(searchPersons);
 	}
 }

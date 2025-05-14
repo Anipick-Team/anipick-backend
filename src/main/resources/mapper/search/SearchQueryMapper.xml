@@ -28,4 +28,27 @@
         ORDER BY a.anime_id DESC
         LIMIT #{size}
     </select>
+
+    <select id="countSearchPerson" parameterType="string" resultType="long">
+        SELECT COUNT(*)
+        FROM Voiceactor v
+        WHERE v.name_kor LIKE #{queryPattern}
+        OR v.name_eng LIKE #{queryPattern}
+    </select>
+
+    <select id="selectSearchPersons" parameterType="map" resultType="com.anipick.backend.search.dto.PersonItemDto">
+        SELECT v.voiceactor_id AS personId,
+               v.name_kor AS name,
+               v.profile_image AS profileImage
+        FROM VoiceActor v
+        WHERE (
+            v.name_kor LIKE #{queryPattern}
+            OR v.name_eng LIKE #{queryPattern}
+            )
+        <if test="lastId != null">
+            AND v.voiceactor_id &lt; #{lastId}
+        </if>
+        ORDER BY v.voiceactor_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>
