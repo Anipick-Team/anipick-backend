@@ -1,25 +1,28 @@
 package com.anipick.backend.token.service;
 
 import com.anipick.backend.common.auth.JwtTokenProvider;
-import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.domain.RefreshToken;
 import com.anipick.backend.token.dto.TokenResponse;
-import com.anipick.backend.user.domain.UserDefaults;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Service
-@RequiredArgsConstructor
 public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, RefreshToken> redisTemplate;
-    Duration duration = Duration.ofDays(UserDefaults.DEFAULT_REFRESH_TOKEN_EXPIRATION_DAYS);
+    private final int refreshTokenExpireTime;
+
+    public TokenService(JwtTokenProvider jwtTokenProvider, RedisTemplate<String, RefreshToken> redisTemplate, @Value("${jwt.refresh-token-expire-time}") int refreshTokenExpireTime) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.redisTemplate = redisTemplate;
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
+    }
 
     public TokenResponse generateAndSaveTokens(String email) {
         String accessToken = jwtTokenProvider.createAccessToken(email);
@@ -28,6 +31,8 @@ public class TokenService {
         RefreshToken savedRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
                 .build();
+
+        Duration duration = Duration.ofMillis(refreshTokenExpireTime);
         redisTemplate.opsForValue().set(email, savedRefreshToken, duration);
 
         return TokenResponse.fromPairToken(accessToken, refreshToken);
