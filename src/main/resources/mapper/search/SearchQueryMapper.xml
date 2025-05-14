@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.search.mapper.SearchMapper">
+    <select id="countSearchAnime" parameterType="string" resultType="long">
+        SELECT COUNT(*)
+        FROM Anime a
+        WHERE a.title_kor LIKE #{queryPattern}
+        OR a.title_english LIKE #{queryPattern}
+        OR a.title_romaj LIKE #{queryPattern}
+    </select>
+
+    <select id="selectSearchAnimes" parameterType="map" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl
+        FROM Anime a
+        WHERE (
+            a.title_kor LIKE #{queryPattern}
+            OR a.title_english LIKE #{queryPattern}
+            OR a.title_romaj LIKE #{queryPattern}
+            )
+        <if test="lastId != null">
+            AND a.anime_id &lt; #{lastId}
+        </if>
+        ORDER BY a.anime_id DESC
+        LIMIT #{size}
+    </select>
+</mapper>

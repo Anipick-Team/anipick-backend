@@ -46,7 +46,11 @@ public enum ErrorCode {
 	/**
 	 * Anime Explore
 	 */
-	EMPTY_YEAR(601, "년도를 입력하지 않음", "년도를 입력해 주세요.");
+	EMPTY_YEAR(601, "년도를 입력하지 않음", "년도를 입력해 주세요."),
+	/**
+	 * Search
+	 */
+	EMPTY_KEYWORD(701, "검색 키워드를 입력하지 않음", "검색 키워드를 입력해 주세요.");
 
 	private final int code;
 	private final String errorReason;
