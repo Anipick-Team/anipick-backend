@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.explore.domain.GenresOption;
-import com.anipick.backend.explore.controller.dto.ExplorePageDto;
+import com.anipick.backend.explore.dto.ExplorePageDto;
 import com.anipick.backend.explore.service.ExploreService;
 
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,6 @@
-package com.anipick.backend.anime.controller.dto;
+package com.anipick.backend.anime.dto;
 
 import java.util.List;
-
-import com.anipick.backend.anime.service.dto.AnimeIdTitleImgItemDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

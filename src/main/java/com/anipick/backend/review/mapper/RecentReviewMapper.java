@@ -1,6 +1,6 @@
 package com.anipick.backend.review.mapper;
 
-import com.anipick.backend.review.service.dto.RecentReviewItemDto;
+import com.anipick.backend.review.dto.RecentReviewItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

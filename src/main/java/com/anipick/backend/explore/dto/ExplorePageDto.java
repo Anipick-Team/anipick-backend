@@ -1,6 +1,6 @@
-package com.anipick.backend.explore.controller.dto;
+package com.anipick.backend.explore.dto;
 
-import com.anipick.backend.anime.common.dto.AnimeItemDto;
+import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

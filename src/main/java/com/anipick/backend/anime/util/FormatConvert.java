@@ -1,4 +1,4 @@
-package com.anipick.backend.anime.common.util;
+package com.anipick.backend.anime.util;
 
 import java.util.Collections;
 import java.util.List;

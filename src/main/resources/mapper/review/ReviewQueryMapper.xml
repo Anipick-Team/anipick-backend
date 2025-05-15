@@ -16,10 +16,11 @@
                           FROM BlockedUser bu
                           WHERE bu.blocked_user_id = r.user_id
                             AND bu.user_id = #{currentUserId})
-          AND R.is_spoiler = false
+          AND r.is_spoiler = false
+          AND r.content IS NOT NULL
     </select>
 
-    <select id="selectRecentReviews" resultType="com.anipick.backend.review.service.dto.RecentReviewItemDto">
+    <select id="selectRecentReviews" resultType="com.anipick.backend.review.dto.RecentReviewItemDto">
         SELECT
             r.review_id AS reviewId,
             r.anime_id AS animeId,
@@ -45,6 +46,7 @@
         AND rl.user_id = #{currentUserId}
 
         WHERE r.is_spoiler = FALSE
+        AND r.content IS NOT NULL
         -- 신고된 리뷰는 제외
         AND NOT EXISTS (
             SELECT 1 FROM ReportedReview rr
