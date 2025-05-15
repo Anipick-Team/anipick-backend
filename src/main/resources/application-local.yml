@@ -21,8 +21,8 @@ spring:
 ---
 jwt:
   secret-key: ${SECRET_KEY}
-  access-token-expire-time: ${ACCESS_TOKEN_EXPIRE_TIME} # 1시간
-  refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME} # 7일
----
+  access-token-expire-time: ${ACCESS_TOKEN_EXPIRE_TIME}
+  refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME}
+  
 anime:
   default-cover-url: ${ANIME_DEFAULT_COVER_URL}

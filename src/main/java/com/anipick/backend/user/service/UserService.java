@@ -3,10 +3,13 @@ package com.anipick.backend.user.service;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.token.dto.TokenResponse;
+import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.user.dto.LoginRequest;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
-import com.anipick.backend.user.controller.dto.SignUpRequest;
+import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +24,9 @@ import java.time.LocalDateTime;
 public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public ApiResponse<User> signUp(SignUpRequest request) {
+    public User signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -57,10 +61,21 @@ public class UserService {
 
         userMapper.insertUser(user);
 
-        return ApiResponse.success(user);
+        return user;
     }
 
     private boolean checkDuplicateEmail(String email) {
         return userMapper.findByEmail(email).isPresent();
+    }
+
+    public TokenResponse doLogin(LoginRequest request) {
+        User user = userMapper.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
+        }
+
+        return tokenService.generateAndSaveTokens(user.getEmail());
     }
 }
