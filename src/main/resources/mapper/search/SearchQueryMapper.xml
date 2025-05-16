@@ -7,9 +7,7 @@
     <select id="countSearchAnime" parameterType="string" resultType="long">
         SELECT COUNT(*)
         FROM Anime a
-        WHERE a.title_kor LIKE #{queryPattern}
-        OR a.title_english LIKE #{queryPattern}
-        OR a.title_romaj LIKE #{queryPattern}
+        WHERE a.title_search LIKE CONCAT('%', #{query}, '%')
     </select>
 
     <select id="selectSearchAnimes" parameterType="map" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
@@ -18,9 +16,7 @@
                a.cover_image_url AS coverImageUrl
         FROM Anime a
         WHERE (
-            a.title_kor LIKE #{queryPattern}
-            OR a.title_english LIKE #{queryPattern}
-            OR a.title_romaj LIKE #{queryPattern}
+            a.title_search LIKE CONCAT('%', #{query}, '%')
             )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
@@ -32,8 +28,7 @@
     <select id="countSearchPerson" parameterType="string" resultType="long">
         SELECT COUNT(*)
         FROM Voiceactor v
-        WHERE v.name_kor LIKE #{queryPattern}
-        OR v.name_eng LIKE #{queryPattern}
+        WHERE v.name_search LIKE CONCAT('%', #{query}, '%')
     </select>
 
     <select id="selectSearchPersons" parameterType="map" resultType="com.anipick.backend.search.dto.PersonItemDto">
@@ -42,8 +37,7 @@
                v.profile_image AS profileImage
         FROM VoiceActor v
         WHERE (
-            v.name_kor LIKE #{queryPattern}
-            OR v.name_eng LIKE #{queryPattern}
+            v.name_search LIKE CONCAT('%', #{query}, '%')
             )
         <if test="lastId != null">
             AND v.voiceactor_id &lt; #{lastId}
@@ -55,8 +49,7 @@
     <select id="countSearchStudio" parameterType="string" resultType="long">
         SELECT COUNT(*)
         FROM Studio s
-        WHERE s.name_kor LIKE #{queryPattern}
-           OR s.name_eng LIKE #{queryPattern}
+        WHERE s.name_search LIKE CONCAT('%', #{query}, '%')
     </select>
 
     <select id="selectSearchStudios" parameterType="map" resultType="com.anipick.backend.search.dto.StudioItemDto">
@@ -64,8 +57,7 @@
         s.name_kor AS name
         FROM Studio s
         WHERE (
-        s.name_kor LIKE #{queryPattern}
-        OR s.name_eng LIKE #{queryPattern}
+        s.name_search LIKE CONCAT('%', #{query}, '%')
         )
         <if test="lastId != null">
             AND s.studio_id &lt; #{lastId}

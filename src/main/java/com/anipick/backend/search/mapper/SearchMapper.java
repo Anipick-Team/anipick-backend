@@ -11,26 +11,26 @@ import com.anipick.backend.search.dto.StudioItemDto;
 
 @Mapper
 public interface SearchMapper {
-	long countSearchAnime(@Param(value = "queryPattern") String queryPattern);
+	long countSearchAnime(@Param(value = "query") String query);
 
 	List<AnimeItemDto> selectSearchAnimes(
-		@Param(value = "queryPattern") String queryPattern,
+		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size
 	);
 
-	long countSearchPerson(@Param(value = "queryPattern") String queryPattern);
+	long countSearchPerson(@Param(value = "query") String query);
 
 	List<PersonItemDto> selectSearchPersons(
-		@Param(value = "queryPattern") String queryPattern,
+		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size
 	);
 
-	long countSearchStudio(@Param(value = "queryPattern") String queryPattern);
+	long countSearchStudio(@Param(value = "query") String query);
 
 	List<StudioItemDto> selectSearchStudios(
-		@Param(value = "queryPattern") String queryPattern,
+		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size
 	);

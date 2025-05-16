@@ -21,11 +21,10 @@ public class SearchService {
 	private final SearchMapper mapper;
 
 	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size) {
-		String queryPattern = "%" + query + "%";
 
-		long totalCount = mapper.countSearchAnime(queryPattern);
+		long totalCount = mapper.countSearchAnime(query);
 
-		List<AnimeItemDto> items = mapper.selectSearchAnimes(queryPattern, lastId, size);
+		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size);
 
 		Long nextId;
 
@@ -41,11 +40,9 @@ public class SearchService {
 	}
 
 	public SearchPersonPageDto findSearchPersons(String query, Long lastId, Long size) {
-		String queryPattern = "%" + query + "%";
+		long totalCount = mapper.countSearchPerson(query);
 
-		long totalCount = mapper.countSearchPerson(queryPattern);
-
-		List<PersonItemDto> items = mapper.selectSearchPersons(queryPattern, lastId, size);
+		List<PersonItemDto> items = mapper.selectSearchPersons(query, lastId, size);
 
 		Long nextId;
 
@@ -61,11 +58,9 @@ public class SearchService {
 	}
 
 	public SearchStudioPageDto findSearchStudios(String query, Long lastId, Long size) {
-		String queryPattern = "%" + query + "%";
+		long totalCount = mapper.countSearchStudio(query);
 
-		long totalCount = mapper.countSearchStudio(queryPattern);
-
-		List<StudioItemDto> items = mapper.selectSearchStudios(queryPattern, lastId, size);
+		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size);
 
 		Long nextId;
 
