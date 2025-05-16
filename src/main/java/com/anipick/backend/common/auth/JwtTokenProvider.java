@@ -4,6 +4,7 @@ import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,10 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     private final String secretKey;
+
+    @Getter
     private final int accessTokenExpiration;
+    @Getter
     private final int refreshTokenExpiration;
 
     public JwtTokenProvider(
@@ -65,7 +69,10 @@ public class JwtTokenProvider {
 
     public void validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(jwtSecretKey()).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(jwtSecretKey())
+                    .build()
+                    .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
