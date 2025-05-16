@@ -26,7 +26,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
-    public User signUp(SignUpRequest request) {
+    public void signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -60,8 +60,6 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
-
-        return user;
     }
 
     private boolean checkDuplicateEmail(String email) {
