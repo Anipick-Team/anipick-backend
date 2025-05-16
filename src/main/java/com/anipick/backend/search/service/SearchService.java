@@ -31,7 +31,7 @@ public class SearchService {
 		if (items.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = items.getLast().getId();
+			nextId = items.getLast().getAnimeId();
 		}
 
 		CursorDto cursor = CursorDto.of(nextId);
