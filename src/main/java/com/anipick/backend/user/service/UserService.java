@@ -1,6 +1,6 @@
 package com.anipick.backend.user.service;
 
-import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
@@ -11,8 +11,9 @@ import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
 import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.mapper.UserMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,12 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public void signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
@@ -75,5 +77,13 @@ public class UserService {
         }
 
         return tokenService.generateAndSaveTokens(user.getEmail());
+    }
+
+    public void doLogout(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resolveAccessToken(request);
+        jwtTokenProvider.validateToken(accessToken);
+        int accessTokenExpireTime = jwtTokenProvider.getAccessTokenExpiration();
+
+        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_BLACKLIST_FORMAT + accessToken, "logout", accessTokenExpireTime);
     }
 }
