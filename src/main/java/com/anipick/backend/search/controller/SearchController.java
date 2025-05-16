@@ -23,7 +23,7 @@ public class SearchController {
 
 	@GetMapping("/animes")
 	public ApiResponse<SearchAnimePageDto> findSearchAnimes(
-		@RequestParam("query") String query,
+		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "18") Long size
 	) {
@@ -37,7 +37,7 @@ public class SearchController {
 
 	@GetMapping("/persons")
 	public ApiResponse<SearchPersonPageDto> findSearchPersons(
-		@RequestParam("query") String query,
+		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "18") Long size
 	) {
@@ -51,7 +51,7 @@ public class SearchController {
 
 	@GetMapping("/studios")
 	public ApiResponse<SearchStudioPageDto> findSearchStudios(
-		@RequestParam("query") String query,
+		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "18") Long size
 	) {
