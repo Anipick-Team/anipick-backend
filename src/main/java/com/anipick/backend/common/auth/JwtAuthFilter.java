@@ -43,7 +43,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String emailFromToken = jwtTokenProvider.getEmailFromToken(accessToken);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(emailFromToken);
-                log.info("Authorities found: {}", userDetails.getAuthorities());
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -52,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error(e.getMessage());
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
+            response.setContentType("application/json;charset=UTF-8");
 
             ApiResponse<Object> apiResponse = ApiResponse.error(ErrorCode.REQUESTED_TOKEN_INVALID);
             ObjectMapper mapper = new ObjectMapper();
