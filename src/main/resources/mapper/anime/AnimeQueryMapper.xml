@@ -5,10 +5,10 @@
 
 <mapper namespace="com.anipick.backend.anime.mapper.AnimeMapper">
     <select id="selectUpcomingSeasonAnimes"
-            parameterType="com.anipick.backend.anime.service.dto.RangeDateRequestDto"
-            resultType="com.anipick.backend.anime.service.dto.AnimeIdTitleImgItemDto">
+            parameterType="com.anipick.backend.anime.dto.RangeDateRequestDto"
+            resultType="com.anipick.backend.anime.dto.AnimeIdTitleImgItemDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS tile,
+               a.title_kor AS title,
                a.cover_image_url AS coverImageUrl
         FROM Anime a
         JOIN PopularityAnimeOrder pao
@@ -17,5 +17,104 @@
         AND a.status = 'NOT_YET_RELEASED'
         ORDER BY pao.popularity_anime_order_id
             LIMIT 30
+    </select>
+
+    <select id="countComingSoon"
+        parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+        resultType="long">
+        SELECT COUNT(*)
+        FROM Anime a
+            WHERE
+        <if test="includeAdult != 1">
+            a.is_adult = #{includeAdult}
+            AND
+        </if>
+            a.status = 'NOT_YET_RELEASED'
+        AND a.cover_image_url != #{defaultCoverUrl}
+    </select>
+
+    <select id="selectComingSoonLatestAnimes"
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate,
+               a.format AS format,
+               a.is_adult AS isAdult
+        FROM Anime a
+        WHERE
+         <if test="includeAdult != 1">
+            a.is_adult = #{includeAdult}
+            AND
+        </if>
+            a.status = 'NOT_YET_RELEASED'
+        AND a.cover_image_url != #{defaultCoverUrl}
+        <if test="lastId != null">
+            AND a.anime_id &lt; #{lastId}
+        </if>
+        ORDER BY ${orderByQuery}
+        LIMIT #{size}
+    </select>
+
+    <select id="selectComingSoonPopularityAnimes"
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemPopularityDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate,
+               a.format AS format,
+               pao.popularity_anime_order_id AS popularId,
+               a.is_adult AS isAdult
+        FROM Anime a
+        JOIN PopularityAnimeOrder pao
+        ON pao.anime_id = a.anime_id
+        WHERE
+         <if test="includeAdult != 1">
+            a.is_adult = #{includeAdult}
+            AND
+        </if>
+            a.status = 'NOT_YET_RELEASED'
+        AND a.cover_image_url != #{defaultCoverUrl}
+        <if test="lastId != null">
+            AND pao.popularity_anime_order_id > #{lastId}
+        </if>
+        ORDER BY ${orderByQuery}
+        LIMIT #{size}
+    </select>
+
+    <select id="selectComingSoonStartDateAnimes"
+            parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate,
+               a.format AS format,
+               a.is_adult AS isAdult
+        FROM Anime a
+        WHERE
+         <if test="includeAdult != 1">
+            a.is_adult = #{includeAdult}
+            AND
+        </if>
+            a.status = 'NOT_YET_RELEASED'
+        AND a.cover_image_url != #{defaultCoverUrl}
+        <if test="lastValue != null">
+            AND (
+            a.start_date &gt; #{lastValue}
+            OR (a.start_date = #{lastValue} AND a.anime_id > #{lastId})
+            OR a.start_date IS NULL
+            )
+        </if>
+        <if test="lastValue == null and lastId != null">
+            AND a.anime_id > #{lastId}
+            AND a.start_date IS NULL
+        </if>
+        ORDER BY a.start_date IS NULL ASC,
+                 ${orderByQuery},
+                 a.anime_id
+        LIMIT #{size}
     </select>
 </mapper>

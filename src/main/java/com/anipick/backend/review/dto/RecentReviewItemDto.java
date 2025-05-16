@@ -1,4 +1,4 @@
-package com.anipick.backend.review.service.dto;
+package com.anipick.backend.review.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
 package com.anipick.backend.explore.mapper;
 
-import com.anipick.backend.explore.service.dto.ExploreItemDto;
-import com.anipick.backend.explore.service.dto.ExploreRequestDto;
+import com.anipick.backend.explore.dto.ExploreItemDto;
+import com.anipick.backend.explore.dto.ExploreRequestDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

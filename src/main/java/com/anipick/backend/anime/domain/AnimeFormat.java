@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AnimeFormat {
-    TV, TV_SHORT, MOVIE, SPECIAL, OVA, ONA, MUSIC, ONE_SHOT;
+    TV, TV_SHORT, MOVIE, SPECIAL, OVA, ONA;
 }
