@@ -2,68 +2,36 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="com.anipick.backend.review.mapper.RecentReviewMapper">
-
-    <select id="countRecentReviews" resultType="long">
-        SELECT count(r.review_id)
+<mapper namespace="com.anipick.backend.review.mapper.ReviewMapper">
+     <select id="findByAnimeId" resultType="com.anipick.backend.review.domain.Review">
+        SELECT r.review_id AS reviewId,
+               r.anime_id AS animeId,
+               r.rating AS rating,
+               r.content AS content,
+               r.is_spoiler AS isSpoiler,
+               r.like_count AS likeCount,
+               r.created_at AS createdAt,
+               r.updated_at AS updatedAt,
+               r.deleted_at AS deletedAt,
+               r.isReported AS isReported
         FROM Review r
-        WHERE NOT EXISTS (SELECT 1
-                          FROM ReportedReview rr
-                          WHERE rr.review_id = r.review_id
-                            AND rr.user_id = #{currentUserId})
-          AND NOT EXISTS (SELECT 1
-                          FROM BlockedUser bu
-                          WHERE bu.blocked_user_id = r.user_id
-                            AND bu.user_id = #{currentUserId})
-          AND r.is_spoiler = false
-          AND r.content IS NOT NULL
+        WHERE r.anime_id = #{animeId}
+          AND r.user_id = #{userId}
     </select>
 
-    <select id="selectRecentReviews" resultType="com.anipick.backend.review.dto.RecentReviewItemDto">
-        SELECT
-            r.review_id AS reviewId,
-            r.anime_id AS animeId,
-            a.title_kor AS animeTitle,
-            a.cover_image_url AS animeCoverImageUrl,
-            r.rating,
-            r.content AS reviewContent,
-            u.nickname,
-            u.profile_image_url AS profileImageUrl,
-            r.created_at AS createdAt,
-            r.like_count AS likeCount,
-        -- 내가 좋아요 눌렀는지
-            CASE WHEN rl.review_id IS NOT NULL THEN TRUE ELSE FALSE END AS likedByCurrentUser,
-        -- 내가 쓴 글인지
-        (r.user_id = #{currentUserId}) AS isMine
-
+    <select id="findByReviewId" resultType="com.anipick.backend.review.domain.Review">
+        SELECT r.review_id AS reviewId,
+               r.anime_id AS animeId,
+               r.rating AS rating,
+               r.content AS content,
+               r.is_spoiler AS isSpoiler,
+               r.like_count AS likeCount,
+               r.created_at AS createdAt,
+               r.updated_at AS updatedAt,
+               r.deleted_at AS deletedAt,
+               r.isReported AS isReported
         FROM Review r
-
-        JOIN Anime a ON a.anime_id = r.anime_id
-        JOIN User u ON u.user_id = r.user_id
-        LEFT JOIN ReviewLike rl
-            ON rl.review_id = r.review_id
-        AND rl.user_id = #{currentUserId}
-
-        WHERE r.is_spoiler = FALSE
-        AND r.content IS NOT NULL
-        -- 신고된 리뷰는 제외
-        AND NOT EXISTS (
-            SELECT 1 FROM ReportedReview rr
-            WHERE rr.review_id = r.review_id
-            AND rr.user_id = #{currentUserId}
-        )
-        -- 차단된 사용자의 리뷰는 제외
-        AND NOT EXISTS (
-            SELECT 1 FROM BlockedUser bu
-            WHERE bu.blocked_user_id = r.user_id
-            AND bu.user_id = #{currentUserId}
-        )
-        <!-- 커서 페이징 -->
-        <if test="lastId != null">
-            AND r.review_id &lt; #{lastId}
-        </if>
-        ORDER BY r.review_id DESC
-        LIMIT #{size}
+        WHERE r.review_id = #{reviewId}
+          AND r.user_id = #{userId}
     </select>
 </mapper>
