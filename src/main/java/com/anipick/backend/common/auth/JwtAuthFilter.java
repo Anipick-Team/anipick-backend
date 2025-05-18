@@ -41,7 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if(accessToken != null) {
                 jwtTokenProvider.validateToken(accessToken); //토큰 유효성 검사
 
-                String checkLogout = redisTemplate.opsForValue().get(UserDefaults.DEFAULT_BLACKLIST_FORMAT + accessToken);
+                String checkLogout = redisTemplate.opsForValue().get(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken);
                 if(checkLogout != null) {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json;charset=UTF-8");

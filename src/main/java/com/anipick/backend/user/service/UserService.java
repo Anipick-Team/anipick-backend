@@ -84,6 +84,6 @@ public class UserService {
         jwtTokenProvider.validateToken(accessToken);
         int accessTokenExpireTime = jwtTokenProvider.getAccessTokenExpiration();
 
-        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_BLACKLIST_FORMAT + accessToken, "logout", accessTokenExpireTime);
+        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken, "logout", accessTokenExpireTime);
     }
 }
