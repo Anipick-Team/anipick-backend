@@ -68,14 +68,6 @@ public class ReviewService {
                 .build();
     }
 
-    @Transactional
-    public void createReviewRating(Long animeId, ReviewRatingRequest request, Long userId) {
-        boolean present = reviewMapper.findByAnimeId(animeId, userId).isPresent();
-        if (present) {
-            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
-        }
-        reviewMapper.createReviewRating(animeId, userId, request);
-    }
 
     @Transactional
     public void createAndUpdateReview(Long reviewId, ReviewRequest request, Long userId) {
