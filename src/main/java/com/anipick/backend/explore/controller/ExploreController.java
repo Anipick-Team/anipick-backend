@@ -2,6 +2,8 @@ package com.anipick.backend.explore.controller;
 
 import java.util.List;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,9 +33,9 @@ public class ExploreController {
 		@RequestParam(value = "sort", defaultValue = "popularity") String sort,
 		@RequestParam(value = "lastId", required = false) Long lastId,
 		@RequestParam(value = "lastValue", required = false) Integer lastValue,
-		@RequestParam(value = "size", defaultValue = "18") int size
+		@RequestParam(value = "size", defaultValue = "18") int size,
+		@AuthenticationPrincipal CustomUserDetails user
 	) {
-		// TODO: JWT 연동 후 실제 user parameter 추가
 		if (year == null && season != null) {
 			return ApiResponse.error(ErrorCode.EMPTY_YEAR);
 		}
