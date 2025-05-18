@@ -1,5 +1,7 @@
 package com.anipick.backend.search.controller;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,9 +27,9 @@ public class SearchController {
 	public ApiResponse<SearchAnimePageDto> findSearchAnimes(
 		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@AuthenticationPrincipal CustomUserDetails user
 	) {
-		// TODO: JWT 연동 후 실제 user parameter 추가
 		if (query == null || query.isBlank()) {
 			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
 		}
@@ -39,9 +41,10 @@ public class SearchController {
 	public ApiResponse<SearchPersonPageDto> findSearchPersons(
 		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@AuthenticationPrincipal CustomUserDetails user
+
 	) {
-		// TODO: JWT 연동 후 실제 user parameter 추가
 		if (query == null || query.isBlank()) {
 			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
 		}
@@ -53,9 +56,9 @@ public class SearchController {
 	public ApiResponse<SearchStudioPageDto> findSearchStudios(
 		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@AuthenticationPrincipal CustomUserDetails user
 	) {
-		// TODO: JWT 연동 후 실제 user parameter 추가
 		if (query == null || query.isBlank()) {
 			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
 		}
