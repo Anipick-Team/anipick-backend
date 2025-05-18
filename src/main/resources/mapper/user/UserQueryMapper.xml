@@ -5,15 +5,54 @@
 
 <mapper namespace="com.anipick.backend.user.mapper.UserMapper">
     <select id="findByUserId" resultType="com.anipick.backend.user.domain.User">
-        select * from User where user_id = #{userId}
+        select u.user_id as userId,
+               u.email as email,
+               u.password as password,
+               u.nickname as nickname,
+               u.profile_image_url as profileImageUrl,
+               u.login_format as loginFormat,
+               u.created_at as createAt,
+               u.updated_at as updatedAt,
+               u.deleted_at as deletedAt,
+               u.terms_and_conditions as termsAndConditions,
+               u.adult_yn as adultYn,
+               u.review_completed_yn as reviewCompletedYn
+        from User u
+        where user_id = #{userId}
     </select>
 
     <select id="findByEmail" resultType="com.anipick.backend.user.domain.User">
-        select * from User where email = #{email}
+        select u.user_id as userId,
+               u.email as email,
+               u.password as password,
+               u.nickname as nickname,
+               u.profile_image_url as profileImageUrl,
+               u.login_format as loginFormat,
+               u.created_at as createAt,
+               u.updated_at as updatedAt,
+               u.deleted_at as deletedAt,
+               u.terms_and_conditions as termsAndConditions,
+               u.adult_yn as adultYn,
+               u.review_completed_yn as reviewCompletedYn
+        from User u
+        where email = #{email}
     </select>
 
     <select id="findByNickname" resultType="com.anipick.backend.user.domain.User">
-        select * from User where nickname = #{nickname}
+        select u.user_id as userId,
+               u.email as email,
+               u.password as password,
+               u.nickname as nickname,
+               u.profile_image_url as profileImageUrl,
+               u.login_format as loginFormat,
+               u.created_at as createAt,
+               u.updated_at as updatedAt,
+               u.deleted_at as deletedAt,
+               u.terms_and_conditions as termsAndConditions,
+               u.adult_yn as adultYn,
+               u.review_completed_yn as reviewCompletedYn
+        from User u
+        where nickname = #{nickname}
     </select>
 
     <select id="existsByNickname" resultType="boolean">

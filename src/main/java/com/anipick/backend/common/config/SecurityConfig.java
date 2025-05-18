@@ -6,6 +6,7 @@ import com.anipick.backend.common.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -44,7 +46,7 @@ public class SecurityConfig {
                         session ->
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(new JwtAuthFilter(userDetailsService, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthFilter(userDetailsService, jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
