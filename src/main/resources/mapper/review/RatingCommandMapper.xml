@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.review.mapper.RatingMapper">
+    <insert id="createReviewRating">
+        INSERT INTO Review
+            (anime_id, user_id, rating, created_at, updated_at, like_count, is_spoiler)
+        VALUES (#{animeId}, #{userId}, #{request.rating}, NOW(), NOW(), 0, false)
+    </insert>
+
+    <update id="updateRating">
+        UPDATE Review
+        SET rating = #{request.rating},
+            updated_at = NOW()
+        WHERE review_id = #{reviewId}
+          AND user_id = #{userId}
+    </update>
+
+    <delete id="deleteRating">
+        DELETE
+        FROM Review
+        WHERE review_id = #{reviewId}
+          AND user_id = #{userId}
+    </delete>
+</mapper>
