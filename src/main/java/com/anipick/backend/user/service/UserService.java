@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Service
@@ -81,9 +82,16 @@ public class UserService {
 
     public void doLogout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
-        jwtTokenProvider.validateToken(accessToken);
-        int accessTokenExpireTime = jwtTokenProvider.getAccessTokenExpiration();
+        if(accessToken == null) {
+            return;
+        }
 
-        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken, "logout", accessTokenExpireTime);
+        String email = jwtTokenProvider.getEmailFromToken(accessToken);
+        jwtTokenProvider.validateToken(accessToken);
+        long expiration = jwtTokenProvider.getRemainingTokenExpiration(accessToken);
+        Duration duration = Duration.ofMillis(expiration);
+
+        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken, "logout", duration);
+        redisTemplate.delete(email);
     }
 }
