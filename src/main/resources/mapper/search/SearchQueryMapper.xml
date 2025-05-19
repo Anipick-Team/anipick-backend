@@ -4,6 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.anipick.backend.search.mapper.SearchMapper">
+
+    <select id="selectSearchWeekBestAnimes" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+        SELECT w.anime_id AS animeId,
+               w.title_kor AS title,
+               w.cover_image_url AS coverImageUrl
+        FROM Weekbestanime w
+        WHERE DATE_FORMAT(w.created_at, '%Y-%m-%d') = #{now}
+        LIMIT 18
+    </select>
+
     <select id="countSearchAnime" parameterType="string" resultType="long">
         SELECT COUNT(*)
         FROM Anime a

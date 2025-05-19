@@ -1,16 +1,13 @@
 package com.anipick.backend.search.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.anipick.backend.search.dto.*;
 import org.springframework.stereotype.Service;
 
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.search.dto.PersonItemDto;
-import com.anipick.backend.search.dto.SearchAnimePageDto;
-import com.anipick.backend.search.dto.SearchPersonPageDto;
-import com.anipick.backend.search.dto.SearchStudioPageDto;
-import com.anipick.backend.search.dto.StudioItemDto;
 import com.anipick.backend.search.mapper.SearchMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +16,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
+
+	public SearchInitPageDto findWeekBestAnimes() {
+		LocalDate now = LocalDate.now();
+		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now);
+		return new SearchInitPageDto(items);
+	}
 
 	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size) {
 
