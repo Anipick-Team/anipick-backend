@@ -18,14 +18,14 @@ public class JwtTokenProvider {
     private final String secretKey;
 
     @Getter
-    private final int accessTokenExpiration;
+    private final long accessTokenExpiration;
     @Getter
-    private final int refreshTokenExpiration;
+    private final long refreshTokenExpiration;
 
     public JwtTokenProvider(
             @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.access-token-expire-time}") int accessTokenExpiration,
-            @Value("${jwt.refresh-token-expire-time}") int refreshTokenExpiration
+            @Value("${jwt.access-token-expire-time}") long accessTokenExpiration,
+            @Value("${jwt.refresh-token-expire-time}") long refreshTokenExpiration
     ) {
         this.secretKey = secretKey;
         this.accessTokenExpiration = accessTokenExpiration;
@@ -40,7 +40,7 @@ public class JwtTokenProvider {
         return createToken(email, refreshTokenExpiration);
     }
 
-    private String createToken(String email, int expireTime) {
+    private String createToken(String email, long expireTime) {
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
 
@@ -86,6 +86,24 @@ public class JwtTokenProvider {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    public long getRemainingTokenExpiration(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(jwtSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            Date expiration = claims.getExpiration();
+            long now = System.currentTimeMillis();
+            long diff = expiration.getTime() - now;
+
+            return Math.max(diff, 0);
+        } catch (JwtException | IllegalArgumentException e) {
+            return 0L;
+        }
     }
 
     private SecretKey jwtSecretKey() {
