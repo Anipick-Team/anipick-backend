@@ -10,7 +10,7 @@
                w.title_kor AS title,
                w.cover_image_url AS coverImageUrl
         FROM Weekbestanime w
-        WHERE DATE_FORMAT(w.created_at, '%Y-%m-%d') = #{now}
+        WHERE w.created_at = #{now}
         LIMIT 18
     </select>
 
