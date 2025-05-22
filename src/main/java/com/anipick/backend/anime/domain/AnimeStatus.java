@@ -6,5 +6,24 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AnimeStatus {
-	FINISHED, RELEASING, NOT_YET_RELEASED, CANCELLED, HIATUS
+	/**
+	 * 완료되어 출시되지 않는 상태
+	 */
+	FINISHED,
+	/**
+	 * 현재 출시 중인 상태
+	 */
+	RELEASING,
+	/**
+	 * 추후 공개 예정인 상태
+	 */
+	NOT_YET_RELEASED,
+	/**
+	 * 작업이 완료되기 전에 끝난 상태
+	 */
+	CANCELLED,
+	/**
+	 * 현재 출시가 일시 중단되었으며 추후 재개될 상태
+	 */
+	HIATUS
 }
