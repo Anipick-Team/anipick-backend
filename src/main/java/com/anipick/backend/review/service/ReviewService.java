@@ -81,12 +81,7 @@ public class ReviewService {
         }
         if (review.getContent() == null) {
             Long animeId = review.getAnimeId();
-            Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
-
-            Long currentReviewCount = anime.getReviewCount();
-            Long updateReviewCount = currentReviewCount + 1;
-
-            animeMapper.updateReviewCount(updateReviewCount, animeId);
+            animeMapper.updatePlusReviewCount(animeId);
         }
 
         reviewMapper.updateReview(reviewId, userId, request);
@@ -98,12 +93,8 @@ public class ReviewService {
             .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         Long animeId = review.getAnimeId();
-        Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
 
-        Long currentReviewCount = anime.getReviewCount();
-        long updateReviewCount = currentReviewCount - 1;
-
-        animeMapper.updateReviewCount(updateReviewCount, animeId);
+        animeMapper.updateMinusReviewCount(animeId);
         reviewMapper.deleteReview(reviewId, userId);
     }
 }

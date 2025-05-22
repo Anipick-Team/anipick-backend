@@ -21,5 +21,7 @@ public interface AnimeMapper {
 
 	Anime selectAnimeByAnimeId(@Param("animeId") Long animeId);
 
-	void updateReviewCount(@Param("updateReviewCount") Long updateReviewCount, @Param("animeId") Long animeId);
+	void updatePlusReviewCount(@Param("animeId") Long animeId);
+
+	void updateMinusReviewCount(@Param("animeId") Long animeId);
 }

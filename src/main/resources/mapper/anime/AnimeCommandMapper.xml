@@ -4,9 +4,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.anipick.backend.anime.mapper.AnimeMapper">
-    <update id="updateReviewCount">
-        UPDATE Anime
-        SET review_count = #{updateReviewCount}
+    <update id="updatePlusReviewCount">
+        UPDATE Anime a
+        SET review_count = a.review_count + 1
+        WHERE anime_id = #{animeId}
+    </update>
+
+    <update id="updateMinusReviewCount">
+        UPDATE Anime a
+        SET review_count = a.review_count - 1
         WHERE anime_id = #{animeId}
     </update>
 </mapper>
