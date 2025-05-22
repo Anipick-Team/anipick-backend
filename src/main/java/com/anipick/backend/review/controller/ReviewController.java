@@ -3,7 +3,6 @@ package com.anipick.backend.review.controller;
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.dto.ReviewRequest;
 import com.anipick.backend.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class ReviewController {
         RecentReviewPageDto page = reviewService.getRecentReviews(userId, lastId, size);
         return ApiResponse.success(page);
     }
-
 
     @PatchMapping("/{reviewId}/animes")
     public ApiResponse<Void> createAndUpdateReview(

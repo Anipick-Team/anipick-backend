@@ -117,4 +117,28 @@
                  a.anime_id
         LIMIT #{size}
     </select>
+
+    <select id="selectAnimeByAnimeId" resultType="com.anipick.backend.anime.domain.Anime">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS titleKor,
+               a.cover_image_url AS coverImageUrl,
+               a.banner_image_url AS bannerImageUrl,
+               a.description_kor AS descriptionKor,
+               a.start_date AS startDate,
+               a.end_date AS endDate,
+               a.season_year AS seasonYear,
+               a.episode_count AS episodeCount,
+               a.duration AS duration,
+               a.status AS status,
+               a.average_score AS averageScore,
+               a.popularity AS popularity,
+               a.is_adult AS isAdult,
+               a.format AS format,
+               a.review_count AS reviewCount,
+               a.next_airing_at AS nextAiringAt,
+               a.next_time_until_airing AS nextTimeUntilAiring,
+               a.next_episode AS nextEpisode
+        FROM Anime a
+        WHERE a.anime_id = #{animeId}
+    </select>
 </mapper>
