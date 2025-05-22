@@ -1,6 +1,7 @@
 package com.anipick.backend.search.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
+import com.anipick.backend.search.dto.SearchInitPageDto;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SearchController {
 	private final SearchService searchService;
+
+	@GetMapping("/init")
+	public ApiResponse<SearchInitPageDto> findWeekBestAnime(
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		SearchInitPageDto weekBestAnimes = searchService.findWeekBestAnimes();
+		return ApiResponse.success(weekBestAnimes);
+	}
 
 	@GetMapping("/animes")
 	public ApiResponse<SearchAnimePageDto> findSearchAnimes(
