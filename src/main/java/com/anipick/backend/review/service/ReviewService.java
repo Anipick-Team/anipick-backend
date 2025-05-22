@@ -1,11 +1,13 @@
 package com.anipick.backend.review.service;
 
+import com.anipick.backend.anime.domain.Anime;
+import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.RecentReviewItemDto;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.dto.ReviewRequest;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
@@ -24,6 +26,7 @@ public class ReviewService {
 
     private final RecentReviewMapper recentReviewMapper;
     private final ReviewMapper reviewMapper;
+    private final AnimeMapper animeMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -71,18 +74,36 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateReview(Long reviewId, ReviewRequest request, Long userId) {
-        reviewMapper.findByReviewId(reviewId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        Review review = reviewMapper.findByReviewId(reviewId, userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
+        if (review.getContent() == null) {
+            Long animeId = review.getAnimeId();
+            Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
+
+            Long currentReviewCount = anime.getReviewCount();
+            Long updateReviewCount = currentReviewCount + 1;
+
+            animeMapper.updateReviewCount(updateReviewCount, animeId);
+        }
+
         reviewMapper.updateReview(reviewId, userId, request);
     }
 
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
-        reviewMapper.findByReviewId(reviewId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        Review review = reviewMapper.findByReviewId(reviewId, userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        Long animeId = review.getAnimeId();
+        Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
+
+        Long currentReviewCount = anime.getReviewCount();
+        long updateReviewCount = currentReviewCount - 1;
+
+        animeMapper.updateReviewCount(updateReviewCount, animeId);
         reviewMapper.deleteReview(reviewId, userId);
     }
 }
