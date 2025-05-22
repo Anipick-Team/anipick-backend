@@ -16,9 +16,9 @@ import java.time.Duration;
 public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, RefreshToken> redisTemplate;
-    private final int refreshTokenExpireTime;
+    private final long refreshTokenExpireTime;
 
-    public TokenService(JwtTokenProvider jwtTokenProvider, RedisTemplate<String, RefreshToken> redisTemplate, @Value("${jwt.refresh-token-expire-time}") int refreshTokenExpireTime) {
+    public TokenService(JwtTokenProvider jwtTokenProvider, RedisTemplate<String, RefreshToken> redisTemplate, @Value("${jwt.refresh-token-expire-time}") long refreshTokenExpireTime) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisTemplate = redisTemplate;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
