@@ -8,24 +8,26 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
+@Component
 @RequiredArgsConstructor
 public class GoogleVerifierUtil {
     @Value("${app.oauth2.google.android-client-id}")
-    private static String androidClientId;
+    private String androidClientId;
 
     @Value("${app.oauth2.google.ios-client-id}")
-    private static String iosClientId;
+    private String iosClientId;
 
-    public static GoogleIdToken.Payload verifyAndroidGoogleToken(String token) throws GeneralSecurityException, IOException {
+    public GoogleIdToken.Payload verifyAndroidGoogleToken(String token) throws GeneralSecurityException, IOException {
         return getPayload(token, androidClientId);
     }
 
-    public static GoogleIdToken.Payload verifyIosGoogleToken(String token) throws GeneralSecurityException, IOException {
+    public GoogleIdToken.Payload verifyIosGoogleToken(String token) throws GeneralSecurityException, IOException {
         return getPayload(token, iosClientId);
     }
 

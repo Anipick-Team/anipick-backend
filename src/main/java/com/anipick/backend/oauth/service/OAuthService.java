@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 public class OAuthService {
     private final UserMapper userMapper;
     private final TokenService tokenService;
+    private final GoogleVerifierUtil googleVerifierUtil;
 
     public TokenResponse socialLogin(SocialLoginRequest request, String provider) {
         String platform = request.getPlatform();
@@ -39,9 +40,9 @@ public class OAuthService {
         try {
             GoogleIdToken.Payload payload;
             if(platform.equals("android")) {
-                payload = GoogleVerifierUtil.verifyAndroidGoogleToken(idToken);
+                payload = googleVerifierUtil.verifyAndroidGoogleToken(idToken);
             } else if(platform.equals("ios")) {
-                payload = GoogleVerifierUtil.verifyIosGoogleToken(idToken);
+                payload = googleVerifierUtil.verifyIosGoogleToken(idToken);
             } else {
                 throw new CustomException(ErrorCode.BAD_REQUEST);
             }
