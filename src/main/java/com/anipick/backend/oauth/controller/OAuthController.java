@@ -1,6 +1,7 @@
 package com.anipick.backend.oauth.controller;
 
 import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
 import com.anipick.backend.oauth.service.OAuthService;
 import com.anipick.backend.token.dto.TokenResponse;
@@ -15,7 +16,8 @@ public class OAuthController {
 
     @PostMapping("/{provider}/callback")
     public ApiResponse<TokenResponse> socialLogin(@RequestBody SocialLoginRequest request, @PathVariable String provider) {
-        TokenResponse response = oAuthService.socialLogin(request, provider);
+        Provider oAuthProvider = Provider.valueOf(provider.toUpperCase());
+        TokenResponse response = oAuthService.socialLogin(request, oAuthProvider);
         return ApiResponse.success(response);
     }
 }

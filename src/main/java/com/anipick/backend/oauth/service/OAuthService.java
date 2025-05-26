@@ -2,6 +2,8 @@ package com.anipick.backend.oauth.service;
 
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.oauth.domain.Platform;
+import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
 import com.anipick.backend.oauth.util.GoogleVerifierUtil;
 import com.anipick.backend.token.dto.TokenResponse;
@@ -24,24 +26,25 @@ public class OAuthService {
     private final TokenService tokenService;
     private final GoogleVerifierUtil googleVerifierUtil;
 
-    public TokenResponse socialLogin(SocialLoginRequest request, String provider) {
+    public TokenResponse socialLogin(SocialLoginRequest request, Provider provider) {
         String platform = request.getPlatform();
         String idToken = request.getCode();
+        Platform platformEnum = Platform.valueOf(platform.toUpperCase());
 
         switch (provider) {
-            case "GOOGLE":
-                return googleLogin(platform, idToken);
+            case GOOGLE:
+                return googleLogin(platformEnum, idToken);
         }
 
         return null;
     }
 
-    private TokenResponse googleLogin(String platform, String idToken) {
+    private TokenResponse googleLogin(Platform platform, String idToken) {
         try {
             GoogleIdToken.Payload payload;
-            if(platform.equals("android")) {
+            if(platform.equals(Platform.ANDROID)) {
                 payload = googleVerifierUtil.verifyAndroidGoogleToken(idToken);
-            } else if(platform.equals("ios")) {
+            } else if(platform.equals(Platform.IOS)) {
                 payload = googleVerifierUtil.verifyIosGoogleToken(idToken);
             } else {
                 throw new CustomException(ErrorCode.BAD_REQUEST);
@@ -65,13 +68,13 @@ public class OAuthService {
                         .build();
 
                 userMapper.insertUser(user);
+
+                return tokenService.generateAndSaveTokens(email);
             }
 
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
-
-        return null;
     }
 
     private boolean checkExistsEmail(String email) {
