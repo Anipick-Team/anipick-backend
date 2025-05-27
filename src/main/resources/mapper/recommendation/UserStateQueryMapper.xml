@@ -9,5 +9,6 @@
                u.reference_anime_id AS referenceAnimeId,
                u.start_date AS startDate
         FROM Userrecommendationstate u
+        WHERE u.user_id = #{userId}
     </select>
 </mapper>
