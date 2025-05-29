@@ -30,7 +30,7 @@ public class RatingService {
         if (userAnimeStatus != null) {
             UserAnimeOfStatus status = userAnimeStatus.getStatus();
             String statusName = status.name();
-            if (!statusName.equals("FINISHED")) {
+            if (!statusName.equals(UserAnimeOfStatus.FINISHED.name())) {
                 userAnimeStatusMapper.updateUserAnimeStatus(userId, animeId, UserAnimeOfStatus.FINISHED);
             }
         } else {
