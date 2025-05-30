@@ -18,4 +18,8 @@ public class UserMainRecommendationPageDto {
 	public static UserMainRecommendationPageDto of(Long count, CursorDto cursor, List<AnimeItemDto> animes) {
 		return new UserMainRecommendationPageDto(count, cursor, animes);
 	}
+
+	public static UserMainRecommendationPageDto emptyReviewOf(Long count, List<AnimeItemDto> animes) {
+		return new UserMainRecommendationPageDto(count, null, animes);
+	}
 }

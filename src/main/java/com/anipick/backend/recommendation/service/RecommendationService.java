@@ -51,7 +51,7 @@ public class RecommendationService {
 				Long latestHigh = reviewUserMapper.findMostRecentHighRatedAnime(userId);
 				if (latestHigh == null) {
 					// 리뷰가 없음
-					return UserMainRecommendationPageDto.of(0L, CursorDto.of((Long)null), List.of());
+					return UserMainRecommendationPageDto.emptyReviewOf(0L, List.of());
 				}
 				if (!latestHigh.equals(state.getReferenceAnimeId())) {
 					userStateMapper.updateReferenceAnime(userId, latestHigh);
