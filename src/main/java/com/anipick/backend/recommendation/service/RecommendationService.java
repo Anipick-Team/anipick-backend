@@ -77,18 +77,15 @@ public class RecommendationService {
 			totalCount = recommendationMapper.countByTagBased(req);
 		}
 
-		Long nextId;
-		Long nextScore;
+		CursorDto cursor;
 
 		if (animes.isEmpty()) {
-			nextId = null;
-			nextScore = null;
+			cursor = CursorDto.of(null, null, null);
 		} else {
-			nextId = animes.getLast().getAnimeId();
-			nextScore = animes.getLast().getScore();
+			Long nextId = animes.getLast().getAnimeId();
+			Long nextScore = animes.getLast().getScore();
+			cursor = CursorDto.of(null, nextId, nextScore.toString());
 		}
-
-		CursorDto cursor = CursorDto.of(null, nextId, String.valueOf(nextScore));
 
 		List<AnimeItemDto> items = animes
 			.stream()
