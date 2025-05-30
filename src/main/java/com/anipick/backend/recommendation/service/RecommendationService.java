@@ -78,16 +78,13 @@ public class RecommendationService {
 		}
 
 		Long nextId;
+		Long nextScore;
+
 		if (animes.isEmpty()) {
 			nextId = null;
-		} else {
-			nextId = animes.getLast().getAnimeId();
-		}
-
-		Long nextScore;
-		if (animes.isEmpty()) {
 			nextScore = null;
 		} else {
+			nextId = animes.getLast().getAnimeId();
 			nextScore = animes.getLast().getScore();
 		}
 
