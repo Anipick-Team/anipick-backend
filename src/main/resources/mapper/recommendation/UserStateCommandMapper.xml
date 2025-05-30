@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.recommendation.mapper.UserStateMapper">
+    <insert id="insertInitialState">
+        INSERT INTO Userrecommendationstate
+            (user_id, mode, reference_anime_id, start_date)
+        VALUES
+            (#{userId}, #{mode}, #{referenceAnimeId}, NOW())
+    </insert>
+
+    <update id="updateMode">
+        UPDATE Userrecommendationstate
+        SET mode = #{mode},
+            reference_anime_id = #{referenceAnimeId},
+            start_date = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateReferenceAnime">
+        UPDATE Userrecommendationstate
+        SET reference_anime_id = #{referenceAnimeId},
+            start_date = NOW()
+        WHERE user_id = #{userId}
+    </update>
+</mapper>
