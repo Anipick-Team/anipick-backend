@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.user.mapper.UserAnimeStatusMapper">
+    <select id="findByUserId" resultType="com.anipick.backend.user.domain.UserAnimeStatus">
+        SELECT u.user_anime_status_id AS userAnimeStatusId,
+               u.user_id AS userId,
+               u.anime_id AS animeId,
+               u.status AS status,
+               u.created_at AS createdAt,
+               u.updated_at AS updatedAt
+        FROM Useranimestatus u
+        WHERE u.user_id = #{userId}
+        AND u.anime_id = #{animeId}
+    </select>
+</mapper>
