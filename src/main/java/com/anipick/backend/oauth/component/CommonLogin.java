@@ -1,4 +1,4 @@
-package com.anipick.backend.oauth.util;
+package com.anipick.backend.oauth.component;
 
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class CommonLoginUtil {
+public class CommonLogin {
     private final UserMapper userMapper;
     private final TokenService tokenService;
 
