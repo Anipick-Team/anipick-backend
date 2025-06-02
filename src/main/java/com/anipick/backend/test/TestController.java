@@ -18,7 +18,6 @@ import java.util.List;
 public class TestController {
     private final RatingService ratingService;
     private final TestService testService;
-    private final SearchService searchService;
 
     //TODO : 평가 작성
     @PostMapping("/{animeId}/animes/{userId}")
@@ -58,7 +57,7 @@ public class TestController {
 		if (query == null || query.isBlank()) {
 			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
 		}
-		SearchAnimePageDto searchAnimes = searchService.findSearchAnimes(query, lastId, size);
+		SearchAnimePageDto searchAnimes = testService.findSearchAnimes(query, lastId, size);
 		return ApiResponse.success(searchAnimes);
 	}
 }
