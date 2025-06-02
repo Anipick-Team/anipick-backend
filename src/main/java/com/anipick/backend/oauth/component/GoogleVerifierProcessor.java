@@ -1,4 +1,4 @@
-package com.anipick.backend.oauth.util;
+package com.anipick.backend.oauth.component;
 
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
@@ -16,7 +16,7 @@ import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
-public class GoogleVerifierUtil {
+public class GoogleVerifierProcessor {
     @Value("${app.oauth2.google.android-client-id}")
     private String androidClientId;
 
