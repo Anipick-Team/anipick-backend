@@ -2,11 +2,11 @@ package com.anipick.backend.oauth.service;
 
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.oauth.component.CommonLogin;
+import com.anipick.backend.oauth.component.GoogleVerifierProcessor;
 import com.anipick.backend.oauth.domain.Platform;
 import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
-import com.anipick.backend.oauth.util.CommonLoginUtil;
-import com.anipick.backend.oauth.util.GoogleVerifierUtil;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class GoogleLogin implements SocialLogin {
-    private final GoogleVerifierUtil googleVerifierUtil;
-    private final CommonLoginUtil commonLoginUtil;
+    private final GoogleVerifierProcessor googleVerifierProcessor;
+    private final CommonLogin commonLogin;
 
     @Override
     public boolean checkProvider(Provider provider) {
@@ -33,15 +33,15 @@ public class GoogleLogin implements SocialLogin {
         try {
             GoogleIdToken.Payload payload;
             if(platform.equals(Platform.ANDROID)) {
-                payload = googleVerifierUtil.verifyAndroidGoogleToken(idToken);
+                payload = googleVerifierProcessor.verifyAndroidGoogleToken(idToken);
             } else if(platform.equals(Platform.IOS)) {
-                payload = googleVerifierUtil.verifyIosGoogleToken(idToken);
+                payload = googleVerifierProcessor.verifyIosGoogleToken(idToken);
             } else {
                 throw new CustomException(ErrorCode.BAD_REQUEST);
             }
 
             String email = payload.getEmail();
-            return commonLoginUtil.signUpAndLogin(email, LoginFormat.GOOGLE);
+            return commonLogin.signUpAndLogin(email, LoginFormat.GOOGLE);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
