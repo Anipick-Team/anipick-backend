@@ -24,4 +24,13 @@
             LIMIT #{limit}
     </select>
 
+
+
+    <select id="findUserReviews" resultType="long">
+        SELECT r.anime_id
+        FROM Review r
+        WHERE r.user_id = #{userId}
+        ORDER BY r.rating DESC
+        LIMIT 20
+    </select>
 </mapper>

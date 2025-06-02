@@ -80,7 +80,7 @@ public class RecommendationService {
 		CursorDto cursor;
 
 		if (animes.isEmpty()) {
-			cursor = CursorDto.of(null, null, null);
+			cursor = CursorDto.of((String) null, null, null);
 		} else {
 			Long nextId = animes.getLast().getAnimeId();
 			Long nextScore = animes.getLast().getScore();

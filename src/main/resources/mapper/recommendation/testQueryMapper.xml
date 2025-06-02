@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.recommendation.mapper.RecommendationMapper">
+
+    <!-- Full -->
+    <select id="selectRecentHighFull"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighFullRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id AS animeId,
+        an.title_kor AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.total_score AS score,
+        a.tag_count AS tagCount
+        FROM (
+            SELECT
+            at.anime_id,
+            COUNT(*) AS tag_count,
+            SUM(at.weight) AS total_score
+            FROM animetag at
+            WHERE at.tag_id IN
+                <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+            AND at.anime_id &lt;&gt; #{referenceAnimeId}
+            GROUP BY at.anime_id
+            ) AS a
+        JOIN anime an
+            ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+            ON an.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastScore != null and lastCount != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.tag_count &lt; #{lastCount})
+            OR (a.total_score = #{lastScore} AND a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.total_score DESC, a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countRecentHighFull"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighFullRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        AND at.anime_id &lt;&gt; #{referenceAnimeId}
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON a.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+    <!-- Count -->
+    <select id="selectRecentHighCountOnly"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighCountOnlyRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id         AS animeId,
+        an.title_kor       AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.tag_count        AS tagCount,
+        NULL               AS score
+        FROM (
+            SELECT
+            at.anime_id,
+            COUNT(*) AS tag_count
+            FROM animetag at
+            WHERE at.tag_id IN
+            <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                #{tagId}
+            </foreach>
+            AND at.anime_id &lt;&gt; #{referenceAnimeId}
+            GROUP BY at.anime_id
+            ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+        ON an.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastCount != null and lastId != null">
+            AND (
+            a.tag_count &lt; #{lastCount}
+            OR (a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countRecentHighCountOnly"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighCountOnlyRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        AND at.anime_id &lt;&gt; #{referenceAnimeId}
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON a.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+    <!-- Score -->
+    <select id="selectRecentHighScoreOnly"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighScoreOnlyRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id         AS animeId,
+        an.title_kor       AS title,
+        an.cover_image_url AS coverImageUrl,
+        NULL               AS tagCount,
+        a.total_score      AS score
+        FROM (
+        SELECT
+        at.anime_id,
+        SUM(at.weight) AS total_score
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        AND at.anime_id &lt;&gt; #{referenceAnimeId}
+        GROUP BY at.anime_id
+        ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+        ON an.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastScore != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.total_score DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countRecentHighScoreOnly"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighScoreOnlyRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        AND at.anime_id &lt;&gt; #{referenceAnimeId}
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON a.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+
+
+
+    <!-- Tag-Based Full -->
+    <select id="selectTagBasedFull"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedFullRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        <!-- 2) 상위 태그(tagIds) 필터 & 중복 제거 + 가중치 합산 -->
+        SELECT
+        a.anime_id      AS animeId,
+        an.title_kor    AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.total_score   AS score,
+        a.tag_count     AS tagCount
+        FROM (
+        SELECT
+        at.anime_id,
+        COUNT(*)       AS tag_count,
+        SUM(at.weight) AS total_score
+        FROM animetag at
+        WHERE  at.tag_id   IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        <!-- 유저 리뷰 제외 -->
+        LEFT JOIN review r
+        ON r.anime_id = an.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+        <!-- 커서 페이징 -->
+        <if test="lastScore != null and lastCount != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.tag_count &lt; #{lastCount})
+            OR (a.total_score = #{lastScore} AND a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.total_score DESC, a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countTagBasedFull"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedFullRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON r.anime_id = a.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+    <!-- Count -->
+    <select id="selectTagBasedCountOnly"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedCountOnlyRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id      AS animeId,
+        an.title_kor    AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.tag_count     AS tagCount,
+        NULL            AS score
+        FROM (
+        SELECT
+        at.anime_id,
+        COUNT(*) AS tag_count
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+        ON r.anime_id = an.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastCount != null and lastId != null">
+            AND (
+            a.tag_count &lt; #{lastCount}
+            OR (a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countTagBasedCountOnly"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedCountOnlyRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON r.anime_id = a.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+    <!-- Score -->
+    <select id="selectTagBasedScoreOnly"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedScoreOnlyRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id      AS animeId,
+        an.title_kor    AS title,
+        an.cover_image_url AS coverImageUrl,
+        NULL            AS tagCount,
+        a.total_score   AS score
+        FROM (
+        SELECT
+        at.anime_id,
+        SUM(at.weight) AS total_score
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+        ON r.anime_id = an.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastScore != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.total_score DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="countTagBasedScoreOnly"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedScoreOnlyRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT at.anime_id
+        FROM animetag at
+        WHERE at.tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        LEFT JOIN review r
+        ON r.anime_id = a.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+    </select>
+
+
+    <select id="selectTagScoresForUser"
+            parameterType="map"
+            resultType="com.anipick.backend.recommendation.dto.TagScoreDto">
+        SELECT
+        at.tag_id               AS tagId,
+        SUM(r.rating * at.weight) AS score
+        FROM review r
+        JOIN animetag at
+        ON at.anime_id = r.anime_id
+        WHERE r.user_id = #{userId}
+        AND r.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
+        GROUP BY at.tag_id
+        ORDER BY score DESC
+    </select>
+</mapper>
