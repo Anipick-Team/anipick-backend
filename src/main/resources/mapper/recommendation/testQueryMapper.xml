@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.recommendation.mapper.RecommendationMapper">
 
-    <!-- Full -->
+    <!-- Full 스코어 먼저 정렬 -->
     <select id="selectRecentHighFull"
             parameterType="com.anipick.backend.recommendation.dto.RecentHighFullRequest"
             resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
@@ -41,6 +41,45 @@
             )
         </if>
         ORDER BY a.total_score DESC, a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+    <!-- Full 카운트 먼저 정렬 -->
+    <select id="selectRecentHighFull2"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighFullRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id AS animeId,
+        an.title_kor AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.total_score AS score,
+        a.tag_count AS tagCount
+        FROM (
+            SELECT
+            at.anime_id,
+            COUNT(*) AS tag_count,
+            SUM(at.weight) AS total_score
+            FROM animetag at
+            WHERE at.tag_id IN
+                <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+            AND at.anime_id &lt;&gt; #{referenceAnimeId}
+            GROUP BY at.anime_id
+            ) AS a
+        JOIN anime an
+            ON an.anime_id = a.anime_id
+        LEFT JOIN review r
+            ON an.anime_id = r.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.user_id IS NULL
+        <if test="lastScore != null and lastCount != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.tag_count &lt; #{lastCount})
+            OR (a.total_score = #{lastScore} AND a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.tag_count DESC, a.total_score DESC, a.anime_id DESC
         LIMIT #{size}
     </select>
 
@@ -183,11 +222,10 @@
 
 
 
-    <!-- Tag-Based Full -->
+    <!-- Tag-Based Full 스코어 먼저 정렬 -->
     <select id="selectTagBasedFull"
             parameterType="com.anipick.backend.recommendation.dto.TagBasedFullRequest"
             resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
-        <!-- 2) 상위 태그(tagIds) 필터 & 중복 제거 + 가중치 합산 -->
         SELECT
         a.anime_id      AS animeId,
         an.title_kor    AS title,
@@ -222,6 +260,46 @@
             )
         </if>
         ORDER BY a.total_score DESC, a.tag_count DESC, a.anime_id DESC
+        LIMIT #{size}
+    </select>
+    <!-- Tag-Based Full 카운트 먼저 정렬 -->
+    <select id="selectTagBasedFull2"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedFullRequest"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto2">
+        SELECT
+        a.anime_id      AS animeId,
+        an.title_kor    AS title,
+        an.cover_image_url AS coverImageUrl,
+        a.total_score   AS score,
+        a.tag_count     AS tagCount
+        FROM (
+        SELECT
+        at.anime_id,
+        COUNT(*)       AS tag_count,
+        SUM(at.weight) AS total_score
+        FROM animetag at
+        WHERE  at.tag_id   IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        GROUP BY at.anime_id
+        ) AS a
+        JOIN anime an
+        ON an.anime_id = a.anime_id
+        <!-- 유저 리뷰 제외 -->
+        LEFT JOIN review r
+        ON r.anime_id = an.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.user_id IS NULL
+        <!-- 커서 페이징 -->
+        <if test="lastScore != null and lastCount != null and lastId != null">
+            AND (
+            a.total_score &lt; #{lastScore}
+            OR (a.total_score = #{lastScore} AND a.tag_count &lt; #{lastCount})
+            OR (a.total_score = #{lastScore} AND a.tag_count = #{lastCount} AND a.anime_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY a.tag_count DESC, a.total_score DESC, a.anime_id DESC
         LIMIT #{size}
     </select>
 

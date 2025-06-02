@@ -45,10 +45,12 @@ public class RecommendationService {
 		if (state.getMode() == UserRecommendMode.RECENT_HIGH) {
 			long days = Duration.between(state.getStartDate(), LocalDateTime.now()).toDays();
 			if (days >= 3) {
+				System.out.println("dddd");
 				userStateMapper.updateMode(userId, UserRecommendMode.TAG_BASED, null);
 				state = userStateMapper.findByUserId(userId);
 			} else {
 				Long latestHigh = reviewUserMapper.findMostRecentHighRatedAnime(userId);
+				System.out.println("latestHigh = " + latestHigh);
 				if (latestHigh == null) {
 					// 리뷰가 없음
 					return UserMainRecommendationPageDto.emptyReviewOf(0L, List.of());

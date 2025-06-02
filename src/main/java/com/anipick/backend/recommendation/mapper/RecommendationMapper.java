@@ -26,6 +26,7 @@ public interface RecommendationMapper {
 	 * Full 일 때 tag_count + total_score 모두 반환
 	 */
 	List<AnimeRecommendDto2> selectRecentHighFull(RecentHighFullRequest req);
+	List<AnimeRecommendDto2> selectRecentHighFull2(RecentHighFullRequest req);
 	long countRecentHighFull(RecentHighFullRequest req);
 
 	/**
@@ -44,6 +45,7 @@ public interface RecommendationMapper {
 	 * Tag-Based Full 일 때 tag_count + total_score 반환
 	 */
 	List<AnimeRecommendDto2> selectTagBasedFull(TagBasedFullRequest req);
+	List<AnimeRecommendDto2> selectTagBasedFull2(TagBasedFullRequest req);
 	long countTagBasedFull(TagBasedFullRequest req);
 
 	/**
