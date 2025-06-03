@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.recommendation.mapper.ReviewUserMapper">
+    <select id="findMostRecentHighRatedAnime" resultType="long">
+        SELECT r.anime_id
+        FROM Review r
+        WHERE r.user_id = #{userId}
+          AND r.rating >= 3.5
+          AND r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 상위 평점 애니 ID (limit 개수만큼) -->
+    <select id="findTopRatedAnimeIds"
+            parameterType="map"
+            resultType="long">
+        SELECT anime_id
+        FROM review
+        WHERE user_id = #{userId}
+        ORDER BY rating DESC, created_at DESC
+            LIMIT #{limit}
+    </select>
+
+
+
+    <select id="findUserReviews" resultType="long">
+        SELECT r.anime_id
+        FROM Review r
+        WHERE r.user_id = #{userId}
+        ORDER BY r.rating DESC
+        LIMIT 20
+    </select>
+</mapper>

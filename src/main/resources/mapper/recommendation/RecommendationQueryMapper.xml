@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.recommendation.mapper.RecommendationMapper">
+
+    <select id="countByRecentHigh"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighRequestDto"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+            SELECT t2.anime_id
+            FROM animetag t1
+                JOIN animetag t2
+                ON t1.tag_id = t2.tag_id
+            WHERE t1.anime_id = #{referenceAnimeId}
+            GROUP BY t2.anime_id
+            ) sim
+        LEFT JOIN review r
+        ON r.anime_id = sim.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.review_id IS NULL
+        AND sim.anime_id != #{referenceAnimeId}
+    </select>
+
+    <select id="countByTagBased"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedRequestDto"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM (
+            SELECT t2.anime_id
+            FROM animetag t1
+                JOIN animetag t2
+                ON t1.tag_id = t2.tag_id
+            WHERE t1.anime_id IN
+        <foreach collection="topAnimeIds" item="aid" open="(" separator="," close=")">
+            #{aid}
+        </foreach>
+            GROUP BY t2.anime_id
+            ) sim
+        LEFT JOIN review r
+        ON r.anime_id = sim.anime_id
+        AND r.user_id  = #{userId}
+        WHERE r.review_id IS NULL
+    </select>
+
+
+    <!-- 케이스1 사용자가 가장 최근 고평가한 애니 기준 유사도 추천 -->
+    <!-- 추천2 때 사용 가능  -->
+    <select id="recommendByRecentHigh"
+            parameterType="com.anipick.backend.recommendation.dto.RecentHighRequestDto"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto">
+        SELECT
+        a.anime_id AS animeId,
+        a.title_kor AS title,
+        a.cover_image_url AS coverImageUrl,
+        sim.score AS score
+        <!-- 유사도 찾기 -->
+        FROM (
+            SELECT
+            t2.anime_id AS anime_id,
+            SUM(t1.weight * t2.weight) AS score
+            FROM animetag t1
+            JOIN animetag t2
+            ON t1.tag_id = t2.tag_id
+            WHERE t1.anime_id = #{referenceAnimeId}
+            GROUP BY t2.anime_id
+            ) AS sim
+        JOIN anime a
+            ON a.anime_id = sim.anime_id
+        <!-- NULL인 ROW 제외(내가 평가한 애니) -->
+        LEFT JOIN review r
+            ON r.anime_id = sim.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.review_id IS NULL
+        AND sim.anime_id != #{referenceAnimeId}
+        <if test="lastScore != null and lastAnimeId != null">
+            AND (
+            sim.score &lt; #{lastScore}
+            OR (sim.score = #{lastScore}
+            AND sim.anime_id &lt; #{lastAnimeId})
+            )
+        </if>
+        ORDER BY sim.score DESC, sim.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!-- 케이스2 상위 20% 평점 애니 태그 기반 유사도 추천 -->
+    <select id="recommendByTagBased"
+            parameterType="com.anipick.backend.recommendation.dto.TagBasedRequestDto"
+            resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto">
+        SELECT
+        a.anime_id AS animeId,
+        a.title_kor AS title,
+        a.cover_image_url AS coverImageUrl,
+        sim.score AS score
+        <!-- 유사도 찾기(최대 IDS 20개) -->
+        FROM (
+            SELECT
+            t2.anime_id AS anime_id,
+            SUM(t1.weight * t2.weight) AS score
+            FROM animetag t1
+            JOIN animetag t2
+            ON t1.tag_id = t2.tag_id
+            WHERE t1.anime_id IN
+            <foreach collection="topAnimeIds" item="aid"
+                    open="(" separator="," close=")">
+                #{aid}
+            </foreach>
+            GROUP BY t2.anime_id
+        ) AS sim
+        JOIN anime a
+            ON a.anime_id = sim.anime_id
+        <!-- NULL인 ROW 제외(내가 평가한 애니) -->
+        LEFT JOIN review r
+            ON r.anime_id = sim.anime_id
+        AND r.user_id = #{userId}
+        WHERE r.review_id IS NULL
+        <if test="lastScore != null and lastAnimeId != null">
+            AND (
+            sim.score &lt; #{lastScore}
+            OR (sim.score = #{lastScore}
+            AND sim.anime_id &lt; #{lastAnimeId})
+            )
+        </if>
+        ORDER BY sim.score DESC, sim.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+</mapper>
