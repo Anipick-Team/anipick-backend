@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class NicknameInitializer {
     private static final int NICKNAME_THRESHOLD = 10;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -34,7 +34,8 @@ public class NicknameInitializer {
 
         long normalizedCount = count % NICKNAME_THRESHOLD;
         String timeStamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        String nickname = loginFormat + timeStamp + normalizedCount;
+        String loginFormatFirstLetter = loginFormat.toString().substring(0, 1);
+        String nickname = loginFormatFirstLetter + timeStamp + normalizedCount;
 
         return nickname;
     }
