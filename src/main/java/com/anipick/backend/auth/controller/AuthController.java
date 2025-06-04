@@ -18,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/email/send")
-    public ApiResponse<Void> sendEmail(@RequestBody AuthEmailRequest request) throws MessagingException, NoSuchAlgorithmException {
+    public ApiResponse<Void> sendEmail(@RequestBody AuthEmailRequest request) {
         authService.send(request);
         return ApiResponse.success();
     }
