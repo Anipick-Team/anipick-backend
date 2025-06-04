@@ -39,3 +39,9 @@ jwt:
   
 anime:
   default-cover-url: ${ANIME_DEFAULT_COVER_URL}
+
+app:
+  oauth2:
+    google:
+      android-client-id: ${ANDROID_CLIENT_ID}
+      ios-client-id: ${IOS_CLIENT_ID}
