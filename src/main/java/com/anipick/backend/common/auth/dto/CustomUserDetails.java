@@ -8,22 +8,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
     private final User user;
-    private Map<String, Object> attributes;
 
-    // 일반 로그인 사용자
     public CustomUserDetails(User user) {
         this.user = user;
-    }
-
-    // 소셜 로그인 사용자
-    public CustomUserDetails(User user, Map<String, Object> attributes) {
-        this.user = user;
-        this.attributes = attributes;
     }
 
     @Override
