@@ -34,7 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void send(AuthEmailRequest request) throws NoSuchAlgorithmException, MessagingException {
+    public void send(AuthEmailRequest request) {
         String email = request.getEmail();
 
         // 이메일 미입력 시 문구
@@ -52,14 +52,21 @@ public class AuthService {
             throw new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL);
         }
 
-        String verificationNumber = numberInitializer.initVerificationNumber();
-        MimeMessage message = formatInitializer.initEmail(email, verificationNumber);
-        String key = EmailDefaults.SENDER_EMAIL_KEY + email;
+        // SNS로 간편가입된 계정일 경우
+        User user = userMapper.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+        if(user.getLoginFormat() != LoginFormat.LOCAL) {
+            throw new CustomException(ErrorCode.EMAIL_SNS_ACCOUNT_EXISTS);
+        }
 
         try {
+            String verificationNumber = numberInitializer.initVerificationNumber();
+            MimeMessage message = formatInitializer.initEmail(email, verificationNumber);
+            String key = EmailDefaults.SENDER_EMAIL_KEY + email;
+
             mailSender.send(message);
             redisTemplate.opsForValue().set(key, verificationNumber, Duration.ofMinutes(3));
-        } catch (MailException e) {
+        } catch (MailException | NoSuchAlgorithmException | MessagingException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
@@ -76,13 +83,6 @@ public class AuthService {
         String sentCode = redisTemplate.opsForValue().get(key);
         if (sentCode == null) {
             throw new CustomException(ErrorCode.VERIFICATION_CODE_EXPIRED);
-        }
-
-        // SNS로 간편가입된 계정일 경우
-        User user = userMapper.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
-        if(user.getLoginFormat() != LoginFormat.LOCAL) {
-            throw new CustomException(ErrorCode.EMAIL_SNS_ACCOUNT_EXISTS);
         }
         
         if(!sentCode.equals(code)) {
