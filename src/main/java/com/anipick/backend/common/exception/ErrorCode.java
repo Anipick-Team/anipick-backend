@@ -30,7 +30,7 @@ public enum ErrorCode {
 	REQUESTED_TOKEN_INVALID(119, "토큰 값이 유효 X", "토큰의 요청 값이 유효하지 않습니다."),
 	PASSWORD_INVALID_FORMAT(120, "비밀번호 형식 X", "8~16자의 영문 대/소문자, 숫자, 특수문자를 조합하여 입력해주세요."),
 	EXPIRED_TOKEN(121, "토큰 만료", "토큰이 만료되었습니다."),
-	EMAIL_SNS_ACCOUNT_EXISTS(122, "SNS로 간편가입된 계정", "SNS로 간편가입된 계정입니다."),
+	EMAIL_SNS_ACCOUNT_EXISTS(122, "SNS로 간편 가입된 계정", "SNS로 간편 가입된 계정입니다."),
 	/**
 	 * Review
 	 */
