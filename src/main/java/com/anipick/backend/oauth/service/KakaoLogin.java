@@ -6,7 +6,7 @@ import com.anipick.backend.oauth.component.CommonLogin;
 import com.anipick.backend.oauth.domain.KakaoDefaults;
 import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
-import com.anipick.backend.token.dto.TokenResponse;
+import com.anipick.backend.token.dto.LoginResponse;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +29,7 @@ public class KakaoLogin implements SocialLogin {
     }
 
     @Override
-    public TokenResponse login(SocialLoginRequest request) {
+    public LoginResponse login(SocialLoginRequest request) {
         String accessToken = request.getCode();
 
         try {
