@@ -24,10 +24,7 @@ public class AuthEmailFormatInitializer {
         message.setSubject(EmailDefaults.EMAIL_VERIFICATION_SUBJECT);
 
         StringBuilder body = new StringBuilder();
-        body.append(EmailDefaults.EMAIL_VERIFICATION_NUMBER_MESSAGE);
-        body.append(EmailDefaults.H1_NUMBER_FORMAT.formatted(number));
-        body.append(EmailDefaults.LAST_MESSAGE);
-
+        body.append(EmailDefaults.EMAIL_FORMAT_HTML.formatted(number));
         message.setText(body.toString(), "utf-8", "html");
 
         return message;
