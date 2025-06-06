@@ -31,6 +31,11 @@ public enum ErrorCode {
 	PASSWORD_INVALID_FORMAT(120, "비밀번호 형식 X", "8~16자의 영문 대/소문자, 숫자, 특수문자를 조합하여 입력해주세요."),
 	EXPIRED_TOKEN(121, "토큰 만료", "토큰이 만료되었습니다."),
 	EMAIL_SNS_ACCOUNT_EXISTS(122, "SNS로 간편 가입된 계정", "SNS로 간편 가입된 계정입니다."),
+	EMAIL_AUTH_FAILED(123, "SMTP 인증 실패", "SMTP 인증 실패하였습니다."),
+	EMAIL_PARSE_ERROR(124, "메시지 파싱 오류", "메시지 파싱 오류가 발생하였습니다."),
+	EMAIL_PREPARE_ERROR(125, "메시지 준비 오류", "메시지 준비 중 오류가 발생하였습니다."),
+	EMAIL_SEND_FAILED(126, "메일 전송 실패", "메일 전송이 실패하였습니다."),
+	EMAIL_GENERIC_ERROR(127, "일반적인 메일 오류", "일반적인 메일 오류가 발생하였습니다."),
 	/**
 	 * Review
 	 */
