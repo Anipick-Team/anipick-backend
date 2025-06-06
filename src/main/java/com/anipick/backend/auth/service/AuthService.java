@@ -16,7 +16,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.MailException;
+import org.springframework.mail.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,14 +59,30 @@ public class AuthService {
             throw new CustomException(ErrorCode.EMAIL_SNS_ACCOUNT_EXISTS);
         }
 
+        String limitKey =  EmailDefaults.LIMIT_KEY + email;
+        if(redisTemplate.hasKey(limitKey)) {
+            return;
+        }
+
         try {
             String verificationNumber = numberInitializer.initVerificationNumber();
             MimeMessage message = formatInitializer.initEmail(email, verificationNumber);
-            String key = EmailDefaults.SENDER_EMAIL_KEY + email;
+            String senderEmailKey = EmailDefaults.SENDER_EMAIL_KEY + email;
 
             mailSender.send(message);
-            redisTemplate.opsForValue().set(key, verificationNumber, Duration.ofMinutes(3));
-        } catch (MailException | NoSuchAlgorithmException | MessagingException e) {
+            redisTemplate.opsForValue().set(senderEmailKey, verificationNumber, Duration.ofMinutes(3));
+            redisTemplate.opsForValue().set(limitKey, EmailDefaults.LIMIT_FLAG, Duration.ofSeconds(30));
+        } catch (MailAuthenticationException e) {
+            throw new CustomException(ErrorCode.EMAIL_AUTH_FAILED);
+        } catch (MailParseException e) {
+            throw new CustomException(ErrorCode.EMAIL_PARSE_ERROR);
+        } catch (MailPreparationException e) {
+            throw new CustomException(ErrorCode.EMAIL_PREPARE_ERROR);
+        } catch (MailSendException e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_FAILED);
+        } catch (MailException e) {
+            throw new CustomException(ErrorCode.EMAIL_GENERIC_ERROR);
+        } catch (NoSuchAlgorithmException | MessagingException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
