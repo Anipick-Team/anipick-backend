@@ -1,4 +1,4 @@
-package com.anipick.backend.user.service;
+package com.anipick.backend.user.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

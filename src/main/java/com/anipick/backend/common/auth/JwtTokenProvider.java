@@ -3,14 +3,14 @@ package com.anipick.backend.common.auth;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -41,25 +41,25 @@ public class JwtTokenProvider {
     }
 
     private String createToken(String email, long expireTime) {
-        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + expireTime))
+                .subject(email)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + expireTime))
                 .signWith(jwtSecretKey())
                 .compact();
     }
 
     public String getEmailFromToken(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(jwtSecretKey())
+            return Jwts.parser()
+                    .verifyWith(jwtSecretKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getSubject();
+
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
@@ -69,10 +69,10 @@ public class JwtTokenProvider {
 
     public void validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(jwtSecretKey())
+            Jwts.parser()
+                    .verifyWith(jwtSecretKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
@@ -90,11 +90,11 @@ public class JwtTokenProvider {
 
     public long getRemainingTokenExpiration(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecretKey())
+            Claims claims = Jwts.parser()
+                    .verifyWith(jwtSecretKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             Date expiration = claims.getExpiration();
             long now = System.currentTimeMillis();
@@ -107,6 +107,6 @@ public class JwtTokenProvider {
     }
 
     private SecretKey jwtSecretKey() {
-        return new SecretKeySpec(Base64.getDecoder().decode(secretKey), SignatureAlgorithm.HS512.getJcaName());
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 }
