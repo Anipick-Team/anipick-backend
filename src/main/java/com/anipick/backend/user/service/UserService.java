@@ -3,6 +3,8 @@ package com.anipick.backend.user.service;
 import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.token.dto.LoginResponse;
+import com.anipick.backend.token.dto.SignUpResponse;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
 import com.anipick.backend.user.dto.LoginRequest;
@@ -29,7 +31,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void signUp(SignUpRequest request) {
+    public SignUpResponse signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -63,13 +65,15 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        return SignUpResponse.from(response);
     }
 
     private boolean checkDuplicateEmail(String email) {
         return userMapper.findByEmail(email).isPresent();
     }
 
-    public TokenResponse doLogin(LoginRequest request) {
+    public LoginResponse doLogin(LoginRequest request) {
         User user = userMapper.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
 
@@ -77,7 +81,8 @@ public class UserService {
             throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
         }
 
-        return tokenService.generateAndSaveTokens(user.getEmail());
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        return LoginResponse.from(user.getReviewCompletedYn(), response);
     }
 
     public void doLogout(HttpServletRequest request) {
