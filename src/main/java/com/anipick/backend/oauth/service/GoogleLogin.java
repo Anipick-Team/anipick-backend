@@ -7,7 +7,7 @@ import com.anipick.backend.oauth.component.GoogleVerifierProcessor;
 import com.anipick.backend.oauth.domain.Platform;
 import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
-import com.anipick.backend.token.dto.TokenResponse;
+import com.anipick.backend.token.dto.LoginResponse;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GoogleLogin implements SocialLogin {
     }
 
     @Override
-    public TokenResponse login(SocialLoginRequest request) {
+    public LoginResponse login(SocialLoginRequest request) {
         Platform platform = Platform.valueOf(request.getPlatform().toUpperCase());
         String idToken = request.getCode();
 

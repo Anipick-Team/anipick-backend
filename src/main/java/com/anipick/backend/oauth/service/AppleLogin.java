@@ -6,7 +6,7 @@ import com.anipick.backend.oauth.component.CommonLogin;
 import com.anipick.backend.oauth.domain.AppleDefaults;
 import com.anipick.backend.oauth.domain.Provider;
 import com.anipick.backend.oauth.dto.SocialLoginRequest;
-import com.anipick.backend.token.dto.TokenResponse;
+import com.anipick.backend.token.dto.LoginResponse;
 import com.anipick.backend.user.domain.LoginFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class AppleLogin implements SocialLogin {
     }
 
     @Override
-    public TokenResponse login(SocialLoginRequest request) {
+    public LoginResponse login(SocialLoginRequest request) {
         String prefixEmail = request.getCode();
 
         try {
