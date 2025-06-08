@@ -9,8 +9,11 @@ import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.RecentReviewItemDto;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
 import com.anipick.backend.review.dto.ReviewRequest;
+import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
+import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,8 @@ public class ReviewService {
     private final RecentReviewMapper recentReviewMapper;
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
+    private final RatingMapper ratingMapper;
+    private final UserAnimeStatusMapper userAnimeStatusMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -71,7 +76,6 @@ public class ReviewService {
                 .build();
     }
 
-
     @Transactional
     public void createAndUpdateReview(Long reviewId, ReviewRequest request, Long userId) {
         Review review = reviewMapper.findByReviewId(reviewId, userId)
@@ -85,6 +89,17 @@ public class ReviewService {
         }
 
         reviewMapper.updateReview(reviewId, userId, request);
+    }
+
+    @Transactional
+    public void createAndUpdateSignupReview(List<SignupRatingRequest> ratingRequests, Long userId) {
+        for (SignupRatingRequest request : ratingRequests) {
+            Long animeId = request.getAnimeId();
+            ratingMapper.findByAnimeId(animeId, userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS));
+
+        }
+        ratingMapper.createSignupReviewRating(userId, ratingRequests);
     }
 
     @Transactional
