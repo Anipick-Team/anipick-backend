@@ -9,6 +9,15 @@
         VALUES (#{animeId}, #{userId}, #{request.rating}, NOW(), NOW(), 0, false)
     </insert>
 
+    <insert id="createSignupReviewRating">
+        INSERT INTO Review
+            (anime_id, user_id, rating, created_at, updated_at, like_count, is_spoiler)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.animeId}, #{item.rating})
+        </foreach>
+    </insert>
+
     <update id="updateRating">
         UPDATE Review
         SET rating = #{request.rating},
