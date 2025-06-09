@@ -16,6 +16,8 @@ public interface RatingMapper {
 
     Optional<Review> findByReviewId(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
 
+    List<Long> findAnimeIdsByUserId(@Param("animeIds") List<Long> animeIds, @Param("userId") Long userId);
+
     void createReviewRating(
             @Param("animeId") Long animeId,
             @Param("userId") Long userId,
