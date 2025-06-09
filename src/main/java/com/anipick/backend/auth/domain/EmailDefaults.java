@@ -27,4 +27,6 @@ public class EmailDefaults {
                         </div>
             """;
     public static final String SENDER_EMAIL_KEY = "senderEmail:";
+    public static final String LIMIT_KEY = "limit:";
+    public static final String LIMIT_FLAG = "1";
 }
