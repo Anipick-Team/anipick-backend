@@ -38,4 +38,8 @@ public class TestService {
 
 		return new SearchAnimePageDto(totalCount, 0, 0, cursor, items);
 	}
+
+	public TestUserRecommendationStateDto findRecommendationState(long userId) {
+		return testMapper.findRecommendationState(userId);
+	}
 }

@@ -25,4 +25,12 @@
         WHERE at.anime_id = #{animeId}
         ORDER BY at.weight DESC
     </select>
+
+    <select id="findRecommendationState"
+    resultType="com.anipick.backend.test.TestUserRecommendationStateDto">
+        SELECT urs.user_id AS userId,
+               urs.mode AS mode
+        FROM Userrecommendationstate urs
+        WHERE urs.user_id = #{userId}
+    </select>
 </mapper>

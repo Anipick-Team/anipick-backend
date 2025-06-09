@@ -60,4 +60,12 @@ public class TestController {
 		SearchAnimePageDto searchAnimes = testService.findSearchAnimes(query, lastId, size);
 		return ApiResponse.success(searchAnimes);
 	}
+
+    @GetMapping("/recommendation-state/{userId}")
+    public ApiResponse<TestUserRecommendationStateDto> findRecommendationState(
+            @PathVariable(value = "userId") long userId
+    ) {
+        TestUserRecommendationStateDto userState = testService.findRecommendationState(userId);
+        return ApiResponse.success(userState);
+    }
 }
