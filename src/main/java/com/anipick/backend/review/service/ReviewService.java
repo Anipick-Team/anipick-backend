@@ -93,13 +93,19 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateSignupReview(List<SignupRatingRequest> ratingRequests, Long userId) {
-        for (SignupRatingRequest request : ratingRequests) {
-            Long animeId = request.getAnimeId();
-            ratingMapper.findByAnimeId(animeId, userId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS));
+        List<Long> animeIds = ratingRequests.stream()
+                .map(SignupRatingRequest::getAnimeId)
+                .toList();
 
+        List<Long> existingAnimeIds = ratingMapper.findAnimeIdsByUserId(animeIds, userId);
+        List<SignupRatingRequest> newRatings = ratingRequests.stream()
+                .filter(request -> !existingAnimeIds.contains(request.getAnimeId()))
+                .toList();
+        if (!newRatings.isEmpty()) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
-        ratingMapper.createSignupReviewRating(userId, ratingRequests);
+
+        ratingMapper.createSignupReviewRating(userId, newRatings);
     }
 
     @Transactional
