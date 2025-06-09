@@ -14,7 +14,7 @@
             (anime_id, user_id, rating, created_at, updated_at, like_count, is_spoiler)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.animeId}, #{item.rating})
+            (#{item.animeId}, #{userId}, #{item.rating}, NOW(), NOW(), 0, false)
         </foreach>
     </insert>
 
