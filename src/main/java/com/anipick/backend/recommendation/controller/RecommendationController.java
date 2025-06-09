@@ -1,5 +1,6 @@
 package com.anipick.backend.recommendation.controller;
 
+import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.service.RecommendationService2;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,16 @@ public class RecommendationController {
 	@GetMapping("/animes/{userId}")
 	public ApiResponse<UserMainRecommendationPageDto> getRecommendationAnimes(
 //		@AuthenticationPrincipal CustomUserDetails user,
-		@PathVariable(value = "userId") long userId,
-		@RequestParam(value = "lastValue", required = false) Long lastScore,
-		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
-	) {
-		UserMainRecommendationPageDto result = recommendationService.getRecommendationAnimes(userId, lastScore, lastId, size);
+			@PathVariable(value = "userId") long userId,
+			@RequestParam(value = "lastValue", required = false) Long lastScore,
+			@RequestParam(value = "lastId", required = false) Long lastId,
+			@RequestParam(value = "size", defaultValue = "18") Long size,
+			@RequestParam(value = "mode", defaultValue = "RECENT_HIGH")UserRecommendMode mode,
+			@RequestParam(value = "topN", defaultValue="20", required = false) int topN,
+    		@RequestParam(value = "topPercent", defaultValue="20", required = false) double topPercent
+			) {
+		UserMainRecommendationPageDto result = recommendationService
+				.getRecommendationAnimes(userId, lastScore, lastId, size, mode, topN, topPercent);
 		return ApiResponse.success(result);
 	}
 	// 카운트만 했을 경우
@@ -38,10 +43,13 @@ public class RecommendationController {
 		@RequestParam(value = "lastValue", required = false) Long lastValue,
 		@RequestParam(value = "lastCount", required = false) Long lastCount,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "mode", defaultValue = "RECENT_HIGH") UserRecommendMode mode,
+	    @RequestParam(value = "topN", defaultValue = "20", required = false) int topN,
+    	@RequestParam(value = "topPercent", defaultValue = "20", required = false) double topPercent
 	) {
 		UserMainRecommendationPageDto result =
-			recommendationService2.test1(lastValue, lastCount, lastId, size, userId);
+			recommendationService2.test1(lastValue, lastCount, lastId, size, userId, mode, topN, topPercent);
 		return ApiResponse.success(result);
 	}
 
@@ -52,10 +60,13 @@ public class RecommendationController {
 		@RequestParam(value = "lastValue", required = false) Long lastValue,
 		@RequestParam(value = "lastCount", required = false) Long lastCount,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "mode", defaultValue = "RECENT_HIGH") UserRecommendMode mode,
+	    @RequestParam(value = "topN", defaultValue = "20", required = false) int topN,
+    	@RequestParam(value = "topPercent", defaultValue = "20", required = false) double topPercent
 	) {
 		UserMainRecommendationPageDto result =
-			recommendationService2.test2(lastValue, lastCount, lastId, size, userId);
+			recommendationService2.test2(lastValue, lastCount, lastId, size, userId, mode, topN, topPercent);
 		return ApiResponse.success(result);
 	}
 
@@ -66,10 +77,13 @@ public class RecommendationController {
 		@RequestParam(value = "lastValue", required = false) Long lastValue,
 		@RequestParam(value = "lastCount", required = false) Long lastCount,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "mode", defaultValue = "RECENT_HIGH") UserRecommendMode mode,
+	    @RequestParam(value = "topN", defaultValue = "20", required = false) int topN,
+    	@RequestParam(value = "topPercent", defaultValue = "20", required = false) double topPercent
 	) {
 		UserMainRecommendationPageDto result =
-			recommendationService2.test3(lastValue, lastCount, lastId, size, userId);
+			recommendationService2.test3(lastValue, lastCount, lastId, size, userId, mode, topN, topPercent);
 		return ApiResponse.success(result);
 	}
 
@@ -81,10 +95,13 @@ public class RecommendationController {
 		@RequestParam(value = "lastValue", required = false) Long lastValue,
 		@RequestParam(value = "lastCount", required = false) Long lastCount,
 		@RequestParam(value = "lastId", required = false) Long lastId,
-		@RequestParam(value = "size", defaultValue = "18") Long size
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "mode", defaultValue = "RECENT_HIGH") UserRecommendMode mode,
+	    @RequestParam(value = "topN", defaultValue = "20", required = false) int topN,
+    	@RequestParam(value = "topPercent", defaultValue = "20", required = false) double topPercent
 	) {
 		UserMainRecommendationPageDto result =
-			recommendationService2.test4(lastValue, lastCount, lastId, size, userId);
+			recommendationService2.test4(lastValue, lastCount, lastId, size, userId, mode, topN, topPercent);
 		return ApiResponse.success(result);
 	}
 }

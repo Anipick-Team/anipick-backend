@@ -2,8 +2,12 @@ package com.anipick.backend.recommendation.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.anipick.backend.test.TestAnimeItemDto;
+import com.anipick.backend.test.TestAnimeTagDto;
+import com.anipick.backend.test.TestMapper;
 import org.springframework.stereotype.Service;
 
 import com.anipick.backend.anime.dto.AnimeItemDto;
@@ -26,12 +30,16 @@ public class RecommendationService {
 	private final UserStateMapper userStateMapper;
 	private final ReviewUserMapper reviewUserMapper;
 	private final RecommendationMapper recommendationMapper;
+	private final TestMapper testMapper;
 
 	public UserMainRecommendationPageDto getRecommendationAnimes(
-		Long userId,
-		Long lastScore,
-		Long lastId,
-		Long size
+			Long userId,
+			Long lastScore,
+			Long lastId,
+			Long size,
+			UserRecommendMode mode,
+			int topN,
+			double topPercent
 	) {
 		// 유저 상태 조회
 		UserState state = userStateMapper.findByUserId(userId);
@@ -45,12 +53,10 @@ public class RecommendationService {
 		if (state.getMode() == UserRecommendMode.RECENT_HIGH) {
 			long days = Duration.between(state.getStartDate(), LocalDateTime.now()).toDays();
 			if (days >= 3) {
-				System.out.println("dddd");
 				userStateMapper.updateMode(userId, UserRecommendMode.TAG_BASED, null);
 				state = userStateMapper.findByUserId(userId);
 			} else {
 				Long latestHigh = reviewUserMapper.findMostRecentHighRatedAnime(userId);
-				System.out.println("latestHigh = " + latestHigh);
 				if (latestHigh == null) {
 					// 리뷰가 없음
 					return UserMainRecommendationPageDto.emptyReviewOf(0L, List.of());
@@ -63,19 +69,76 @@ public class RecommendationService {
 		}
 
 		long totalCount;
+		List<TestAnimeItemDto> referenceAnimes = new ArrayList<>();
+		List<TestAnimeItemDto> resultAnimes;
 		List<AnimeRecommendDto> animes;
 
 		// 모드별 추천 실행
-		if (state.getMode() == UserRecommendMode.RECENT_HIGH) {
+		if (mode == UserRecommendMode.RECENT_HIGH) {
+			Long referenceAnimeId = state.getReferenceAnimeId();
 			RecentHighRequestDto req =
-				new RecentHighRequestDto(userId, state.getReferenceAnimeId(), lastScore, lastId, size);
-			animes = recommendByRecentHigh(req);
+				new RecentHighRequestDto(userId, referenceAnimeId, lastScore, lastId, size);
+
+			List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+			List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
+
+			referenceAnimes = refAnimes.stream()
+					.map(ref -> new TestAnimeItemDto(
+							ref.getAnimeId(),
+							ref.getTitle(),
+							ref.getCoverImageUrl(),
+							tags
+					))
+					.toList();
+
+			List<AnimeRecommendDto> animes1 = recommendByRecentHigh(req);
+
+			resultAnimes = animes1.stream()
+					.map(rec -> new TestAnimeItemDto(
+							rec.getAnimeId(),
+							rec.getTitle(),
+							rec.getCoverImageUrl(),
+							testMapper.getAnimeTags(rec.getAnimeId())
+					))
+					.toList();
+			animes = animes1;
 			totalCount = recommendationMapper.countByRecentHigh(req);
 		} else {
-			List<Long> topAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
+			//tag based
+			List<Long> topNIds = reviewUserMapper.findTopRatedAnimeIds(userId, topN);
+
+			long totalReviews = reviewUserMapper.countReviewsByUser(userId);
+
+			int percentLimit = (int) Math.ceil(totalReviews * (topPercent / 100.0));
+			List<Long> topPercentIds = reviewUserMapper.findTopRatedAnimeIds(userId, percentLimit);
+
+			List<Long> filteredIds = topNIds.stream()
+					.filter(topPercentIds::contains)
+					.toList();
+
+			referenceAnimes = filteredIds.stream()
+   					 .map(a -> {
+							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
+							return new TestAnimeItemDto(
+									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+							);
+						})
+					.toList();
+
 			TagBasedRequestDto req =
-				new TagBasedRequestDto(userId, topAnimeIds, lastScore, lastId, size);
-			animes = recommendByTagBased(req);
+				new TagBasedRequestDto(userId, filteredIds, lastScore, lastId, size);
+
+			List<AnimeRecommendDto> animes1 = recommendByTagBased(req);
+			resultAnimes = animes1.stream()
+					.map(rec -> new TestAnimeItemDto(
+							rec.getAnimeId(),
+							rec.getTitle(),
+							rec.getCoverImageUrl(),
+							testMapper.getAnimeTags(rec.getAnimeId())
+					))
+					.toList();
+			animes = animes1;
 			totalCount = recommendationMapper.countByTagBased(req);
 		}
 
@@ -94,7 +157,7 @@ public class RecommendationService {
 			.map(e -> new AnimeItemDto(e.getAnimeId(), e.getTitle(), e.getCoverImageUrl()))
 			.toList();
 
-		return UserMainRecommendationPageDto.of(totalCount, cursor, items);
+		return UserMainRecommendationPageDto.of(totalCount, cursor, referenceAnimes, resultAnimes);
 	}
 
 	private List<AnimeRecommendDto> recommendByRecentHigh(RecentHighRequestDto req) {

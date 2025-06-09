@@ -33,4 +33,10 @@
         ORDER BY r.rating DESC
         LIMIT 20
     </select>
+
+    <select id="countReviewsByUser" resultType="long">
+        SELECT count(*)
+        FROM Review r
+        WHERE r.user_id = #{userId}
+    </select>
 </mapper>

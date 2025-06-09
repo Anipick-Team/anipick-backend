@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.test.TestMapper">
+    <select id="selectReferenceAnime"
+    resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_english AS title,
+               a.cover_image_url AS coverImageUrl
+        FROM Anime a
+        WHERE a.anime_id = #{referenceAnimeId}
+    </select>
+
+
+    <select id="getAnimeTags"
+    resultType="com.anipick.backend.test.TestAnimeTagDto">
+        SELECT at.anime_id AS animeId,
+               t.name_eng AS tagName,
+               at.weight AS weight
+        FROM Animetag at
+        JOIN Tag t
+            ON at.tag_id = t.tag_id
+        WHERE at.anime_id = #{animeId}
+        ORDER BY at.weight DESC
+    </select>
+</mapper>

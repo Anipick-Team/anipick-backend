@@ -12,4 +12,6 @@ public interface ReviewUserMapper {
 	List<Long> findTopRatedAnimeIds(@Param("userId") Long userId, @Param("limit")  int limit);
 
 	List<Long> findUserReviews(@Param("userId") Long userId);
+
+	long countReviewsByUser(@Param("userId") Long userId);
 }

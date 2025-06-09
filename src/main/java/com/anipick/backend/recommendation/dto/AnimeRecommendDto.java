@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AnimeRecommendDto {
-	private final Long  animeId;
-	private final String title;
-	private final String coverImageUrl;
-	private final Long  score;
+	private Long  animeId;
+	private String title;
+	private String coverImageUrl;
+	private Long  score;
 }

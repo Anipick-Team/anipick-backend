@@ -52,7 +52,7 @@
             resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto">
         SELECT
         a.anime_id AS animeId,
-        a.title_kor AS title,
+        a.title_english AS title,
         a.cover_image_url AS coverImageUrl,
         sim.score AS score
         <!-- 유사도 찾기 -->
@@ -91,7 +91,7 @@
             resultType="com.anipick.backend.recommendation.dto.AnimeRecommendDto">
         SELECT
         a.anime_id AS animeId,
-        a.title_kor AS title,
+        a.title_english AS title,
         a.cover_image_url AS coverImageUrl,
         sim.score AS score
         <!-- 유사도 찾기(최대 IDS 20개) -->

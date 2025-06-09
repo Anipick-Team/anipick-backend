@@ -25,7 +25,9 @@ public interface RecommendationMapper {
 	/**
 	 * Full 일 때 tag_count + total_score 모두 반환
 	 */
+	// 스코어 먼저 정렬
 	List<AnimeRecommendDto2> selectRecentHighFull(RecentHighFullRequest req);
+	// 카운트 먼저 정렬
 	List<AnimeRecommendDto2> selectRecentHighFull2(RecentHighFullRequest req);
 	long countRecentHighFull(RecentHighFullRequest req);
 
