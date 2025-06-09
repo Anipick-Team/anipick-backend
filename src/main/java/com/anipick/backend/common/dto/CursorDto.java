@@ -13,6 +13,8 @@ public class CursorDto {
 	private Long lastId;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String lastValue;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String lastCount;
 
 	public CursorDto(Long lastId) {
 		this.lastId = lastId;
@@ -21,6 +23,18 @@ public class CursorDto {
 	public CursorDto(String sort, Long lastId) {
 		this.sort = sort;
 		this.lastId = lastId;
+	}
+
+	public CursorDto(String sort, Long lastId, String lastValue) {
+		this.sort = sort;
+		this.lastId = lastId;
+		this.lastValue = lastValue;
+	}
+
+	public CursorDto(Long lastId, String lastValue, String lastCount) {
+		this.lastId = lastId;
+		this.lastValue = lastValue;
+		this.lastCount = lastCount;
 	}
 
 	public static CursorDto of(Long lastId) {
@@ -33,5 +47,9 @@ public class CursorDto {
 
 	public static CursorDto of(String sort, Long lastId, String lastValue) {
 		return new CursorDto(sort, lastId, lastValue);
+	}
+
+	public static CursorDto of(Long lastId, String lastValue, String lastCount) {
+		return new CursorDto(lastId, lastValue, lastCount);
 	}
 }
