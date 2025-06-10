@@ -84,7 +84,7 @@ public class UserService {
         }
 
         TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
-        return LoginResponse.from(user.getReviewCompletedYn(), response);
+        return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
     public void doLogout(HttpServletRequest request) {
