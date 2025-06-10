@@ -15,6 +15,7 @@ import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -93,19 +95,7 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateSignupReview(List<SignupRatingRequest> ratingRequests, Long userId) {
-        List<Long> animeIds = ratingRequests.stream()
-                .map(SignupRatingRequest::getAnimeId)
-                .toList();
-
-        List<Long> existingAnimeIds = ratingMapper.findAnimeIdsByUserId(animeIds, userId);
-        List<SignupRatingRequest> newRatings = ratingRequests.stream()
-                .filter(request -> !existingAnimeIds.contains(request.getAnimeId()))
-                .toList();
-        if (!newRatings.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
-        }
-
-        ratingMapper.createSignupReviewRating(userId, newRatings);
+        ratingMapper.createSignupReviewRating(userId, ratingRequests);
     }
 
     @Transactional
