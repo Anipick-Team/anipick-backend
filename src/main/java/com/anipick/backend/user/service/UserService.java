@@ -7,12 +7,14 @@ import com.anipick.backend.token.dto.LoginResponse;
 import com.anipick.backend.token.dto.SignUpResponse;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.user.component.NicknameInitializer;
 import com.anipick.backend.user.dto.LoginRequest;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
 import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.mapper.UserMapper;
+import com.anipick.backend.user.util.SignUpValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +32,7 @@ public class UserService {
     private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final NicknameInitializer nicknameInitializer;
 
     public SignUpResponse signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
@@ -50,11 +53,10 @@ public class UserService {
             throw new CustomException(ErrorCode.PASSWORD_INVALID_FORMAT);
         }
 
-        String nickname = NicknameInitializer.generateUniqueNickname(userMapper::existsByNickname);
         User user = User.builder()
                 .email(requestEmail)
                 .password(passwordEncoder.encode(requestPassword))
-                .nickname(nickname)
+                .nickname(nicknameInitializer.generateNickname(LoginFormat.LOCAL))
                 .loginFormat(LoginFormat.LOCAL)
                 .profileImageUrl(UserDefaults.DEFAULT_PROFILE_IMAGE_URL)
                 .termsAndConditions(request.getTermsAndConditions())
@@ -96,7 +98,7 @@ public class UserService {
         long expiration = jwtTokenProvider.getRemainingTokenExpiration(accessToken);
         Duration duration = Duration.ofMillis(expiration);
 
-        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken, "logout", duration);
+        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT_KEY + accessToken, "logout", duration);
         redisTemplate.delete(email);
     }
 }
