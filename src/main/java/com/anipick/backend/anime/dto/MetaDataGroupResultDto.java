@@ -13,5 +13,5 @@ public class MetaDataGroupResultDto {
     private List<Integer> seasonYear;
     private List<SeasonDto> season;
     private List<GenreDto> genres;
-    private List<AnimeFormat> type;
+    private List<String> type;
 }
