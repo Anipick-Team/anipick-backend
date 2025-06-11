@@ -13,7 +13,9 @@ import com.anipick.backend.review.dto.SignupRatingRequest;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
+import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
+import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,11 +35,11 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
     private final RatingMapper ratingMapper;
+    private final UserMapper userMapper;
     private final UserAnimeStatusMapper userAnimeStatusMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-
 
     @Transactional(readOnly = true)
     public RecentReviewPageDto getRecentReviews(Long userId, Long lastId, Integer size) {
@@ -95,7 +97,12 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateSignupReview(List<SignupRatingRequest> ratingRequests, Long userId) {
+        if (ratingRequests == null || ratingRequests.isEmpty()) {
+            return;
+        }
+
         ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        userMapper.updateReviewCompletedYn(userId);
     }
 
     @Transactional
