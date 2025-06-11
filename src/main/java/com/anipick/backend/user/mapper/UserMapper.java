@@ -14,5 +14,6 @@ public interface UserMapper {
 
     void insertUser(User user);
     void updateUser(User user);
+    void updateReviewCompletedYn(Long userId);
     void deleteUser(Long userId);
 }
