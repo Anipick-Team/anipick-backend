@@ -1,6 +1,8 @@
 package com.anipick.backend.user.controller;
 
 import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.token.dto.LoginResponse;
+import com.anipick.backend.token.dto.SignUpResponse;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.user.dto.LoginRequest;
 import com.anipick.backend.user.dto.SignUpRequest;
@@ -16,14 +18,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ApiResponse<Void> signUp(@RequestBody SignUpRequest request) {
-        userService.signUp(request);
-        return ApiResponse.success();
+    public ApiResponse<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
+        SignUpResponse response = userService.signUp(request);
+        return ApiResponse.success(response);
     }
 
     @PostMapping("/login")
-    public ApiResponse<TokenResponse> login(@RequestBody LoginRequest request) {
-        TokenResponse response = userService.doLogin(request);
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = userService.doLogin(request);
         return ApiResponse.success(response);
     }
 
