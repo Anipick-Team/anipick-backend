@@ -1,12 +1,15 @@
 package com.anipick.backend.oauth.component;
 
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.token.dto.LoginResponse;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.user.component.NicknameInitializer;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
 import com.anipick.backend.user.mapper.UserMapper;
-import com.anipick.backend.user.service.NicknameInitializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,12 +20,17 @@ import java.time.LocalDateTime;
 public class CommonLogin {
     private final UserMapper userMapper;
     private final TokenService tokenService;
+    private final NicknameInitializer nicknameInitializer;
 
-    public TokenResponse signUpAndLogin(String email, LoginFormat loginFormat) {
+    public LoginResponse signUpAndLogin(String email, LoginFormat loginFormat) {
         if(checkExistsEmail(email)) {
-            return tokenService.generateAndSaveTokens(email);
+            User user = userMapper.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+            TokenResponse response = tokenService.generateAndSaveTokens(email);
+
+            return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         } else {
-            String nickname = NicknameInitializer.generateUniqueNickname(userMapper::existsByNickname);
+            String nickname = nicknameInitializer.generateNickname(loginFormat);
             User user = User.builder()
                     .email(email)
                     .nickname(nickname)
@@ -37,7 +45,8 @@ public class CommonLogin {
 
             userMapper.insertUser(user);
 
-            return tokenService.generateAndSaveTokens(email);
+            TokenResponse response = tokenService.generateAndSaveTokens(email);
+            return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         }
     }
 
