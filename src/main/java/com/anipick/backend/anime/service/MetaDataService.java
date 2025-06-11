@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class MetaDataService {
+    private static final List<String> CLIENT_TYPES = List.of("TVA", "OVA", "극장판");
 
     private final MetaDataMapper mapper;
 
@@ -34,8 +35,7 @@ public class MetaDataService {
                 .collect(Collectors.toList());
 
         List<GenreDto> genreDtos = mapper.selectAllGenres();
-        List<AnimeFormat> types = Arrays.stream(AnimeFormat.values()).toList();
 
-        return new MetaDataGroupResultDto(years, seasons, genreDtos, types);
+        return new MetaDataGroupResultDto(years, seasons, genreDtos, CLIENT_TYPES);
     }
 }
