@@ -1,7 +1,6 @@
 package com.anipick.backend.home.mapper;
 
 import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
-import com.anipick.backend.home.dto.HomeComingSoonItemDto;
 import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
