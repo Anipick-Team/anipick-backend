@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.home.mapper.HomeMapper">
+    <select id="selectHomeRecentReviews" resultType="com.anipick.backend.home.dto.HomeRecentReviewItemDto">
+        SELECT
+            r.review_id AS reviewId,
+            r.anime_id AS animeId,
+            a.title_kor AS animeTitle,
+            r.content AS reviewContent,
+            u.nickname AS nickname,
+            r.created_at AS createdAt
+        FROM Review r
+        JOIN Anime a ON a.anime_id = r.anime_id
+        JOIN User u ON u.user_id = r.user_id
+        WHERE r.is_spoiler = FALSE
+        AND r.content IS NOT NULL
+        -- 신고된 리뷰는 제외
+        AND NOT EXISTS (
+            SELECT 1
+            FROM ReportedReview rr
+            WHERE rr.review_id = r.review_id
+            AND rr.user_id = #{currentUserId}
+        )
+        -- 차단된 사용자의 리뷰는 제외
+        AND NOT EXISTS (
+            SELECT 1
+            FROM BlockedUser bu
+            WHERE bu.blocked_user_id = r.user_id
+            AND bu.user_id = #{currentUserId}
+        )
+        ORDER BY r.review_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="selectHomeComingSoonAnimes" resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate,
+               a.format AS format,
+               a.is_adult AS isAdult
+        FROM Anime a
+        WHERE
+            a.is_adult = 0
+        AND
+            a.status = 'NOT_YET_RELEASED'
+        AND a.cover_image_url != #{defaultCoverUrl}
+        ORDER BY ${orderByQuery}
+        LIMIT #{size}
+    </select>
+</mapper>
