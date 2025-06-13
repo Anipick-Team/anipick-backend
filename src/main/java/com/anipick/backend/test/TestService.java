@@ -4,6 +4,7 @@ import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.search.dto.SearchAnimePageDto;
 import com.anipick.backend.search.mapper.SearchMapper;
+import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,9 @@ public class TestService {
 
 	private final SearchMapper mapper;
     private final TestMapper testMapper;
+	private final UserMapper userMapper;
 
-    public List<TestResponseDto> findReviews(long userId) {
+	public List<TestResponseDto> findReviews(long userId) {
         return testMapper.findReviews(userId);
     }
 
@@ -41,5 +43,9 @@ public class TestService {
 
 	public TestUserRecommendationStateDto findRecommendationState(long userId) {
 		return testMapper.findRecommendationState(userId);
+	}
+
+	public Boolean userExist(Long userId) {
+		return userMapper.findByUserId(userId).isPresent();
 	}
 }

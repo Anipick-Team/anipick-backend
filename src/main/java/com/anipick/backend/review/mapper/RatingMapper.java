@@ -28,7 +28,6 @@ public interface RatingMapper {
 
     void deleteRating(
             @Param("reviewId") Long reviewId,
-            @Param("userId") Long userId,
-            @Param("request") ReviewRatingRequest request
+            @Param("userId") Long userId
     );
 }

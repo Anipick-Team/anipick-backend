@@ -21,7 +21,7 @@ public class RecommendationController {
 	private final RecommendationService2 recommendationService2;
 
 	// 원래 개발했던 추천 방안
-	@GetMapping("/animes/{userId}")
+	@GetMapping("/animes/test0/{userId}")
 	public ApiResponse<UserMainRecommendationPageDto> getRecommendationAnimes(
 //		@AuthenticationPrincipal CustomUserDetails user,
 			@PathVariable(value = "userId") long userId,

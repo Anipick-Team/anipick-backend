@@ -44,7 +44,7 @@ public class RatingController {
         @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
-        ratingService.deleteReviewRating(reviewId, request, userId);
+        ratingService.deleteReviewRating(reviewId, userId);
         return ApiResponse.success();
     }
 }

@@ -33,10 +33,9 @@ public class TestController {
     @DeleteMapping("/{reviewId}/animes/{userId}")
     public ApiResponse<Void> deleteReviewRating(
         @PathVariable(name = "reviewId") Long reviewId,
-        @RequestBody ReviewRatingRequest request,
         @PathVariable(value = "userId") long userId
     ) {
-        ratingService.deleteReviewRating(reviewId, request, userId);
+        ratingService.deleteReviewRating(reviewId, userId);
         return ApiResponse.success();
     }
     //TODO : 내가 쓴 평가 조회 -> 리뷰 ID, 애니 이름(영어), 애니 번호
@@ -67,5 +66,11 @@ public class TestController {
     ) {
         TestUserRecommendationStateDto userState = testService.findRecommendationState(userId);
         return ApiResponse.success(userState);
+    }
+
+    @GetMapping("/exist/{userId}")
+    public ApiResponse<Boolean> findUserExist(@PathVariable("userId") Long userId) {
+        Boolean userExist = testService.userExist(userId);
+        return ApiResponse.success(userExist);
     }
 }
