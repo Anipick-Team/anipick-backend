@@ -75,7 +75,8 @@ public class RecommendationService {
 
 		// 모드별 추천 실행
 		if (mode == UserRecommendMode.RECENT_HIGH) {
-			Long referenceAnimeId = state.getReferenceAnimeId();
+//			Long referenceAnimeId = state.getReferenceAnimeId();
+			Long referenceAnimeId = reviewUserMapper.findMostRecentHighRatedAnime(userId);
 			RecentHighRequestDto req =
 				new RecentHighRequestDto(userId, referenceAnimeId, lastScore, lastId, size);
 
