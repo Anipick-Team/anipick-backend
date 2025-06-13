@@ -63,14 +63,13 @@ public class RecommendationService2 {
         List<AnimeRecommendDto2> countOnlyList;
         List<TestAnimeItemDto> referenceAnimes = new ArrayList<>();
         List<TestAnimeItemDto> resultAnimes  = new ArrayList<>();
-
         if (mode == UserRecommendMode.RECENT_HIGH) {
 //			 Count-Only 버전 (tag_count 만 반환)
-            Long referenceAnimeId = state.getReferenceAnimeId();
+//            Long referenceAnimeId = state.getReferenceAnimeId();
+            Long referenceAnimeId = reviewUserMapper.findMostRecentHighRatedAnime(userId);
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
             RecentHighCountOnlyRequest countOnlyRequest =
                     new RecentHighCountOnlyRequest(userId, referenceAnimeId, tagIds, lastCount, lastId, size);
-
             List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
             List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
@@ -199,7 +198,9 @@ public class RecommendationService2 {
         List<TestAnimeItemDto> resultAnimes  = new ArrayList<>();
 
         if (mode == UserRecommendMode.RECENT_HIGH) {
-            Long referenceAnimeId = state.getReferenceAnimeId();
+//            Long referenceAnimeId = state.getReferenceAnimeId();
+            Long referenceAnimeId = reviewUserMapper.findMostRecentHighRatedAnime(userId);
+
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
             RecentHighScoreOnlyRequest scoreOnlyRequest =
                     new RecentHighScoreOnlyRequest(userId, referenceAnimeId, tagIds, lastCount, lastId, size);
@@ -331,7 +332,8 @@ public class RecommendationService2 {
         List<TestAnimeItemDto> resultAnimes  = new ArrayList<>();
 
         if (mode == UserRecommendMode.RECENT_HIGH) {
-            Long referenceAnimeId = state.getReferenceAnimeId();
+//            Long referenceAnimeId = state.getReferenceAnimeId();
+            Long referenceAnimeId = reviewUserMapper.findMostRecentHighRatedAnime(userId);
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
             RecentHighFullRequest fullRequest =
                     new RecentHighFullRequest(userId, referenceAnimeId, tagIds, lastValue, lastCount, lastId, size);
@@ -458,7 +460,8 @@ public class RecommendationService2 {
         List<TestAnimeItemDto> resultAnimes  = new ArrayList<>();
 
         if (state.getMode() == UserRecommendMode.RECENT_HIGH) {
-            Long referenceAnimeId = state.getReferenceAnimeId();
+//            Long referenceAnimeId = state.getReferenceAnimeId();
+            Long referenceAnimeId = reviewUserMapper.findMostRecentHighRatedAnime(userId);
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
             RecentHighFullRequest fullRequest =
                     new RecentHighFullRequest(userId, referenceAnimeId, tagIds, lastValue, lastCount, lastId, size);
