@@ -19,4 +19,6 @@ public interface TestMapper {
     List<TestAnimeTagDto> getAnimeTags(@Param(value = "animeId") Long animeId);
 
     TestUserRecommendationStateDto findRecommendationState(@Param(value = "userId") long userId);
+
+    List<TestAllUsersDto> findAllUsers();
 }

@@ -48,4 +48,8 @@ public class TestService {
 	public Boolean userExist(Long userId) {
 		return userMapper.findByUserId(userId).isPresent();
 	}
+
+	public List<TestAllUsersDto> findAllUsers() {
+		return testMapper.findAllUsers();
+	}
 }

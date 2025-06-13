@@ -73,4 +73,10 @@ public class TestController {
         Boolean userExist = testService.userExist(userId);
         return ApiResponse.success(userExist);
     }
+
+    @GetMapping("/users")
+    public ApiResponse<List<TestAllUsersDto>> findAllUsers() {
+        List<TestAllUsersDto> result = testService.findAllUsers();
+        return ApiResponse.success(result);
+    }
 }
