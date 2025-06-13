@@ -8,4 +8,5 @@ public class TestResponseDto {
     private Long reviewId;
     private String title;
     private String coverImageUrl;
+    private Double rating;
 }

@@ -5,12 +5,16 @@
 
 <mapper namespace="com.anipick.backend.test.TestMapper">
     <select id="selectReferenceAnime"
-    resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+    resultType="com.anipick.backend.test.AnimeItemDto2">
         SELECT a.anime_id AS animeId,
                a.title_english AS title,
-               a.cover_image_url AS coverImageUrl
+               a.cover_image_url AS coverImageUrl,
+               r.rating AS rating
         FROM Anime a
+        JOIN Review r
+            ON a.anime_id = r.anime_id
         WHERE a.anime_id = #{referenceAnimeId}
+            AND r.user_id = #{userId}
     </select>
 
 

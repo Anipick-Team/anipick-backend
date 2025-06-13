@@ -11,7 +11,10 @@ import java.util.List;
 public interface TestMapper {
     List<TestResponseDto> findReviews(@Param(value = "userId") long userId);
 
-    List<AnimeItemDto> selectReferenceAnime(@Param(value = "referenceAnimeId") Long referenceAnimeId);
+    List<AnimeItemDto2> selectReferenceAnime(
+            @Param(value = "referenceAnimeId") Long referenceAnimeId,
+            @Param(value = "userId") Long userId
+    );
 
     List<TestAnimeTagDto> getAnimeTags(@Param(value = "animeId") Long animeId);
 

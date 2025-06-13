@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.anipick.backend.test.AnimeItemDto2;
 import com.anipick.backend.test.TestAnimeItemDto;
 import com.anipick.backend.test.TestAnimeTagDto;
 import com.anipick.backend.test.TestMapper;
@@ -80,7 +81,7 @@ public class RecommendationService {
 			RecentHighRequestDto req =
 				new RecentHighRequestDto(userId, referenceAnimeId, lastScore, lastId, size);
 
-			List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+			List<AnimeItemDto2> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId, userId);
 			List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
 			referenceAnimes = refAnimes.stream()
@@ -88,6 +89,7 @@ public class RecommendationService {
 							ref.getAnimeId(),
 							ref.getTitle(),
 							ref.getCoverImageUrl(),
+							ref.getRating(),
 							tags
 					))
 					.toList();
@@ -99,6 +101,7 @@ public class RecommendationService {
 							rec.getAnimeId(),
 							rec.getTitle(),
 							rec.getCoverImageUrl(),
+							null,
 							testMapper.getAnimeTags(rec.getAnimeId())
 					))
 					.toList();
@@ -107,22 +110,24 @@ public class RecommendationService {
 		} else {
 			//tag based
 			List<Long> topNIds = reviewUserMapper.findTopRatedAnimeIds(userId, topN);
-
 			long totalReviews = reviewUserMapper.countReviewsByUser(userId);
 
 			int percentLimit = (int) Math.ceil(totalReviews * (topPercent / 100.0));
 			List<Long> topPercentIds = reviewUserMapper.findTopRatedAnimeIds(userId, percentLimit);
-
 			List<Long> filteredIds = topNIds.stream()
 					.filter(topPercentIds::contains)
 					.toList();
 
 			referenceAnimes = filteredIds.stream()
    					 .map(a -> {
-							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							AnimeItemDto2 info = testMapper.selectReferenceAnime(a, userId).get(0);
 							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
 							return new TestAnimeItemDto(
-									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+									info.getAnimeId(),
+									info.getTitle(),
+									info.getCoverImageUrl(),
+									info.getRating(),
+									tags
 							);
 						})
 					.toList();
@@ -136,6 +141,7 @@ public class RecommendationService {
 							rec.getAnimeId(),
 							rec.getTitle(),
 							rec.getCoverImageUrl(),
+							null,
 							testMapper.getAnimeTags(rec.getAnimeId())
 					))
 					.toList();

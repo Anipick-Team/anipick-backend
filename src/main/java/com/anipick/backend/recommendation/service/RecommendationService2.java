@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.anipick.backend.recommendation.dto.*;
+import com.anipick.backend.test.AnimeItemDto2;
 import com.anipick.backend.test.TestAnimeItemDto;
 import com.anipick.backend.test.TestAnimeTagDto;
 import com.anipick.backend.test.TestMapper;
@@ -70,7 +71,7 @@ public class RecommendationService2 {
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
             RecentHighCountOnlyRequest countOnlyRequest =
                     new RecentHighCountOnlyRequest(userId, referenceAnimeId, tagIds, lastCount, lastId, size);
-            List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+            List<AnimeItemDto2> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId, userId);
             List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
             referenceAnimes = refAnimes.stream()
@@ -78,6 +79,7 @@ public class RecommendationService2 {
 							ref.getAnimeId(),
 							ref.getTitle(),
 							ref.getCoverImageUrl(),
+                            ref.getRating(),
 							tags
 					))
 					.toList();
@@ -89,6 +91,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -111,10 +114,14 @@ public class RecommendationService2 {
 
             referenceAnimes = filteredIds.stream()
    					 .map(a -> {
-							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							AnimeItemDto2 info = testMapper.selectReferenceAnime(a, userId).get(0);
 							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
 							return new TestAnimeItemDto(
-									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+									info.getAnimeId(),
+                                    info.getTitle(),
+                                    info.getCoverImageUrl(),
+                                    info.getRating(),
+                                    tags
 							);
 						})
 					.toList();
@@ -140,6 +147,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -205,7 +213,7 @@ public class RecommendationService2 {
             RecentHighScoreOnlyRequest scoreOnlyRequest =
                     new RecentHighScoreOnlyRequest(userId, referenceAnimeId, tagIds, lastCount, lastId, size);
 
-            List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+            List<AnimeItemDto2> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId, userId);
             List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
             referenceAnimes = refAnimes.stream()
@@ -213,6 +221,7 @@ public class RecommendationService2 {
 							ref.getAnimeId(),
 							ref.getTitle(),
 							ref.getCoverImageUrl(),
+                            ref.getRating(),
 							tags
 					))
 					.toList();
@@ -223,6 +232,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -245,10 +255,14 @@ public class RecommendationService2 {
 
             referenceAnimes = filteredIds.stream()
    					 .map(a -> {
-							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							AnimeItemDto2 info = testMapper.selectReferenceAnime(a, userId).get(0);
 							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
 							return new TestAnimeItemDto(
-									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+									info.getAnimeId(),
+                                    info.getTitle(),
+                                    info.getCoverImageUrl(),
+                                    info.getRating(),
+                                    tags
 							);
 						})
 					.toList();
@@ -274,6 +288,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -338,7 +353,7 @@ public class RecommendationService2 {
             RecentHighFullRequest fullRequest =
                     new RecentHighFullRequest(userId, referenceAnimeId, tagIds, lastValue, lastCount, lastId, size);
 
-            List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+            List<AnimeItemDto2> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId, userId);
             List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
             referenceAnimes = refAnimes.stream()
@@ -346,6 +361,7 @@ public class RecommendationService2 {
 							ref.getAnimeId(),
 							ref.getTitle(),
 							ref.getCoverImageUrl(),
+                            ref.getRating(),
 							tags
 					))
 					.toList();
@@ -356,6 +372,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -373,10 +390,14 @@ public class RecommendationService2 {
 					.toList();
             referenceAnimes = filteredIds.stream()
    					 .map(a -> {
-							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							AnimeItemDto2 info = testMapper.selectReferenceAnime(a, userId).get(0);
 							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
 							return new TestAnimeItemDto(
-									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+									info.getAnimeId(),
+                                    info.getTitle(),
+                                    info.getCoverImageUrl(),
+                                    info.getRating(),
+                                    tags
 							);
 						})
 					.toList();
@@ -400,6 +421,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -466,7 +488,7 @@ public class RecommendationService2 {
             RecentHighFullRequest fullRequest =
                     new RecentHighFullRequest(userId, referenceAnimeId, tagIds, lastValue, lastCount, lastId, size);
 
-            List<AnimeItemDto> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId);
+            List<AnimeItemDto2> refAnimes = testMapper.selectReferenceAnime(referenceAnimeId, userId);
             List<TestAnimeTagDto> tags = testMapper.getAnimeTags(referenceAnimeId);
 
             referenceAnimes = refAnimes.stream()
@@ -474,6 +496,7 @@ public class RecommendationService2 {
 							ref.getAnimeId(),
 							ref.getTitle(),
 							ref.getCoverImageUrl(),
+                            ref.getRating(),
 							tags
 					))
 					.toList();
@@ -484,6 +507,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
@@ -505,10 +529,14 @@ public class RecommendationService2 {
 
             referenceAnimes = filteredIds.stream()
    					 .map(a -> {
-							AnimeItemDto info = testMapper.selectReferenceAnime(a).get(0);
+							AnimeItemDto2 info = testMapper.selectReferenceAnime(a, userId).get(0);
 							List<TestAnimeTagDto> tags = testMapper.getAnimeTags(a);
 							return new TestAnimeItemDto(
-									info.getAnimeId(), info.getTitle(), info.getCoverImageUrl(), tags
+									info.getAnimeId(),
+                                    info.getTitle(),
+                                    info.getCoverImageUrl(),
+                                    info.getRating(),
+                                    tags
 							);
 						})
 					.toList();
@@ -532,6 +560,7 @@ public class RecommendationService2 {
                             rec.getAnimeId(),
                             rec.getTitle(),
                             rec.getCoverImageUrl(),
+                            null,
                             testMapper.getAnimeTags(rec.getAnimeId())
                     ))
                     .toList();
