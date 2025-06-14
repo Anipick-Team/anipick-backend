@@ -9,8 +9,10 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class RankingResponse {
-    private CursorDto cursorDto;
-    private List<RankingAnimesDto> rankingAnimesDtos;
+    private CursorDto cursor;
+    private List<RankingAnimesDto> animes;
 
-
+    public static RankingResponse of(CursorDto cursor, List<RankingAnimesDto> animes) {
+        return new RankingResponse(cursor, animes);
+    }
 }
