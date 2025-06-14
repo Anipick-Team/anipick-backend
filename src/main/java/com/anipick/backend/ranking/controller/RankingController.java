@@ -23,7 +23,9 @@ public class RankingController {
             @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-
+        Long userId = user.getUserId();
+        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size, userId);
+        return ApiResponse.success(response);
     }
 
     @GetMapping("/{year}/{season}")
@@ -35,11 +37,20 @@ public class RankingController {
             @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-
+        Long userId = user.getUserId();
+        RankingResponse response = rankingService.getYearSeasonRanking(year, season, genre, lastId, size, userId);
+        return ApiResponse.success(response);
     }
 
-    @GetMapping("/")
-    public ApiResponse<RankingResponse> getAllTimeRanking() {
-
+    @GetMapping("/all-time")
+    public ApiResponse<RankingResponse> getAllTimeRanking(
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        RankingResponse response = rankingService.getAllTimeRanking(genre, lastId, size, userId);
+        return ApiResponse.success(response);
     }
 }
