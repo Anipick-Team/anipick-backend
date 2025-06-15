@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.ranking.mapper.RealTimeRankingMapper">
-    <resultMap id="RankingResultMap" type="RankingAnimesFromQueryDto">
+    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto">
         <id property="animeId" column="animeId"/>
         <result property="title" column="title"/>
         <result property="coverImageUrl" column="coverImageUrl"/>
