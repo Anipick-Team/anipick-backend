@@ -1,14 +1,10 @@
 package com.anipick.backend.ranking.controller;
 
-import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.ranking.dto.RankingResponse;
 import com.anipick.backend.ranking.service.RankingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,11 +16,9 @@ public class RankingController {
     public ApiResponse<RankingResponse> getRealTimeRanking(
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
-            @AuthenticationPrincipal CustomUserDetails user
+            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
     ) {
-        Long userId = user.getUserId();
-        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size, userId);
+        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
         return ApiResponse.success(response);
     }
 
@@ -34,11 +28,9 @@ public class RankingController {
             @PathVariable("season") Integer season,
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
-            @AuthenticationPrincipal CustomUserDetails user
+            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
     ) {
-        Long userId = user.getUserId();
-        RankingResponse response = rankingService.getYearSeasonRanking(year, season, genre, lastId, size, userId);
+        RankingResponse response = rankingService.getYearSeasonRanking(year, season, genre, lastId, size);
         return ApiResponse.success(response);
     }
 
@@ -46,11 +38,9 @@ public class RankingController {
     public ApiResponse<RankingResponse> getAllTimeRanking(
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size,
-            @AuthenticationPrincipal CustomUserDetails user
+            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
     ) {
-        Long userId = user.getUserId();
-        RankingResponse response = rankingService.getAllTimeRanking(genre, lastId, size, userId);
+        RankingResponse response = rankingService.getAllTimeRanking(genre, lastId, size);
         return ApiResponse.success(response);
     }
 }

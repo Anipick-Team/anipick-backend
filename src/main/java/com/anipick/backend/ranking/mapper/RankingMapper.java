@@ -1,6 +1,6 @@
 package com.anipick.backend.ranking.mapper;
 
-import com.anipick.backend.anime.dto.GenreDto;
+import com.anipick.backend.ranking.dto.RankingAnimesDto;
 import com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,14 +16,14 @@ public interface RankingMapper {
             @Param("rankDate") LocalDate rankDate
     );
 
-    List<RankingAnimesFromQueryDto> getYearSeasonRankingFromFilter(
+    List<RankingAnimesFromQueryDto> getYearSeasonRanking(
             @Param("year") Integer year,
             @Param("season") Integer season,
             @Param("genre") String genre,
             @Param("rankDate") LocalDate rankDate
     );
 
-    List<RankingAnimesFromQueryDto> getYearSeasonRanking(
+    List<RankingAnimesFromQueryDto> getYearSeasonRankingPaging(
             @Param("year") Integer year,
             @Param("season") Integer season,
             @Param("genre") String genre,
@@ -33,6 +33,11 @@ public interface RankingMapper {
     );
 
     List<RankingAnimesFromQueryDto> getAllTimeRanking(
+            @Param("genre") String genre,
+            @Param("rankDate") LocalDate rankDate
+    );
+
+    List<RankingAnimesFromQueryDto> getAllTimeRankingPaging(
             @Param("genre") String genre,
             @Param("lastId") Long lastId,
             @Param("size") Integer size,

@@ -1,12 +1,14 @@
 package com.anipick.backend.ranking.service;
 
+import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.ranking.component.RankingSnapshotScheduler;
 import com.anipick.backend.ranking.domain.RankingDefaults;
+import com.anipick.backend.ranking.domain.Trend;
+import com.anipick.backend.ranking.dto.RankingAnimesDto;
 import com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto;
 import com.anipick.backend.ranking.dto.RankingResponse;
 import com.anipick.backend.ranking.mapper.RankingMapper;
 import com.anipick.backend.ranking.mapper.RealTimeRankingMapper;
-import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,7 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,22 +30,83 @@ public class RankingService {
     private final RankingSnapshotScheduler scheduler;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public RankingResponse getRealTimeRanking(String genre, Long lastId, Integer size, Long userId) {
+    public RankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) {
+        LocalDateTime now = LocalDateTime.now();
 
+        redisTemplate.opsForValue().get(RankingDefaults.RANKING_SNAPSHOT_KEY.formatted());
     }
 
     public RankingResponse getYearSeasonRanking(Integer year, Integer season, String genre, Long lastId, Integer size) {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
 
-        List<RankingAnimesFromQueryDto> yearSeasonRankingToday = rankingMapper.getYearSeasonRanking(year, season, genre, lastId, size, today);
-        List<RankingAnimesFromQueryDto> yearSeasonRankingYesterday = rankingMapper.getYearSeasonRanking(year, season, genre, lastId, size, yesterday);
+        List<RankingAnimesFromQueryDto> yearSeasonRankingToday = rankingMapper.getYearSeasonRankingPaging(year, season, genre, lastId, size, today);
+        List<RankingAnimesFromQueryDto> yearSeasonRankingYesterday = rankingMapper.getYearSeasonRanking(year, season, genre, yesterday);
 
+        Map<Long, Long> yesterdayRankMap =  yearSeasonRankingYesterday.stream()
+                .collect(Collectors.toMap(
+                        RankingAnimesFromQueryDto::getAnimeId,
+                        RankingAnimesFromQueryDto::getRank
+                ));
 
+        List<RankingAnimesDto> animes = yearSeasonRankingToday.stream()
+                .map(dto -> {
+                    Long todayRank = dto.getRank();
+                    Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
 
+                    return calcAndMakeAnimeRanking(todayRank, yesterdayRank, dto);
+                })
+                .toList();
+
+        CursorDto cursor = CursorDto.of(lastId);
+
+        return RankingResponse.of(cursor, animes);
     }
 
-    public RankingResponse getAllTimeRanking(String genre, Long lastId, Integer size, Long userId) {
+    public RankingResponse getAllTimeRanking(String genre, Long lastId, Integer size) {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
 
+        List<RankingAnimesFromQueryDto> allTimeRankingToday = rankingMapper.getAllTimeRanking(genre, today);
+        List<RankingAnimesFromQueryDto> allTimeRankingYesterday = rankingMapper.getAllTimeRankingPaging(genre, lastId, size, yesterday);
+
+        Map<Long, Long> yesterdayRankMap = allTimeRankingYesterday.stream()
+                .collect(Collectors.toMap(RankingAnimesFromQueryDto::getAnimeId, RankingAnimesFromQueryDto::getRank));
+
+        List<RankingAnimesDto> animes = allTimeRankingToday.stream()
+                .map(dto -> {
+                    Long todayRank = dto.getRank();
+                    Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
+
+                    return calcAndMakeAnimeRanking(todayRank, yesterdayRank, dto);
+                })
+                .toList();
+
+        CursorDto cursor = CursorDto.of(lastId);
+
+        return RankingResponse.of(cursor, animes);
+    }
+
+    private RankingAnimesDto calcAndMakeAnimeRanking(Long todayRank, Long yesterdayRank, RankingAnimesFromQueryDto dto) {
+        long change;
+        Trend trend;
+
+        if(yesterdayRank == null) {
+            change = 0;
+            trend = Trend.NEW;
+        } else {
+            long diff = yesterdayRank - todayRank;
+            change = Math.abs(diff);
+
+            if(diff > 0) {
+                trend = Trend.UP;
+            } else if(diff < 0) {
+                trend = Trend.DOWN;
+            } else {
+                trend = Trend.SAME;
+            }
+        }
+
+        return RankingAnimesDto.from(change, trend, dto);
     }
 }
