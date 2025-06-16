@@ -24,4 +24,9 @@ public interface AnimeMapper {
 	void updatePlusReviewCount(@Param("animeId") Long animeId);
 
 	void updateMinusReviewCount(@Param("animeId") Long animeId);
+
+    List<AnimeDateItemDto> selectAnimeInfoSeriesByAnimeId(
+			@Param("animeId") Long animeId,
+			@Param("size") int size
+	);
 }
