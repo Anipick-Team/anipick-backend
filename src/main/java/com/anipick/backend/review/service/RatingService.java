@@ -1,9 +1,12 @@
 package com.anipick.backend.review.service;
 
+import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.mapper.RatingMapper;
+import com.anipick.backend.review.mapper.ReviewMapper;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.domain.UserAnimeStatus;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
@@ -11,12 +14,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class RatingService {
 
     private final RatingMapper ratingMapper;
     private final UserAnimeStatusMapper userAnimeStatusMapper;
+    private final ReviewMapper reviewMapper;
+    private final AnimeMapper animeMapper;
 
     @Transactional
     public void createReviewRating(Long animeId, ReviewRatingRequest request, Long userId) {
@@ -36,13 +44,27 @@ public class RatingService {
         } else {
             userAnimeStatusMapper.createUserAnimeStatus(userId, animeId, UserAnimeOfStatus.FINISHED);
         }
+
+        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+        Double ratingAveraging = reviewsByAnimeId.stream()
+                .collect(Collectors.averagingDouble(Review::getRating));
+
+        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
     }
 
     @Transactional
     public void updateReviewRating(Long reviewId, ReviewRatingRequest request, Long userId) {
-        ratingMapper.findByReviewId(reviewId, userId)
+        Review review = ratingMapper.findByReviewId(reviewId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
         ratingMapper.updateRating(reviewId, userId, request);
+
+        Long animeId = review.getAnimeId();
+
+        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+        Double ratingAveraging = reviewsByAnimeId.stream()
+                .collect(Collectors.averagingDouble(Review::getRating));
+
+        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
     }
 
     @Transactional
