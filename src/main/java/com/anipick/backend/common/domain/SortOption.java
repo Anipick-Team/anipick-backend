@@ -15,7 +15,7 @@ public enum SortOption {
 	RATING_DESC("ratingDesc", "r.rating DESC"),
 	RATING_ASC("ratingAsc", "r.rating ASC"),
 	LIKES("likes", "r.like_count DESC"),
-	RATING("rating", "a.average_score DESC");
+	RATING("rating", "a.review_average_score DESC");
 
 	private final String code;
 	private final String orderByQuery;
