@@ -87,11 +87,7 @@ public class ReviewService {
             animeMapper.updatePlusReviewCount(animeId);
         }
 
-        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-        Double ratingAveraging = reviewsByAnimeId.stream()
-                .collect(Collectors.averagingDouble(Review::getRating));
-
-        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        updateReviewAverageScore(animeId);
 
         reviewMapper.updateReview(reviewId, userId, request);
     }
@@ -106,6 +102,10 @@ public class ReviewService {
         animeMapper.updateMinusReviewCount(animeId);
         reviewMapper.deleteReview(reviewId, userId);
 
+        updateReviewAverageScore(animeId);
+    }
+
+    private void updateReviewAverageScore(Long animeId) {
         List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
         Double ratingAveraging = reviewsByAnimeId.stream()
                 .collect(Collectors.averagingDouble(Review::getRating));

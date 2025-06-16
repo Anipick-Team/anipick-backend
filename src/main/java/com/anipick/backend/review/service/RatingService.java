@@ -45,11 +45,7 @@ public class RatingService {
             userAnimeStatusMapper.createUserAnimeStatus(userId, animeId, UserAnimeOfStatus.FINISHED);
         }
 
-        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-        Double ratingAveraging = reviewsByAnimeId.stream()
-                .collect(Collectors.averagingDouble(Review::getRating));
-
-        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        updateReviewAverageScore(animeId);
     }
 
     @Transactional
@@ -60,11 +56,7 @@ public class RatingService {
 
         Long animeId = review.getAnimeId();
 
-        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-        Double ratingAveraging = reviewsByAnimeId.stream()
-                .collect(Collectors.averagingDouble(Review::getRating));
-
-        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        updateReviewAverageScore(animeId);
     }
 
     @Transactional
@@ -75,6 +67,10 @@ public class RatingService {
 
         Long animeId = review.getAnimeId();
 
+        updateReviewAverageScore(animeId);
+    }
+
+    private void updateReviewAverageScore(Long animeId) {
         List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
         Double ratingAveraging = reviewsByAnimeId.stream()
                 .collect(Collectors.averagingDouble(Review::getRating));
