@@ -105,5 +105,11 @@ public class ReviewService {
 
         animeMapper.updateMinusReviewCount(animeId);
         reviewMapper.deleteReview(reviewId, userId);
+
+        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+        Double ratingAveraging = reviewsByAnimeId.stream()
+                .collect(Collectors.averagingDouble(Review::getRating));
+
+        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
     }
 }

@@ -69,8 +69,16 @@ public class RatingService {
 
     @Transactional
     public void deleteReviewRating(Long reviewId, ReviewRatingRequest request, Long userId) {
-        ratingMapper.findByReviewId(reviewId, userId)
+        Review review = ratingMapper.findByReviewId(reviewId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
         ratingMapper.deleteRating(reviewId, userId, request);
+
+        Long animeId = review.getAnimeId();
+
+        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+        Double ratingAveraging = reviewsByAnimeId.stream()
+                .collect(Collectors.averagingDouble(Review::getRating));
+
+        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
     }
 }
