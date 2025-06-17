@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class AnimeService {
 	private final AnimeMapper mapper;
 	private final AnimeMapper animeMapper;
+	private static final int ITEM_DEFAULT_SIZE = 10;
 	@Value("${anime.default-cover-url}")
 	private String defaultCoverUrl;
 
@@ -181,7 +182,7 @@ public class AnimeService {
 	}
 
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
-		List<AnimeDateItemDto> animeDateItemDtos = animeMapper.selectAnimeInfoSeriesByAnimeId(animeId, 10);
+		List<AnimeDateItemDto> animeDateItemDtos = animeMapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
 
 		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
 				.map(dto -> {
