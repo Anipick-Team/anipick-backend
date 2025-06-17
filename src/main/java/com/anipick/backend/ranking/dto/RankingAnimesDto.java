@@ -20,15 +20,18 @@ public class RankingAnimesDto {
     private String trend;
     private List<String> genres;
 
-    public static RankingAnimesDto from(Long change, Trend trend, RankingAnimesFromQueryDto dto) {
+    public static RankingAnimesDto from(Long change, Trend trend, Long displayRank, RankingAnimesFromQueryDto dto) {
         return new RankingAnimesDto(
                 dto.getAnimeId(),
                 dto.getTitle(),
                 dto.getCoverImageUrl(),
-                dto.getRank(),
+                displayRank,
                 change,
                 trend.toString().toLowerCase(),
-                dto.getGenres()
+                dto.getGenres().stream()
+                        .map(GenreDto::getName)
+                        .limit(3)
+                        .toList()
         );
     }
 }
