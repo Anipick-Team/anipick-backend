@@ -8,7 +8,9 @@
         <result property="title" column="title"/>
         <result property="coverImageUrl" column="coverImageUrl"/>
         <result property="rank" column="rankNum"/>
-        <collection property="genres" ofType="string" column="genreName"/>
+        <collection property="genres" ofType="com.anipick.backend.anime.dto.GenreDto">
+            <result property="name" column="genreName"/>
+        </collection>
     </resultMap>
 
     <select id="getYearSeasonRankingFromNotFilter" resultMap="RankingResultMap">
@@ -20,7 +22,8 @@
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
         WHERE
             ar.year = #{year}
           AND
@@ -38,7 +41,8 @@
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
         WHERE
                 ar.year = #{year}
             AND
@@ -59,7 +63,8 @@
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
         WHERE
                 ar.year = #{year}
             AND
@@ -84,7 +89,8 @@
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
         WHERE
                 ar.is_all_time = true
         <if test="genre != null">
@@ -103,7 +109,8 @@
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
         WHERE
                 ar.is_all_time = true
         <if test="genre != null">
