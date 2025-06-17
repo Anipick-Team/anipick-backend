@@ -175,7 +175,14 @@
             JOIN Voiceactor v
                 ON vc.voiceactor_id = v.voiceactor_id
         WHERE c.anime_id = #{animeId}
-        ORDER BY c.role_int ASC, character_id DESC
+        ORDER BY
+            CASE c.role
+                WHEN 'MAIN' THEN 0
+                WHEN 'SUPPORTING' THEN 1
+                WHEN 'BACKGROUND' THEN 2
+                ELSE 3
+            END,
+            c.character_id DESC
         LIMIT #{size}
     </select>
 </mapper>
