@@ -149,10 +149,8 @@
                a.start_date AS startDate
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
-                           FROM anime a
-                                JOIN relatedanime ra
-                                    ON ra.related_anime_id = a.anime_id
-                           WHERE a.anime_id = #{animeId})
+                           FROM relatedanime ra
+                           WHERE ra.related_anime_id = #{animeId})
         ORDER BY a.anime_id DESC
         LIMIT #{size}
     </select>
