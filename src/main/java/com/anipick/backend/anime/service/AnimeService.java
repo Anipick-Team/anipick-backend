@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AnimeService {
 	private final AnimeMapper mapper;
+	private static final int ITEM_DEFAULT_SIZE = 10;
 	@Value("${anime.default-cover-url}")
 	private String defaultCoverUrl;
 
@@ -180,7 +181,7 @@ public class AnimeService {
 	}
 
 	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
-		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, 10);
+		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
 		return items;
 	}
 }
