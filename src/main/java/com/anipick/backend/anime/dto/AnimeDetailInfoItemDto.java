@@ -1,7 +1,7 @@
 package com.anipick.backend.anime.dto;
 
 import com.anipick.backend.anime.domain.AnimeStatus;
-import com.anipick.backend.user.domain.UserWatchStatus;
+import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ public class AnimeDetailInfoItemDto {
     private String description;
     private String averageRating;
     private Boolean isLiked;
-    private UserWatchStatus watchStatus;
+    private UserAnimeOfStatus watchStatus;
     private String type;
     private int reviewCount;
     private Long episode;

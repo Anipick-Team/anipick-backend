@@ -1,7 +1,7 @@
 package com.anipick.backend.anime.dto;
 
 import com.anipick.backend.search.dto.StudioItemDto;
-import com.anipick.backend.user.domain.UserWatchStatus;
+import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class AnimeDetailInfoResultDto {
     private String description;
     private String averageRating;
     private Boolean isLiked;
-    private UserWatchStatus watchStatus;
+    private UserAnimeOfStatus watchStatus;
     private String type;
     private int reviewCount;
     private List<GenreDto> genres;
