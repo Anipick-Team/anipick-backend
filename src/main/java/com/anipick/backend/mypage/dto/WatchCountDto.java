@@ -8,9 +8,9 @@ import lombok.Getter;
 public class WatchCountDto {
     private Long watchList;
     private Long watching;
-    private Long watched;
+    private Long finished;
 
-    public static WatchCountDto of(Long watchList, Long watching, Long watched) {
-        return new WatchCountDto(watchList, watching, watched);
+    public static WatchCountDto from(Long watchList, Long watching, Long finished) {
+        return new WatchCountDto(watchList, watching, finished);
     }
 }
