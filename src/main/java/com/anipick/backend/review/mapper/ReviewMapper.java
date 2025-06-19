@@ -11,7 +11,7 @@ import java.util.Optional;
 @Mapper
 public interface ReviewMapper {
 
-    Optional<Review> findByReviewId(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
+    Optional<Review> findByReviewId(@Param("animeId") Long animeId, @Param("userId") Long userId);
 
 
     void updateReview(

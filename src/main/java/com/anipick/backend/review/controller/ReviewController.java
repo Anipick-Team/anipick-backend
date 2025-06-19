@@ -27,14 +27,14 @@ public class ReviewController {
         return ApiResponse.success(page);
     }
 
-    @PatchMapping("/{reviewId}/animes")
+    @PatchMapping("/{animeId}/animes")
     public ApiResponse<Void> createAndUpdateReview(
-        @PathVariable(name = "reviewId") Long reviewId,
+        @PathVariable(name = "animeId") Long animeId,
         @RequestBody ReviewRequest request,
         @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
-        reviewService.createAndUpdateReview(reviewId, request, userId);
+        reviewService.createAndUpdateReview(animeId, request, userId);
         return ApiResponse.success();
     }
 

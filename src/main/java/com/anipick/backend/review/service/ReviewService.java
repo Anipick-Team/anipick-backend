@@ -73,17 +73,16 @@ public class ReviewService {
 
 
     @Transactional
-    public void createAndUpdateReview(Long reviewId, ReviewRequest request, Long userId) {
-        Review review = reviewMapper.findByReviewId(reviewId, userId)
+    public void createAndUpdateReview(Long animeId, ReviewRequest request, Long userId) {
+        Review review = reviewMapper.findByReviewId(animeId, userId)
             .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
         if (review.getContent() == null) {
-            Long animeId = review.getAnimeId();
             animeMapper.updatePlusReviewCount(animeId);
         }
-
+        Long reviewId = review.getReviewId();
         reviewMapper.updateReview(reviewId, userId, request);
     }
 

@@ -16,7 +16,7 @@
                r.deleted_at AS deletedAt,
                r.isReported AS isReported
         FROM Review r
-        WHERE r.review_id = #{reviewId}
+        WHERE r.anime_id = #{animeId}
           AND r.user_id = #{userId}
     </select>
 </mapper>
