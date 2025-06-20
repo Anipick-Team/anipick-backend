@@ -8,6 +8,8 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
+import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,9 +17,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,9 @@ public class AnimeService {
 	private final AnimeMapper mapper;
 	@Value("${anime.default-cover-url}")
 	private String defaultCoverUrl;
+
+	private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
 
 	public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
 		LocalDate now = LocalDate.now();
@@ -177,5 +185,141 @@ public class AnimeService {
 		}
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);
+	}
+
+	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Boolean isSpoiler, Long lastId, String lastValue, int size) {
+		SortOption sortOption = SortOption.of(sort);
+		String orderByQuery = sortOption.getOrderByQuery();
+
+		AnimeDetailInfoReviewsRequestDto reviewsRequestDto =
+				AnimeDetailInfoReviewsRequestDto.of(animeId, userId, sort, orderByQuery, isSpoiler, lastId, lastValue, size);
+
+		long totalCount = mapper.selectAnimeReviewCount(animeId);
+
+		List<AnimeDetailInfoReviewsItemDto> raws = mapper.selectAnimeDetailInfoReviews(reviewsRequestDto);
+
+		List<AnimeDetailInfoReviewsResultDto> convertCreatedAtItems = raws.stream()
+				.map(dto -> {
+					LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
+					String formattedDate = dateTime.format(formatter);
+
+					return AnimeDetailInfoReviewsResultDto.of(
+							dto.getReviewId(),
+							dto.getNickname(),
+							dto.getProfileImageUrl(),
+							dto.getRating(),
+							dto.getContent(),
+							formattedDate,
+							dto.getIsSpoiler(),
+							dto.getLikeCount(),
+							dto.getIsLiked(),
+							dto.getIsMine()
+					);
+				})
+				.toList();
+		switch (sortOption) {
+			// 최신 순
+			case LATEST -> {
+				return getSortLatestAnimeDetailReviews(totalCount, convertCreatedAtItems, sort);
+			}
+			// 평점 높은 순
+			case RATING_DESC -> {
+				return getSortRatingDescAnimeDetailReviews(totalCount, convertCreatedAtItems, sort);
+			}
+			// 평점 낮은 순
+			case RATING_ASC -> {
+				return getSortRatingAscAnimeDetailReviews(totalCount, convertCreatedAtItems, sort);
+			}
+			// 좋아요 순
+			default -> {
+				return getSortLikesAnimeDetailReviews(totalCount, convertCreatedAtItems, sort);
+			}
+		}
+	}
+
+	private AnimeDetailInfoReviewsPageDto getSortLatestAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+		Long nextId;
+
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getReviewId();
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId);
+
+		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+	}
+
+	private AnimeDetailInfoReviewsPageDto getSortRatingDescAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+		Long nextId;
+		Double nextValue;
+
+		if (items.isEmpty()) {
+			nextId = null;
+			nextValue = null;
+		} else {
+			nextId = items.getLast().getReviewId();
+			nextValue = items.getLast().getRating();
+		}
+
+		String nextValueStr;
+		if (nextValue == null) {
+			nextValueStr = null;
+		} else {
+			nextValueStr = nextValue.toString();
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+	}
+
+	private AnimeDetailInfoReviewsPageDto getSortRatingAscAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+		Long nextId;
+		Double nextValue;
+
+		if (items.isEmpty()) {
+			nextId = null;
+			nextValue = null;
+		} else {
+			nextId = items.getLast().getReviewId();
+			nextValue = items.getLast().getRating();
+		}
+
+		String nextValueStr;
+		if (nextValue == null) {
+			nextValueStr = null;
+		} else {
+			nextValueStr = nextValue.toString();
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+	}
+
+	private AnimeDetailInfoReviewsPageDto getSortLikesAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+		Long nextId;
+		Long nextValue;
+
+		if (items.isEmpty()) {
+			nextId = null;
+			nextValue = null;
+		} else {
+			nextId = items.getLast().getReviewId();
+			nextValue = items.getLast().getLikeCount();
+		}
+
+		String nextValueStr;
+		if (nextValue == null) {
+			nextValueStr = null;
+		} else {
+			nextValueStr = nextValue.toString();
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
 	}
 }

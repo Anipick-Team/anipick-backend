@@ -141,4 +141,76 @@
         FROM Anime a
         WHERE a.anime_id = #{animeId}
     </select>
+
+    <select id="selectAnimeDetailInfoReviews"
+            parameterType="com.anipick.backend.anime.dto.AnimeDetailInfoReviewsRequestDto"
+            resultType="com.anipick.backend.anime.dto.AnimeDetailInfoReviewsItemDto">
+        SELECT r.review_id AS reviewId,
+               u.nickname AS nickname,
+               u.profile_image_url AS profileImageUrl,
+               r.rating AS rating,
+               r.content AS content,
+               r.created_at AS createdAt,
+               r.is_spoiler AS isSpoiler,
+               r.like_count AS likeCount,
+               IF(rl.review_id IS NOT NULL, TRUE, FALSE) AS isLiked,
+               (r.user_id = #{userId}) AS isMine
+        FROM review r
+            LEFT JOIN user u
+                ON u.user_id = r.user_id
+            LEFT JOIN reviewlike rl
+                ON rl.review_id = r.review_id
+                    AND rl.user_id = #{userId}
+        WHERE r.anime_id = #{animeId}
+        <if test="isSpoiler == false">
+            AND r.is_spoiler = FALSE
+        </if>
+        <!-- 커서 정렬 -->
+        <choose>
+            <!-- 최신순 -->
+            <when test="sort == 'latest'">
+                <if test="lastId != null">
+                    AND r.review_id &lt; #{lastId}
+                </if>
+                ORDER BY r.review_id DESC
+            </when>
+
+            <!-- 평점 높은 순 -->
+            <when test="sort == 'ratingDesc'">
+                <if test="lastValue != null">
+                    AND ( r.rating &lt; #{lastValue}
+                    OR (r.rating = #{lastValue} AND r.review_id &lt; #{lastId})
+                    )
+                </if>
+                ORDER BY ${orderByQuery}, r.review_id DESC
+            </when>
+
+            <!-- 평점 낮은 순 -->
+            <when test="sort == 'ratingAsc'">
+                <if test="lastValue != null">
+                    AND (r.rating > #{lastValue}
+                    OR (r.rating = #{lastValue} AND r.review_id &lt; #{lastId})
+                    )
+                </if>
+                ORDER BY ${orderByQuery}, r.review_id DESC
+            </when>
+
+            <!-- 좋아요순 -->
+            <otherwise>
+                <if test="lastValue != null">
+                    AND (r.like_count &lt; #{lastValue}
+                    OR (r.like_count = #{lastValue} AND r.review_id &lt; #{lastId})
+                    )
+                </if>
+                ORDER BY ${orderByQuery}, r.review_id DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size}
+    </select>
+
+    <select id="selectAnimeReviewCount" resultType="long">
+        SELECT a.review_count
+        FROM Anime a
+        WHERE a.anime_id = #{animeId}
+    </select>
 </mapper>
