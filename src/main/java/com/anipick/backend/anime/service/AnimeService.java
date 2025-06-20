@@ -58,7 +58,7 @@ public class AnimeService {
 	}
 
 	public ComingSoonPageDto getComingSoonAnimes(
-			String sort, Long lastId, Long size, Long includeAdult, String lastValue
+			String sort, Long lastId, Long size, Boolean includeAdult, String lastValue
 	) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
