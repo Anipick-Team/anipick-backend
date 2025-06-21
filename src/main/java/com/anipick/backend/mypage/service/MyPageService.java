@@ -1,12 +1,10 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
-import com.anipick.backend.mypage.dto.LikedAnimesDto;
-import com.anipick.backend.mypage.dto.LikedPersonsDto;
-import com.anipick.backend.mypage.dto.MyPageResponse;
-import com.anipick.backend.mypage.dto.WatchCountDto;
+import com.anipick.backend.mypage.dto.*;
 import com.anipick.backend.mypage.mapper.MyPageMapper;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
@@ -35,5 +33,17 @@ public class MyPageService {
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
+    }
+
+    public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyWatchListAnimesCount(userId, status);
+        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
+        CursorDto cursorDto = CursorDto.of(lastId);
+
+        return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
+    }
+
+    public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
+
     }
 }
