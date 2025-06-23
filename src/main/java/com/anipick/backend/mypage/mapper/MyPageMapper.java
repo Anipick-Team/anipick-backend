@@ -7,6 +7,7 @@ import com.anipick.backend.mypage.dto.WatchingAnimesDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -21,17 +22,15 @@ public interface MyPageMapper {
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
-            @Param("size") Integer size
+            @Param("size") Integer size,
+            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
     );
-
-    Long getMyWatchListAnimesCount(@Param("userId") Long userId, @Param("status") String status);
 
     List<WatchingAnimesDto> getMyWatchingAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
-            @Param("size") Integer size
+            @Param("size") Integer size,
+            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
     );
-
-    Long getMyWatchingAnimesCount(@Param("userId") Long userId, @Param("status") String status);
 }
