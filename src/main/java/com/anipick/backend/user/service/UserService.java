@@ -3,14 +3,18 @@ package com.anipick.backend.user.service;
 import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.token.dto.LoginResponse;
+import com.anipick.backend.token.dto.SignUpResponse;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.user.component.NicknameInitializer;
 import com.anipick.backend.user.dto.LoginRequest;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserDefaults;
 import com.anipick.backend.user.dto.SignUpRequest;
 import com.anipick.backend.user.mapper.UserMapper;
+import com.anipick.backend.user.util.SignUpValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,8 +32,9 @@ public class UserService {
     private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final NicknameInitializer nicknameInitializer;
 
-    public void signUp(SignUpRequest request) {
+    public SignUpResponse signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
 
@@ -48,11 +53,10 @@ public class UserService {
             throw new CustomException(ErrorCode.PASSWORD_INVALID_FORMAT);
         }
 
-        String nickname = NicknameInitializer.generateUniqueNickname(userMapper::existsByNickname);
         User user = User.builder()
                 .email(requestEmail)
                 .password(passwordEncoder.encode(requestPassword))
-                .nickname(nickname)
+                .nickname(nicknameInitializer.generateNickname(LoginFormat.LOCAL))
                 .loginFormat(LoginFormat.LOCAL)
                 .profileImageUrl(UserDefaults.DEFAULT_PROFILE_IMAGE_URL)
                 .termsAndConditions(request.getTermsAndConditions())
@@ -63,13 +67,15 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        return SignUpResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
     private boolean checkDuplicateEmail(String email) {
         return userMapper.findByEmail(email).isPresent();
     }
 
-    public TokenResponse doLogin(LoginRequest request) {
+    public LoginResponse doLogin(LoginRequest request) {
         User user = userMapper.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
 
@@ -77,7 +83,8 @@ public class UserService {
             throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
         }
 
-        return tokenService.generateAndSaveTokens(user.getEmail());
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
     public void doLogout(HttpServletRequest request) {
@@ -91,7 +98,7 @@ public class UserService {
         long expiration = jwtTokenProvider.getRemainingTokenExpiration(accessToken);
         Duration duration = Duration.ofMillis(expiration);
 
-        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT + accessToken, "logout", duration);
+        redisTemplate.opsForValue().set(UserDefaults.DEFAULT_LOGOUT_LIST_FORMAT_KEY + accessToken, "logout", duration);
         redisTemplate.delete(email);
     }
 }
