@@ -10,15 +10,20 @@ import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MyPageService {
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final DateTimeFormatter formatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -35,15 +40,30 @@ public class MyPageService {
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
     }
 
-    public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
-        Long count = myPageMapper.getMyWatchListAnimesCount(userId, status);
-        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
-        CursorDto cursorDto = CursorDto.of(lastId);
+    public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+        Long count = myPageMapper.getMyWatchCount(userId, status);
+        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size, lastCreatedAt);
+        log.info("watchListAnimes:{}", watchListAnimes.getLast().getCreatedAt());
 
+        String lastValue = null;
+        if(lastCreatedAt != null) {
+            lastValue = formatter.format(lastCreatedAt);
+        }
+        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+        log.info("cursorDto:{}", cursorDto.toString());
         return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
     }
 
-    public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
+    public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+        Long count = myPageMapper.getMyWatchCount(userId, status);
+        List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size, lastCreatedAt);
 
+        String lastValue = null;
+        if(lastCreatedAt != null) {
+            lastValue = formatter.format(lastCreatedAt);
+        }
+        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+
+        return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
     }
 }
