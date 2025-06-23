@@ -2,6 +2,7 @@ package com.anipick.backend.user.mapper;
 
 import com.anipick.backend.user.domain.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Optional;
 
@@ -13,6 +14,6 @@ public interface UserMapper {
     boolean existsByNickname(String nickname);
 
     void insertUser(User user);
-    void updateUser(User user);
+    void updateUserPassword(@Param("email") String email, @Param("password") String password);
     void deleteUser(Long userId);
 }

@@ -12,4 +12,10 @@
              #{createdAt}, #{updatedAt}, #{termsAndConditions}, #{adultYn}, #{reviewCompletedYn})
     </insert>
 
+    <update id="updateUserPassword">
+        UPDATE User
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
+
 </mapper>
