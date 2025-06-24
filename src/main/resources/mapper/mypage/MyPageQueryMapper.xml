@@ -80,4 +80,29 @@
         ORDER BY uas.created_at DESC, uas.user_anime_status_id DESC
         LIMIT #{size}
     </select>
+
+    <select id="getMyFinishedAnimes" resultType="com.anipick.backend.mypage.dto.FinishedAnimesDto">
+        SELECT
+            a.anime_id AS animeId,
+            uas.user_anime_status_id AS userAnimeStatusId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            r.rating AS myRating,
+            uas.created_at AS createdAt
+        FROM anime AS a
+        JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
+        JOIN review AS r ON a.anime_id = r.anime_id
+        WHERE
+                uas.status = #{status}
+            AND
+                uas.user_id = #{userId}
+        <if test="lastId != null and lastCreatedAt != null">
+            AND (
+                uas.created_at &lt; #{lastCreatedAt}
+            OR (uas.created_at = #{lastCreatedAt} AND uas.user_anime_status_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY uas.created_at DESC, uas.user_anime_status_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>
