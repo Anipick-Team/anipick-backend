@@ -11,7 +11,7 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.user.domain.LoginFormat;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserMapper;
-import com.anipick.backend.user.service.SignUpValidator;
+import com.anipick.backend.user.util.SignUpValidator;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
