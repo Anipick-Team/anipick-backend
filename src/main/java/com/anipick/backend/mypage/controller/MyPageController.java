@@ -2,6 +2,7 @@ package com.anipick.backend.mypage.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.mypage.dto.FinishedAnimesResponse;
 import com.anipick.backend.mypage.dto.MyPageResponse;
 import com.anipick.backend.mypage.dto.WatchListAnimesResponse;
 import com.anipick.backend.mypage.dto.WatchingAnimesResponse;
@@ -52,6 +53,19 @@ public class MyPageController {
     ) {
         Long userId = user.getUserId();
         WatchingAnimesResponse response = myPageService.getMyAnimesWatching(userId, status, lastId, size, lastCreatedAt);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/animes/finished")
+    public ApiResponse<FinishedAnimesResponse> getMyAnimesFinished(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "status") String status,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size,
+            @RequestParam(value = "lastCreatedAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt
+    ) {
+        Long userId = user.getUserId();
+        FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, lastId, size, lastCreatedAt);
         return ApiResponse.success(response);
     }
 }
