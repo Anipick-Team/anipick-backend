@@ -43,14 +43,13 @@ public class MyPageService {
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size, lastCreatedAt);
-        log.info("watchListAnimes:{}", watchListAnimes.getLast().getCreatedAt());
 
         String lastValue = null;
         if(lastCreatedAt != null) {
             lastValue = formatter.format(lastCreatedAt);
         }
         CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
-        log.info("cursorDto:{}", cursorDto.toString());
+
         return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
     }
 
