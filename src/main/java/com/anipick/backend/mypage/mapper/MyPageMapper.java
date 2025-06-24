@@ -19,23 +19,20 @@ public interface MyPageMapper {
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
-            @Param("size") Integer size,
-            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
+            @Param("size") Integer size
     );
 
     List<WatchingAnimesDto> getMyWatchingAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
-            @Param("size") Integer size,
-            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
+            @Param("size") Integer size
     );
 
     List<FinishedAnimesDto> getMyFinishedAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
-            @Param("size") Integer size,
-            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
+            @Param("size") Integer size
     );
 }

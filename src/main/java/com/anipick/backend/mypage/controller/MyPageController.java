@@ -35,11 +35,10 @@ public class MyPageController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "status") String status,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size,
-            @RequestParam(value = "lastCreatedAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
     ) {
         Long userId = user.getUserId();
-        WatchListAnimesResponse response = myPageService.getMyAnimesWatchList(userId, status, lastId, size, lastCreatedAt);
+        WatchListAnimesResponse response = myPageService.getMyAnimesWatchList(userId, status, lastId, size);
         return ApiResponse.success(response);
     }
 
@@ -48,11 +47,10 @@ public class MyPageController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "status") String status,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size,
-            @RequestParam(value = "lastCreatedAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
     ) {
         Long userId = user.getUserId();
-        WatchingAnimesResponse response = myPageService.getMyAnimesWatching(userId, status, lastId, size, lastCreatedAt);
+        WatchingAnimesResponse response = myPageService.getMyAnimesWatching(userId, status, lastId, size);
         return ApiResponse.success(response);
     }
 
@@ -61,11 +59,10 @@ public class MyPageController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "status") String status,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size,
-            @RequestParam(value = "lastCreatedAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
     ) {
         Long userId = user.getUserId();
-        FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, lastId, size, lastCreatedAt);
+        FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, lastId, size);
         return ApiResponse.success(response);
     }
 }

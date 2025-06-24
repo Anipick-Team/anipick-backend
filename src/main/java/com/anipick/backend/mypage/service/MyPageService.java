@@ -40,41 +40,32 @@ public class MyPageService {
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
     }
 
-    public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+    public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size, lastCreatedAt);
+        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
 
-        String lastValue = null;
-        if(lastCreatedAt != null) {
-            lastValue = formatter.format(lastCreatedAt);
-        }
-        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+        Long newLastId = watchListAnimes.getLast().getUserAnimeStatusId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
     }
 
-    public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+    public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size, lastCreatedAt);
+        List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size);
 
-        String lastValue = null;
-        if(lastCreatedAt != null) {
-            lastValue = formatter.format(lastCreatedAt);
-        }
-        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+        Long newLastId = watchingAnimes.getLast().getUserAnimeStatusId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
     }
 
-    public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+    public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size, lastCreatedAt);
+        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size);
 
-        String lastValue = null;
-        if(lastCreatedAt != null) {
-            lastValue = formatter.format(lastCreatedAt);
-        }
-        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+        Long newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
 
         return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
     }
