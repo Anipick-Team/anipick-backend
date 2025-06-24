@@ -2,8 +2,6 @@ package com.anipick.backend.mypage.dto;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 public class FinishedAnimesDto {
     private Long animeId;
