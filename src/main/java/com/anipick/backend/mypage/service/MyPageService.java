@@ -65,4 +65,17 @@ public class MyPageService {
 
         return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
     }
+
+    public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size, LocalDateTime lastCreatedAt) {
+        Long count = myPageMapper.getMyWatchCount(userId, status);
+        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size, lastCreatedAt);
+
+        String lastValue = null;
+        if(lastCreatedAt != null) {
+            lastValue = formatter.format(lastCreatedAt);
+        }
+        CursorDto cursorDto = CursorDto.of(MyPageDefaults.DEFAULT_SORT_OPTION, lastId, lastValue);
+
+        return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
+    }
 }
