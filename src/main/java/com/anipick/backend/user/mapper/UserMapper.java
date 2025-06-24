@@ -11,9 +11,14 @@ public interface UserMapper {
     Optional<User> findByUserId(Long userId);
     Optional<User> findByEmail(String email);
     Optional<User> findByNickname(String nickname);
+  
     boolean existsByNickname(String nickname);
 
     void insertUser(User user);
+  
+    void updateUser(User user);
+    void updateReviewCompletedYn(Long userId);
     void updateUserPassword(@Param("email") String email, @Param("password") String password);
+    
     void deleteUser(Long userId);
 }

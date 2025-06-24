@@ -9,9 +9,15 @@ import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.RecentReviewItemDto;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
 import com.anipick.backend.review.dto.ReviewRequest;
+import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
+import com.anipick.backend.user.domain.User;
+import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
+import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -28,10 +35,12 @@ public class ReviewService {
     private final RecentReviewMapper recentReviewMapper;
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
+    private final RatingMapper ratingMapper;
+    private final UserMapper userMapper;
+    private final UserAnimeStatusMapper userAnimeStatusMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-
 
     @Transactional(readOnly = true)
     public RecentReviewPageDto getRecentReviews(Long userId, Long lastId, Integer size) {
@@ -72,7 +81,6 @@ public class ReviewService {
                 .build();
     }
 
-
     @Transactional
     public void createAndUpdateReview(Long reviewId, ReviewRequest request, Long userId) {
         Review review = reviewMapper.findByReviewId(reviewId, userId)
@@ -90,6 +98,16 @@ public class ReviewService {
         updateReviewAverageScore(animeId);
 
         reviewMapper.updateReview(reviewId, userId, request);
+    }
+
+    @Transactional
+    public void createAndUpdateSignupReview(List<SignupRatingRequest> ratingRequests, Long userId) {
+        if (ratingRequests == null || ratingRequests.isEmpty()) {
+            return;
+        }
+
+        ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        userMapper.updateReviewCompletedYn(userId);
     }
 
     @Transactional
