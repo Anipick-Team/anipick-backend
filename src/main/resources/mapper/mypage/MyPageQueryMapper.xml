@@ -48,7 +48,7 @@
                 uas.status = #{status}
             AND
                 uas.user_id = #{userId}
-          <if test="lastId != null and lastValue != null">
+          <if test="lastId != null and lastCreatedAt != null">
             AND (
                 uas.created_at &lt; #{lastCreatedAt}
                 OR (uas.created_at = #{lastCreatedAt} AND uas.user_anime_status_id &lt; #{lastId})
@@ -71,7 +71,7 @@
                 uas.status = #{status}
             AND
                 uas.user_id = #{userId}
-        <if test="lastId != null and lastValue != null">
+        <if test="lastId != null and lastCreatedAt != null">
             AND (
                 uas.created_at &lt; #{lastCreatedAt}
                 OR (uas.created_at = #{lastCreatedAt} AND uas.user_anime_status_id &lt; #{lastId})
