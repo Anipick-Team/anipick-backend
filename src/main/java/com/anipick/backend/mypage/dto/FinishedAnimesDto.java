@@ -11,5 +11,4 @@ public class FinishedAnimesDto {
     private String title;
     private String coverImageUrl;
     private Double myRating;
-    private LocalDateTime createdAt;
 }

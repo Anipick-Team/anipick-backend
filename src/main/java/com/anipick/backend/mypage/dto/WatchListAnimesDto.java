@@ -11,5 +11,4 @@ public class WatchListAnimesDto {
     private Long userAnimeStatusId;
     private String title;
     private String coverImageUrl;
-    private LocalDateTime createdAt;
 }
