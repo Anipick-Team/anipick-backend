@@ -30,7 +30,7 @@ public class ReviewController {
         return ApiResponse.success(page);
     }
 
-    @PostMapping("/signup-bulk")
+    @PostMapping("/bulk")
     public ApiResponse<Void> bulkInsertSignupReviews(
             @RequestBody List<SignupRatingRequest> ratingRequests,
             @AuthenticationPrincipal CustomUserDetails user
