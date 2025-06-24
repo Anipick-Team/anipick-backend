@@ -16,5 +16,11 @@
         UPDATE User SET review_completed_yn = true
         WHERE user_id = #{userId}
     </update>
+  
+    <update id="updateUserPassword">
+        UPDATE User
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
 
 </mapper>
