@@ -1,9 +1,6 @@
 package com.anipick.backend.mypage.mapper;
 
-import com.anipick.backend.mypage.dto.LikedAnimesDto;
-import com.anipick.backend.mypage.dto.LikedPersonsDto;
-import com.anipick.backend.mypage.dto.WatchListAnimesDto;
-import com.anipick.backend.mypage.dto.WatchingAnimesDto;
+import com.anipick.backend.mypage.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,6 +24,14 @@ public interface MyPageMapper {
     );
 
     List<WatchingAnimesDto> getMyWatchingAnimes(
+            @Param("userId") Long userId,
+            @Param("status") String status,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size,
+            @Param("lastCreatedAt") LocalDateTime lastCreatedAt
+    );
+
+    List<FinishedAnimesDto> getMyFinishedAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
