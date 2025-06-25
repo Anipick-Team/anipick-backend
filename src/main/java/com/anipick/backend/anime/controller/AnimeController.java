@@ -1,5 +1,10 @@
 package com.anipick.backend.anime.controller;
 
+
+import com.anipick.backend.anime.dto.AnimeDetailInfoResultDto;
+import com.anipick.backend.anime.dto.AnimeItemDto;
+import com.anipick.backend.anime.dto.AnimeSeriesItemResultDto;
+import com.anipick.backend.anime.dto.AnimeCharacterActorItemDto;
 import com.anipick.backend.anime.dto.ComingSoonPageDto;
 import com.anipick.backend.anime.dto.UpcomingSeasonResultDto;
 import com.anipick.backend.anime.service.AnimeService;
@@ -9,6 +14,9 @@ import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/animes")
@@ -57,4 +65,40 @@ public class AnimeController {
 		return ApiResponse.success(result);
 	}
 
+	@GetMapping("/{animeId}/detail/info")
+	public ApiResponse<AnimeDetailInfoResultDto> getAnimeInfoDetail(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		  Long userId = user.getUserId();
+		  AnimeDetailInfoResultDto result = animeService.getAnimeInfoDetail(animeId, userId);
+      return ApiResponse.success(result);
+	}
+  
+	@GetMapping("/{animeId}/detail/recommendation")
+	public ApiResponse<List<AnimeItemDto>> getAnimeDetailRecommendation(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		  List<AnimeItemDto> result = animeService.getAnimeRecommendation(animeId);
+  		return ApiResponse.success(result);
+	}  
+  
+	@GetMapping("/{animeId}/detail/series")
+	public ApiResponse<List<AnimeSeriesItemResultDto>> getAnimeDetailSeries(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+	    List<AnimeSeriesItemResultDto> result = animeService.getAnimeSeries(animeId);
+  		return ApiResponse.success(result);
+	}
+  
+	@GetMapping("/{animeId}/detail/actor")
+	public ApiResponse<List<AnimeCharacterActorItemDto>> getAnimeInfoCharacterActor(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		List<AnimeCharacterActorItemDto> result = animeService.getAnimeInfoCharacterActor(animeId);
+		return ApiResponse.success(result);
+	}
 }

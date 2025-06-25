@@ -28,4 +28,29 @@ public interface AnimeMapper {
 	List<AnimeDetailInfoReviewsItemDto> selectAnimeDetailInfoReviews(AnimeDetailInfoReviewsRequestDto reviewsRequestDto);
 
 	long selectAnimeReviewCount(@Param("animeId") Long animeId);
+  
+	AnimeDetailInfoItemDto selectAnimeInfoDetail(
+			@Param(value = "animeId") Long animeId,
+			@Param(value = "userId") Long userId
+  );
+  
+	List<AnimeItemDto> selectAnimeInfoRecommendationsByAnimeId(
+			@Param("animeId") Long animeId,
+			@Param("size") int size
+  );
+  
+  List<AnimeDateItemDto> selectAnimeInfoSeriesByAnimeId(
+			@Param("animeId") Long animeId,
+			@Param("size") int size
+  );
+  
+	List<AnimeCharacterActorItemDto> selectAnimeInfoCharacterActors(
+			@Param("animeId") Long animeId,
+			@Param("size") int size
+  );
+  
+	void updateReviewAverageScore(
+			@Param("animeId") Long animeId,
+			@Param("reviewAverageScore") Double reviewAverageScore
+	);
 }
