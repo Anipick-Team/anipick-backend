@@ -181,6 +181,11 @@ public class AnimeService {
 	}
 
   
+	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
+		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE);		
+    return items;
+	}
+  
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
 		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
 
