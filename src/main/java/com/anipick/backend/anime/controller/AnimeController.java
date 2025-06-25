@@ -1,6 +1,7 @@
 package com.anipick.backend.anime.controller;
 
 import com.anipick.backend.anime.dto.AnimeSeriesItemResultDto;
+import com.anipick.backend.anime.dto.AnimeCharacterActorItemDto;
 import com.anipick.backend.anime.dto.ComingSoonPageDto;
 import com.anipick.backend.anime.dto.UpcomingSeasonResultDto;
 import com.anipick.backend.anime.service.AnimeService;
@@ -47,7 +48,16 @@ public class AnimeController {
 			@PathVariable(value = "animeId") Long animeId,
 			@AuthenticationPrincipal CustomUserDetails user
 	) {
-		List<AnimeSeriesItemResultDto> result = animeService.getAnimeSeries(animeId);
+	    List<AnimeSeriesItemResultDto> result = animeService.getAnimeSeries(animeId);
+  		return ApiResponse.success(result);
+	}
+  
+	@GetMapping("/{animeId}/detail/actor")
+	public ApiResponse<List<AnimeCharacterActorItemDto>> getAnimeInfoCharacterActor(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		List<AnimeCharacterActorItemDto> result = animeService.getAnimeInfoCharacterActor(animeId);
 		return ApiResponse.success(result);
 	}
 }

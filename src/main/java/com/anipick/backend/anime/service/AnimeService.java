@@ -180,6 +180,7 @@ public class AnimeService {
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
 
+  
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
 		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
 
@@ -200,5 +201,10 @@ public class AnimeService {
 				})
 				.toList();
 		return airDateConvertItems;
+  }
+  
+	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
+		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
+		return items;
 	}
 }
