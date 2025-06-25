@@ -9,7 +9,7 @@ public class ComingSoonRequestDto {
     private Long lastId;
     private String lastValue;
     private Long size;
-    private Long includeAdult;
+    private Boolean includeAdult;
     private String orderByQuery;
     private String defaultCoverUrl;
 
@@ -17,7 +17,7 @@ public class ComingSoonRequestDto {
             Long lastId,
             String lastValue,
             Long size,
-            Long includeAdult,
+            Boolean includeAdult,
             String orderByQuery,
             String defaultCoverUrl
     ) {
