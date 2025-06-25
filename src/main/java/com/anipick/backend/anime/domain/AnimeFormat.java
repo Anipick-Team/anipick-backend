@@ -6,5 +6,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AnimeFormat {
-    TV, TV_SHORT, MOVIE, SPECIAL, OVA, ONA;
+    TV("TVA"),
+    TV_SHORT("TVA"),
+    MOVIE("극장판"),
+    SPECIAL("OVA"),
+    OVA("OVA"),
+    ONA("TVA");
+
+    private final String frontType;
 }

@@ -15,15 +15,6 @@ public class FormatConvert {
 		"극장판", List.of(AnimeFormat.MOVIE)
 	);
 
-    private static final Map<AnimeFormat, String> REVERSE_CLIENT_MAP = Map.of(
-            AnimeFormat.TV, "TVA",
-            AnimeFormat.TV_SHORT, "TVA",
-            AnimeFormat.ONA, "TVA",
-            AnimeFormat.OVA, "OVA",
-            AnimeFormat.SPECIAL, "OVA",
-            AnimeFormat.MOVIE, "극장판"
-    );
-
 	public static List<String> toConvert(String clientFromType) {
 		if (clientFromType == null) {
 			return Collections.emptyList();
@@ -39,8 +30,8 @@ public class FormatConvert {
             return null;
         }
         try {
-            AnimeFormat format = AnimeFormat.valueOf(formatName);
-            return REVERSE_CLIENT_MAP.get(format);
+			AnimeFormat format = AnimeFormat.valueOf(formatName);
+			return format.getFrontType();
         } catch (IllegalArgumentException e) {
 			log.error("Anime toClientType method error format : {}, return 기타", formatName);
             return "기타";

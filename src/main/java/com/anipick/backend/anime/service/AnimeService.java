@@ -199,13 +199,7 @@ public class AnimeService {
 			airDate = animeDetailInfoItemDto.getStartDate().getYear() + "년 " + season.getName();
 		}
 
-		String type;
-		if (animeDetailInfoItemDto.getType() != null) {
-			String dtoType = animeDetailInfoItemDto.getType();
-            type = FormatConvert.toClientType(dtoType);
-		} else {
-			type = null;
-		}
+		String type = FormatConvert.toClientType(animeDetailInfoItemDto.getType());
 
 		List<GenreDto> genres = genreMapper.selectGenresByAnimeId(animeId);
 
