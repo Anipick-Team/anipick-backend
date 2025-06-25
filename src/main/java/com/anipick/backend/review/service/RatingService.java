@@ -3,6 +3,9 @@ package com.anipick.backend.review.service;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.recommendation.domain.UserRecommendMode;
+import com.anipick.backend.recommendation.domain.UserRecommendState;
+import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.mapper.RatingMapper;
@@ -25,6 +28,7 @@ public class RatingService {
     private final UserAnimeStatusMapper userAnimeStatusMapper;
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
+    private final UserRecommendStateMapper userRecommendMapper;
 
     @Transactional
     public void createReviewRating(Long animeId, ReviewRatingRequest request, Long userId) {
@@ -43,6 +47,13 @@ public class RatingService {
             }
         } else {
             userAnimeStatusMapper.createUserAnimeStatus(userId, animeId, UserAnimeOfStatus.FINISHED);
+        }
+
+        UserRecommendState byUserId = userRecommendMapper.findByUserId(userId);
+        if (byUserId == null) {
+            userRecommendMapper.insertInitialState(userId, UserRecommendMode.RECENT_HIGH, animeId);
+        } else {
+            userRecommendMapper.updateMode(userId, UserRecommendMode.RECENT_HIGH, animeId);
         }
 
         updateReviewAverageScore(animeId);

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.recommendation.mapper.UserRecommendStateMapper">
+    <select id="findByUserId" resultType="com.anipick.backend.recommendation.domain.UserRecommendState">
+        SELECT u.user_id AS user_id,
+               u.mode AS mode,
+               u.reference_anime_id AS referenceAnimeId,
+               u.start_date AS startDate
+        FROM Userrecommendationstate u
+        WHERE u.user_id = #{userId}
+    </select>
+</mapper>
