@@ -28,5 +28,10 @@ public interface AnimeMapper {
 	List<AnimeCharacterActorItemDto> selectAnimeInfoCharacterActors(
 			@Param("animeId") Long animeId,
 			@Param("size") int size
+  );
+  
+	void updateReviewAverageScore(
+			@Param("animeId") Long animeId,
+			@Param("reviewAverageScore") Double reviewAverageScore
 	);
 }

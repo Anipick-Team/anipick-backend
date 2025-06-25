@@ -34,4 +34,14 @@
         WHERE r.review_id = #{reviewId}
           AND r.user_id = #{userId}
     </select>
+
+    <select id="findAnimeIdsByUserId" resultType="com.anipick.backend.review.domain.Review">
+        SELECT r.anime_id AS animeId
+        FROM Review r
+        WHERE r.user_id = #{userId}
+          AND r.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
+    </select>
 </mapper>
