@@ -180,6 +180,29 @@ public class AnimeService {
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
 
+  
+	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
+
+		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
+				.map(dto -> {
+					LocalDate date = dto.getStartDate();
+					Season season = Season.containsSeason(date);
+					String seasonName = season.getName();
+
+					String resultAirDate = date.getYear() + "년 " + seasonName;
+
+					return AnimeSeriesItemResultDto.of(
+							dto.getAnimeId(),
+							dto.getTitle(),
+							dto.getCoverImageUrl(),
+							resultAirDate
+					);
+				})
+				.toList();
+		return airDateConvertItems;
+  }
+  
 	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
 		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
 		return items;
