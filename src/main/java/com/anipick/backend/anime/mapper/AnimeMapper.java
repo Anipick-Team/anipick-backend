@@ -25,6 +25,10 @@ public interface AnimeMapper {
 
 	void updateMinusReviewCount(@Param("animeId") Long animeId);
 
+	List<AnimeDetailInfoReviewsItemDto> selectAnimeDetailInfoReviews(AnimeDetailInfoReviewsRequestDto reviewsRequestDto);
+
+	long selectAnimeReviewCount(@Param("animeId") Long animeId);
+  
 	AnimeDetailInfoItemDto selectAnimeInfoDetail(
 			@Param(value = "animeId") Long animeId,
 			@Param(value = "userId") Long userId
