@@ -1,5 +1,7 @@
 package com.anipick.backend.anime.controller;
 
+
+import com.anipick.backend.anime.dto.AnimeDetailInfoResultDto;
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.anime.dto.AnimeSeriesItemResultDto;
 import com.anipick.backend.anime.dto.AnimeCharacterActorItemDto;
@@ -13,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/animes")
@@ -44,6 +47,16 @@ public class AnimeController {
 		return ApiResponse.success(result);
 	}
 
+	@GetMapping("/{animeId}/detail/info")
+	public ApiResponse<AnimeDetailInfoResultDto> getAnimeInfoDetail(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		  Long userId = user.getUserId();
+		  AnimeDetailInfoResultDto result = animeService.getAnimeInfoDetail(animeId, userId);
+      return ApiResponse.success(result);
+	}
+  
 	@GetMapping("/{animeId}/detail/recommendation")
 	public ApiResponse<List<AnimeItemDto>> getAnimeDetailRecommendation(
 			@PathVariable(value = "animeId") Long animeId,

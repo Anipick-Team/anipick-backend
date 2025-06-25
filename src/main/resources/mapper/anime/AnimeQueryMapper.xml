@@ -142,6 +142,31 @@
         WHERE a.anime_id = #{animeId}
     </select>
 
+    <select id="selectAnimeInfoDetail" resultType="com.anipick.backend.anime.dto.AnimeDetailInfoItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.banner_image_url AS bannerImageUrl,
+               a.description_kor AS description,
+               a.review_average_score AS averageRating,
+               IF(ual.user_id IS NULL, FALSE, TRUE) AS isLiked,
+               us.status AS watchStatus,
+               a.format AS type,
+               a.review_count AS reviewCount,
+               a.episode_count AS episode,
+               a.start_date AS startDate,
+               a.status AS status,
+               a.age AS age
+        FROM anime a
+                 LEFT JOIN useranimelike ual
+                           ON a.anime_id = ual.anime_id
+                               AND ual.user_id = #{userId}
+                 LEFT JOIN useranimestatus us
+                           ON a.anime_id = us.anime_id
+                               AND us.user_id = #{userId}
+        WHERE a.anime_id = #{animeId}
+    </select>
+
     <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
