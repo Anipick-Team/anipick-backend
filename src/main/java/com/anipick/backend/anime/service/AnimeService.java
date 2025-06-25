@@ -31,6 +31,7 @@ public class AnimeService {
 	private final AnimeMapper mapper;
 	private final GenreMapper genreMapper;
 	private final StudioMapper studioMapper;
+	private static final int ITEM_DEFAULT_SIZE = 10;
 	@Value("${anime.default-cover-url}")
 	private String defaultCoverUrl;
 
@@ -223,5 +224,37 @@ public class AnimeService {
 				.age(animeDetailInfoItemDto.getAge())
 				.studios(studios)
 				.build();
+  }
+  
+	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
+		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE);		
+    return items;
+	}
+  
+	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
+
+		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
+				.map(dto -> {
+					LocalDate date = dto.getStartDate();
+					Season season = Season.containsSeason(date);
+					String seasonName = season.getName();
+
+					String resultAirDate = date.getYear() + "년 " + seasonName;
+
+					return AnimeSeriesItemResultDto.of(
+							dto.getAnimeId(),
+							dto.getTitle(),
+							dto.getCoverImageUrl(),
+							resultAirDate
+					);
+				})
+				.toList();
+		return airDateConvertItems;
+  }
+  
+	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
+		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
+		return items;
 	}
 }
