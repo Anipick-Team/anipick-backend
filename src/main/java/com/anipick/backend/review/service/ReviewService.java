@@ -86,8 +86,6 @@ public class ReviewService {
         Review review = reviewMapper.findByReviewId(animeId, userId)
             .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Long animeId = review.getAnimeId();
-
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
