@@ -141,4 +141,48 @@
         FROM Anime a
         WHERE a.anime_id = #{animeId}
     </select>
+
+    <resultMap id="AnimeCharacterActorItemMap"
+               type="com.anipick.backend.anime.dto.AnimeCharacterActorItemDto">
+
+        <association property="character"
+                     javaType="com.anipick.backend.anime.dto.CharacterDto">
+            <id column="character_id" property="id"/>
+            <result column="character_name" property="name"/>
+            <result column="character_image_url" property="imageUrl"/>
+        </association>
+
+        <association property="voiceActor"
+                     javaType="com.anipick.backend.anime.dto.VoiceActorDto">
+            <id column="voiceactor_id" property="id"/>
+            <result column="voiceactor_name" property="name"/>
+            <result column="voiceactor_image_url" property="imageUrl"/>
+        </association>
+
+    </resultMap>
+
+
+    <select id="selectAnimeInfoCharacterActors" resultMap="AnimeCharacterActorItemMap">
+        SELECT c.character_id AS character_id,
+               c.name_kor AS character_name,
+               c.profile_image AS character_image_url,
+               v.voiceactor_id AS voiceactor_id,
+               v.name_kor AS voiceactor_name,
+               v.profile_image AS voiceactor_image_url
+        FROM `Character` c
+            JOIN Voiceactorcharacter vc
+                ON c.character_id = vc.character_id
+            JOIN Voiceactor v
+                ON vc.voiceactor_id = v.voiceactor_id
+        WHERE c.anime_id = #{animeId}
+        ORDER BY
+            CASE c.role
+                WHEN 'MAIN' THEN 0
+                WHEN 'SUPPORTING' THEN 1
+                WHEN 'BACKGROUND' THEN 2
+                ELSE 3
+            END,
+            c.character_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>
