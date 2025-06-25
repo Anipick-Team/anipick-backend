@@ -141,4 +141,98 @@
         FROM Anime a
         WHERE a.anime_id = #{animeId}
     </select>
+
+    <select id="selectAnimeInfoDetail" resultType="com.anipick.backend.anime.dto.AnimeDetailInfoItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.banner_image_url AS bannerImageUrl,
+               a.description_kor AS description,
+               a.review_average_score AS averageRating,
+               IF(ual.user_id IS NULL, FALSE, TRUE) AS isLiked,
+               us.status AS watchStatus,
+               a.format AS type,
+               a.review_count AS reviewCount,
+               a.episode_count AS episode,
+               a.start_date AS startDate,
+               a.status AS status,
+               a.age AS age
+        FROM anime a
+                 LEFT JOIN useranimelike ual
+                           ON a.anime_id = ual.anime_id
+                               AND ual.user_id = #{userId}
+                 LEFT JOIN useranimestatus us
+                           ON a.anime_id = us.anime_id
+                               AND us.user_id = #{userId}
+        WHERE a.anime_id = #{animeId}
+    </select>
+
+    <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl
+        FROM anime a
+        WHERE a.anime_id IN (SELECT ara.anime_id
+                             FROM anilistrecommendationsanimes ara
+                             WHERE ara.recommendation_anime_id = #{animeId})
+        ORDER BY a.anime_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate
+        FROM anime a
+        WHERE anime_id IN (SELECT ra.anime_id
+                           FROM relatedanime ra
+                           WHERE ra.related_anime_id = #{animeId})
+        ORDER BY a.anime_id DESC
+        LIMIT #{size}
+    </select>
+  
+    <resultMap id="AnimeCharacterActorItemMap"
+               type="com.anipick.backend.anime.dto.AnimeCharacterActorItemDto">
+
+        <association property="character"
+                     javaType="com.anipick.backend.anime.dto.CharacterDto">
+            <id column="character_id" property="id"/>
+            <result column="character_name" property="name"/>
+            <result column="character_image_url" property="imageUrl"/>
+        </association>
+
+        <association property="voiceActor"
+                     javaType="com.anipick.backend.anime.dto.VoiceActorDto">
+            <id column="voiceactor_id" property="id"/>
+            <result column="voiceactor_name" property="name"/>
+            <result column="voiceactor_image_url" property="imageUrl"/>
+        </association>
+
+    </resultMap>
+
+
+    <select id="selectAnimeInfoCharacterActors" resultMap="AnimeCharacterActorItemMap">
+        SELECT c.character_id AS character_id,
+               c.name_kor AS character_name,
+               c.profile_image AS character_image_url,
+               v.voiceactor_id AS voiceactor_id,
+               v.name_kor AS voiceactor_name,
+               v.profile_image AS voiceactor_image_url
+        FROM `Character` c
+            JOIN Voiceactorcharacter vc
+                ON c.character_id = vc.character_id
+            JOIN Voiceactor v
+                ON vc.voiceactor_id = v.voiceactor_id
+        WHERE c.anime_id = #{animeId}
+        ORDER BY
+            CASE c.role
+                WHEN 'MAIN' THEN 0
+                WHEN 'SUPPORTING' THEN 1
+                WHEN 'BACKGROUND' THEN 2
+                ELSE 3
+            END,
+            c.character_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>

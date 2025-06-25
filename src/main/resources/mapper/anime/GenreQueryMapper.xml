@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.anime.mapper.GenreMapper">
+    <select id="selectGenresByAnimeId" resultType="com.anipick.backend.anime.dto.GenreDto">
+        SELECT g.genre_id AS id,
+               g.genre_kor AS name
+        FROM genres g
+                 JOIN animegenres ag
+                      ON ag.genre_id = g.genre_id
+        WHERE anime_id = #{animeId}
+    </select>
+</mapper>

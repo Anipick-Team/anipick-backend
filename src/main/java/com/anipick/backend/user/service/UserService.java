@@ -68,7 +68,7 @@ public class UserService {
 
         userMapper.insertUser(user);
         TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
-        return SignUpResponse.from(response);
+        return SignUpResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
     private boolean checkDuplicateEmail(String email) {

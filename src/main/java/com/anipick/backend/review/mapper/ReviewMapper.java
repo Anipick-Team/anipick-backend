@@ -6,6 +6,7 @@ import com.anipick.backend.review.dto.ReviewRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -21,4 +22,6 @@ public interface ReviewMapper {
     );
 
     void deleteReview(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
+
+    List<Review> findAllByAnimeId(@Param("animeId") Long animeId);
 }

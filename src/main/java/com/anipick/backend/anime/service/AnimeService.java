@@ -6,13 +6,18 @@ import com.anipick.backend.anime.domain.Season;
 import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 
+import com.anipick.backend.anime.mapper.GenreMapper;
+import com.anipick.backend.anime.mapper.StudioMapper;
+import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.search.dto.StudioItemDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -24,6 +29,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AnimeService {
 	private final AnimeMapper mapper;
+	private final GenreMapper genreMapper;
+	private final StudioMapper studioMapper;
+	private static final int ITEM_DEFAULT_SIZE = 10;
 	@Value("${anime.default-cover-url}")
 	private String defaultCoverUrl;
 
@@ -177,5 +185,76 @@ public class AnimeService {
 		}
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);
+	}
+
+	@Transactional(readOnly = true)
+	public AnimeDetailInfoResultDto getAnimeInfoDetail(Long animeId, Long userId) {
+		AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
+
+		String airDate;
+		if (animeDetailInfoItemDto.getStartDate() == null) {
+			airDate = "미정";
+		} else {
+			LocalDate startDate = animeDetailInfoItemDto.getStartDate();
+			Season season = Season.containsSeason(startDate);
+			airDate = animeDetailInfoItemDto.getStartDate().getYear() + "년 " + season.getName();
+		}
+
+		String type = FormatConvert.toClientType(animeDetailInfoItemDto.getType());
+
+		List<GenreDto> genres = genreMapper.selectGenresByAnimeId(animeId);
+
+		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId);
+
+		return AnimeDetailInfoResultDto.builder()
+				.animeId(animeDetailInfoItemDto.getAnimeId())
+				.title(animeDetailInfoItemDto.getTitle())
+				.coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
+				.bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
+				.description(animeDetailInfoItemDto.getDescription())
+				.averageRating(animeDetailInfoItemDto.getAverageRating())
+				.isLiked(animeDetailInfoItemDto.getIsLiked())
+				.watchStatus(animeDetailInfoItemDto.getWatchStatus())
+				.type(type)
+				.reviewCount(animeDetailInfoItemDto.getReviewCount())
+				.genres(genres)
+				.episode(animeDetailInfoItemDto.getEpisode())
+				.airDate(airDate)
+				.status(animeDetailInfoItemDto.getStatus().getStatusName())
+				.age(animeDetailInfoItemDto.getAge())
+				.studios(studios)
+				.build();
+  }
+  
+	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
+		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE);		
+    return items;
+	}
+  
+	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
+
+		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
+				.map(dto -> {
+					LocalDate date = dto.getStartDate();
+					Season season = Season.containsSeason(date);
+					String seasonName = season.getName();
+
+					String resultAirDate = date.getYear() + "년 " + seasonName;
+
+					return AnimeSeriesItemResultDto.of(
+							dto.getAnimeId(),
+							dto.getTitle(),
+							dto.getCoverImageUrl(),
+							resultAirDate
+					);
+				})
+				.toList();
+		return airDateConvertItems;
+  }
+  
+	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
+		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
+		return items;
 	}
 }
