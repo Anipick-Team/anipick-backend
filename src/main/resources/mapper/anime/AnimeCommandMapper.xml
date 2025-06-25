@@ -15,4 +15,10 @@
         SET review_count = a.review_count - 1
         WHERE anime_id = #{animeId}
     </update>
+
+    <update id="updateReviewAverageScore">
+        UPDATE Anime a
+        SET review_average_score = #{reviewAverageScore}
+        WHERE anime_id = #{animeId}
+    </update>
 </mapper>
