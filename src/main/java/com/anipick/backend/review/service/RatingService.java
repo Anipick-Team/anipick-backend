@@ -71,10 +71,10 @@ public class RatingService {
     }
 
     @Transactional
-    public void deleteReviewRating(Long reviewId, ReviewRatingRequest request, Long userId) {
+    public void deleteReviewRating(Long reviewId, Long userId) {
         Review review = ratingMapper.findByReviewId(reviewId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-        ratingMapper.deleteRating(reviewId, userId, request);
+        ratingMapper.deleteRating(reviewId, userId);
 
         Long animeId = review.getAnimeId();
 
