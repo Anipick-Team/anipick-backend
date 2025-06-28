@@ -1,10 +1,7 @@
 package com.anipick.backend.anime.service;
 
-import com.anipick.backend.anime.domain.AnimeCharacterRole;
+import com.anipick.backend.anime.domain.*;
 import com.anipick.backend.anime.dto.*;
-import com.anipick.backend.anime.domain.RangeDate;
-import com.anipick.backend.anime.domain.Season;
-import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 
 import com.anipick.backend.anime.mapper.GenreMapper;
@@ -427,4 +424,20 @@ public class AnimeService {
         CursorDto cursor = CursorDto.of(null, nextId, nextValueStr);
         return AnimeCharacterActorPageDto.of(cursor, items);
     }
+
+	public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {
+		Anime anime = mapper.selectAnimeByAnimeId(animeId);
+		String animeTitle = anime.getTitleKor();
+
+		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size);
+
+		Long nextId;
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getAnimeId();
+		}
+		CursorDto cursor = CursorDto.of(nextId);
+		return AnimeRecommendationPageDto.of(animeTitle, cursor, items);
+	}
 }
