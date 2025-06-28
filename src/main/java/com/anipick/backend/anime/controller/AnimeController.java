@@ -119,4 +119,15 @@ public class AnimeController {
 		AnimeRecommendationPageDto result = animeService.getRecommendationsByAnime(animeId, lastId, size);
 		return ApiResponse.success(result);
 	}
+
+	@GetMapping("/{animeId}/series")
+	public ApiResponse<AnimeSeriesPageDto> getAnimeSeries(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user,
+			@RequestParam(value = "lastId", required = false) Long lastId,
+			@RequestParam(value = "size", defaultValue = "18") int size
+	) {
+		AnimeSeriesPageDto result = animeService.getSeriesByAnime(animeId, lastId, size);
+		return ApiResponse.success(result);
+	}
 }

@@ -440,4 +440,37 @@ public class AnimeService {
 		CursorDto cursor = CursorDto.of(nextId);
 		return AnimeRecommendationPageDto.of(animeTitle, cursor, items);
 	}
+
+	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
+		long totalCount = mapper.countSeriesAnime(animeId);
+
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size);
+		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
+				.map(dto -> {
+					LocalDate date = dto.getStartDate();
+					Season season = Season.containsSeason(date);
+					String seasonName = season.getName();
+
+					String resultAirDate = date.getYear() + "년 " + seasonName;
+
+					return AnimeSeriesItemResultDto.of(
+							dto.getAnimeId(),
+							dto.getTitle(),
+							dto.getCoverImageUrl(),
+							resultAirDate
+					);
+				})
+				.toList();
+
+		Long nextId;
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getAnimeId();
+		}
+
+		CursorDto cursor = CursorDto.of(nextId);
+
+		return AnimeSeriesPageDto.of(totalCount, cursor, airDateConvertItems);
+	}
 }
