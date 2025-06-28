@@ -11,9 +11,17 @@ import java.util.List;
 public interface MyPageMapper {
     Long getMyWatchCount(@Param("userId") Long userId, @Param("animeStatus") String animeStatus);
 
-    List<LikedAnimesDto> getMyLikedAnimes(@Param("userId") Long userId, @Param("size") Integer size);
+    List<LikedAnimesDto> getMyLikedAnimes(
+            @Param("userId") Long userId,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
+    );
 
-    List<LikedPersonsDto> getMyLikedPersons(@Param("userId") Long userId, @Param("size") Integer size);
+    List<LikedPersonsDto> getMyLikedPersons(
+            @Param("userId") Long userId,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
+    );
 
     List<WatchListAnimesDto> getMyWatchListAnimes(
             @Param("userId") Long userId,
@@ -55,4 +63,8 @@ public interface MyPageMapper {
             @Param("lastLikeCount") Long lastLikeCount,
             @Param("lastRating") Double lastRating
     );
+
+    Long getMyAnimesLikeCount(@Param("userId") Long userId);
+
+    Long getMyPersonsLikeCount(@Param("userId") Long userId);
 }

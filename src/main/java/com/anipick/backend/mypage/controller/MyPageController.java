@@ -74,4 +74,26 @@ public class MyPageController {
         RatedAnimesResponse response = myPageService.getMyAnimesRated(userId, lastId, lastLikeCount, lastRating, size, sort, reviewOnly);
         return ApiResponse.success(response);
     }
+
+    @GetMapping("/animes/like")
+    public ApiResponse<LikedAnimesResponse> getMyAnimesLiked(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
+    ) {
+        Long userId = user.getUserId();
+        LikedAnimesResponse response = myPageService.getMyAnimesLiked(userId, lastId, size);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/persons/like")
+    public ApiResponse<LikedPersonsResponse> getMyPersonsLiked(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
+    ) {
+        Long userId = user.getUserId();
+        LikedPersonsResponse response = myPageService.getMyPersonsLiked(userId, lastId, size);
+        return ApiResponse.success(response);
+    }
 }

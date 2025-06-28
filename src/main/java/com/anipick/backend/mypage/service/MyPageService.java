@@ -23,7 +23,6 @@ import java.util.List;
 public class MyPageService {
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -34,8 +33,8 @@ public class MyPageService {
         Long finishedCount = myPageMapper.getMyWatchCount(userId, UserAnimeOfStatus.FINISHED.toString());
 
         WatchCountDto watchCountDto = WatchCountDto.from(watchListCount, watchingCount, finishedCount);
-        List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, MyPageDefaults.DEFAULT_PAGE_SIZE);
-        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, MyPageDefaults.DEFAULT_PAGE_SIZE);
+        List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
+        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
     }
@@ -92,6 +91,26 @@ public class MyPageService {
         CursorDto cursorDto = getCursorBySortOption(newLastId, newLastLikeCount, newLastRating, sort, sortOption);
 
         return RatedAnimesResponse.from(count, cursorDto, animesReviews);
+    }
+
+    public LikedAnimesResponse getMyAnimesLiked(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyAnimesLikeCount(userId);
+        List<LikedAnimesDto> likedAnimes = myPageMapper.getMyLikedAnimes(userId, lastId, size);
+
+        Long newLastId = likedAnimes.getLast().getAnimeLikeId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return LikedAnimesResponse.from(count, cursorDto, likedAnimes);
+    }
+
+    public LikedPersonsResponse getMyPersonsLiked(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyPersonsLikeCount(userId);
+        List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size);
+
+        Long newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return LikedPersonsResponse.from(count, cursorDto, likedPersons);
     }
 
     private CursorDto getCursorBySortOption(Long lastId, Long lastCount, Double lastRating, String sort, SortOption sortOption) {
