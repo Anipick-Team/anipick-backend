@@ -392,4 +392,28 @@
         ORDER BY a.anime_id DESC
         LIMIT #{size}
     </select>
+
+    <select id="countSeriesAnime" resultType="long">
+        SELECT COUNT(*)
+        FROM anime a
+        WHERE anime_id IN (SELECT ra.anime_id
+                           FROM relatedanime ra
+                           WHERE ra.related_anime_id = #{animeId})
+    </select>
+
+    <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS title,
+               a.cover_image_url AS coverImageUrl,
+               a.start_date AS startDate
+        FROM anime a
+        WHERE anime_id IN (SELECT ra.anime_id
+                           FROM relatedanime ra
+                           WHERE ra.related_anime_id = #{animeId})
+        <if test="lastId != null">
+            AND a.anime_id &lt; #{lastId}
+        </if>
+        ORDER BY a.anime_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>
