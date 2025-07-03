@@ -9,4 +9,10 @@
         FROM Genres
         ORDER BY genre_id
     </select>
+
+    <select id="selectGenresById" resultType="string">
+        SELECT genre_kor
+        FROM Genres g
+        WHERE g.genre_id = #{genresId}
+    </select>
 </mapper>
