@@ -8,11 +8,10 @@ import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.dto.*;
 import com.anipick.backend.recommendation.mapper.AnimeTagMapper;
-import com.anipick.backend.recommendation.mapper.RecommendReviewUserMapper;
 import com.anipick.backend.recommendation.mapper.RecommendMapper;
+import com.anipick.backend.recommendation.mapper.RecommendReviewUserMapper;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -22,7 +21,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class RecommendService {
 
     private final UserRecommendStateMapper userRecommendStateMapper;
