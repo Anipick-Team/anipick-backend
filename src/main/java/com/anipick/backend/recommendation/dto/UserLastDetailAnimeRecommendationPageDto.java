@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor(staticName = "of")
 public class UserLastDetailAnimeRecommendationPageDto {
-    private String standardAnimeTitle;
+    private String referenceAnimeTitle;
     private CursorDto cursor;
     private List<AnimeItemDto> animes;
 }
