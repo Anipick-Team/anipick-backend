@@ -1,6 +1,8 @@
 package com.anipick.backend.recommendation.service;
 
+import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
+import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
@@ -27,6 +29,7 @@ public class RecommendService {
     private final RecommendReviewUserMapper reviewUserMapper;
     private final AnimeTagMapper animeTagMapper;
     private final RecommendMapper recommendMapper;
+    private final AnimeMapper animeMapper;
 
     public UserMainRecommendationPageDto getRecommendations(Long userId, Long lastId, Long lastValue, Long size) {
         UserRecommendState userState = userRecommendStateMapper.findByUserId(userId);
@@ -116,5 +119,47 @@ public class RecommendService {
         }
 
         return UserMainRecommendationPageDto.of(cursor, resultAnimes);
+    }
+
+    public UserLastDetailAnimeRecommendationPageDto getLastDetailAnimeRecommendations(
+            Long animeId,
+            Long userId,
+            Long lastId,
+            Long lastValue,
+            Long size
+    ) {
+        Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
+        String referenceAnimeTitle = anime.getTitleKor();
+
+        List<AnimeItemDto> resultAnimes;
+        List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
+
+        List<Long> tagIds = animeTagMapper.findTopTagsByAnime(animeId, 5);
+
+        RecentHighCountOnlyRequest request =
+                RecentHighCountOnlyRequest.of(userId, animeId, tagIds, lastValue, lastId, size);
+
+        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+        recommendTagCountDtoAnimes = recommendAnimes;
+
+        resultAnimes = recommendAnimes.stream()
+                .map(rec -> new AnimeItemDto(
+                        rec.getAnimeId(),
+                        rec.getTitle(),
+                        rec.getCoverImage()
+                ))
+                .toList();
+
+        CursorDto cursor;
+
+        if (resultAnimes.isEmpty()) {
+            cursor = CursorDto.of(null, null, null);
+        } else {
+            Long nextId = recommendTagCountDtoAnimes.getLast().getAnimeId();
+            Long nextValue = recommendTagCountDtoAnimes.getLast().getTagCount();
+            cursor = CursorDto.of(null, nextId, nextValue.toString());
+        }
+
+        return UserLastDetailAnimeRecommendationPageDto.of(referenceAnimeTitle, cursor, resultAnimes);
     }
 }
