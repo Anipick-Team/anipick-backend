@@ -21,7 +21,7 @@ public class UrlSafeObjectEncoder {
             return Base64.getUrlEncoder()
                     .withoutPadding()
                     .encodeToString(utf8Bytes);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }

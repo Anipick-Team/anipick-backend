@@ -13,10 +13,10 @@ public class UrlSafeObjectDecoder {
 
     public <T> T decodeURL(final String logData, final Class<T> valueType) {
         try {
-            byte[] decoded = Base64.getUrlDecoder().decode(logData);
-            String json = new String(decoded, StandardCharsets.UTF_8);
+            final byte[] decoded = Base64.getUrlDecoder().decode(logData);
+            final String json = new String(decoded, StandardCharsets.UTF_8);
             return objectMapper.readValue(json, valueType);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }

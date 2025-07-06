@@ -14,7 +14,7 @@ public class DefaultDataBody {
     private String content;
     private int position;
 
-    public static DefaultDataBody createAnimeData(String content, int position) {
+    public static DefaultDataBody createAnimeData(final String content, final int position) {
         return new DefaultDataBody(ContentType.ANIME, content, position);
     }
 
