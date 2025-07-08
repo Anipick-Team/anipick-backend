@@ -24,8 +24,8 @@ public class RankingController {
 
     @GetMapping("/{year}/{season}")
     public ApiResponse<RankingResponse> getYearSeasonRanking(
-            @PathVariable("year") Integer year,
-            @PathVariable("season") Integer season,
+            @PathVariable(value = "year", required = false) Integer year,
+            @PathVariable(value = "season", required = false) Integer season,
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
             @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
