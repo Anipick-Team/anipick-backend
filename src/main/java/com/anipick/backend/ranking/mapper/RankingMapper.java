@@ -10,12 +10,6 @@ import java.util.List;
 
 @Mapper
 public interface RankingMapper {
-    List<RankingAnimesFromQueryDto> getYearSeasonRankingFromNotFilter(
-            @Param("year") Integer year,
-            @Param("season") Integer season,
-            @Param("rankDate") LocalDate rankDate
-    );
-
     List<RankingAnimesFromQueryDto> getYearSeasonRanking(
             @Param("year") Integer year,
             @Param("season") Integer season,
