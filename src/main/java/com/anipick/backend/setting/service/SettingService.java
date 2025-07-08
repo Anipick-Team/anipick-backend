@@ -73,6 +73,6 @@ public class SettingService {
             throw new CustomException(ErrorCode.PASSWORD_CONFIRM_MISMATCH);
         }
 
-        userMapper.updateUserPassword(user.getUser().getEmail(), newPassword);
+        userMapper.updateUserPassword(user.getUser().getEmail(), passwordEncoder.encode(newPassword));
     }
 }
