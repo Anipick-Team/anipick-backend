@@ -1,15 +1,13 @@
 package com.anipick.backend.ranking.service;
 
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.ranking.domain.RankingDefaults;
 import com.anipick.backend.ranking.domain.Trend;
-import com.anipick.backend.ranking.dto.RankingAnimesDto;
-import com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto;
-import com.anipick.backend.ranking.dto.RankingResponse;
-import com.anipick.backend.ranking.dto.RedisRealTimeRankingAnimesDto;
+import com.anipick.backend.ranking.dto.*;
 import com.anipick.backend.ranking.mapper.RankingMapper;
 import com.anipick.backend.ranking.mapper.RealTimeRankingMapper;
-import com.anipick.backend.user.mapper.UserMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,17 +26,49 @@ import java.util.stream.Collectors;
 public class RankingService {
     private final RankingMapper rankingMapper;
     private final RealTimeRankingMapper realTimeRankingMapper;
-    private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) throws JsonProcessingException {
-        String realTimeRankingKey = redisTemplate.opsForValue().get(RankingDefaults.RANKING_ALIAS_KEY);
-        String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
+    public RealTimeRankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) {
+        try {
+            String realTimeRankingKey = redisTemplate.opsForValue().get(RankingDefaults.RANKING_ALIAS_KEY + genre);
+            String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
 
-        List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(realTimeRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
+            List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(realTimeRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
+            List<RedisRealTimeRankingAnimesDto> slicedRedisRankingAnimes;
 
+            if(lastId == null) {
+                slicedRedisRankingAnimes = redisAnimes.stream()
+                        .limit(size)
+                        .toList();
+            } else {
+                slicedRedisRankingAnimes = redisAnimes.stream()
+                        .filter(rank -> rank.getRank() > lastId)
+                        .limit(size)
+                        .toList();
+            }
 
+            List<Long> animeIds = slicedRedisRankingAnimes.stream()
+                    .map(RedisRealTimeRankingAnimesDto::getAnimeId)
+                    .toList();
+            Map<Long, RedisRealTimeRankingAnimesDto> redisMap = slicedRedisRankingAnimes.stream()
+                    .collect(Collectors.toMap(RedisRealTimeRankingAnimesDto::getAnimeId, dto -> dto));
+
+            List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking(animeIds, genre);
+            List<RealTimeRankingAnimesDto> animes = realTimeRanking.stream()
+                    .map(dto -> {
+                        RedisRealTimeRankingAnimesDto redisData = redisMap.get(dto.getAnimeId());
+
+                        return RealTimeRankingAnimesDto.from(dto.getAnimeId(), redisData.getRank(), redisData.getChange(), redisData.getTrend(), dto);
+                    })
+                    .toList();
+
+            CursorDto cursor = CursorDto.of(lastId);
+
+            return RealTimeRankingResponse.of(cursor, animes);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public RankingResponse getYearSeasonRanking(Integer year, Integer season, String genre, Long lastId, Integer size) {

@@ -2,6 +2,7 @@ package com.anipick.backend.ranking.controller;
 
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.ranking.dto.RankingResponse;
+import com.anipick.backend.ranking.dto.RealTimeRankingResponse;
 import com.anipick.backend.ranking.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,12 @@ public class RankingController {
     private final RankingService rankingService;
 
     @GetMapping("/real-time")
-    public ApiResponse<RankingResponse> getRealTimeRanking(
+    public ApiResponse<RealTimeRankingResponse> getRealTimeRanking(
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
             @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
     ) {
-        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
+        RealTimeRankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
         return ApiResponse.success(response);
     }
 
