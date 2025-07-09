@@ -49,7 +49,7 @@ public class AnimeController {
 	}
 
 	@GetMapping("/{animeId}/reviews")
-	public ApiResponse<?> getAnimeInfoReviews(
+	public ApiResponse<AnimeDetailInfoReviewsPageDto> getAnimeInfoReviews(
 			@PathVariable(value = "animeId") Long animeId,
 			@RequestParam(value = "sort", defaultValue = "latest") String sort,
 			@RequestParam(value = "isSpoiler", defaultValue = "false") Boolean isSpoiler,
