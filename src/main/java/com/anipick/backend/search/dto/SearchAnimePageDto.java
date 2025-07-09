@@ -12,8 +12,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SearchAnimePageDto {
 	private long count;
+	private long nextPage;
 	private long personCount;
 	private long studioCount;
 	private CursorDto cursor;
-	private List<AnimeItemDto> animes;
+	private List<SearchLogAnimeItemDto> animes;
 }
