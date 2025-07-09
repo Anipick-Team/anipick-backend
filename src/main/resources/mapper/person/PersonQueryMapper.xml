@@ -17,10 +17,8 @@
 
     <select id="countAnimesByActor" resultType="long">
         SELECT COUNT(*)
-        FROM voiceactor v
-                 JOIN voiceactorcharacter vc
-                      ON v.voiceactor_id = vc.voiceactor_id
-                          AND v.voiceactor_id = #{personId}
+        FROM voiceactorcharacter vc
+        WHERE vc.voiceactor_id = #{personId}
     </select>
 
     <select id="selectWorksByActor" resultType="com.anipick.backend.person.dto.PersonAnimeWorkDto">
