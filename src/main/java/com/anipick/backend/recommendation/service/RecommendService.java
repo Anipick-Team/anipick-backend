@@ -1,15 +1,9 @@
-package com.anipick.backend.home.service;
+package com.anipick.backend.recommendation.service;
 
 import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
-import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
-import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.home.dto.HomeComingSoonItemDto;
-import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
-import com.anipick.backend.home.dto.HomeRecommendationItemDto;
-import com.anipick.backend.home.mapper.HomeMapper;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.dto.*;
@@ -18,77 +12,24 @@ import com.anipick.backend.recommendation.mapper.RecommendMapper;
 import com.anipick.backend.recommendation.mapper.RecommendReviewUserMapper;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class HomeService {
+public class RecommendService {
 
-    private final HomeMapper homeMapper;
     private final UserRecommendStateMapper userRecommendStateMapper;
     private final RecommendReviewUserMapper reviewUserMapper;
     private final AnimeTagMapper animeTagMapper;
     private final RecommendMapper recommendMapper;
     private final AnimeMapper animeMapper;
 
-    private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-
-    @Value("${anime.default-cover-url}")
-    private String defaultCoverUrl;
-
-    @Transactional(readOnly = true)
-    public List<HomeRecentReviewItemDto> getRecentReviews(Long userId) {
-        List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10);
-
-        List<HomeRecentReviewItemDto> items = raws.stream()
-                .map(dto -> {
-                    LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
-                    String formattedDate = dateTime.format(formatter);
-
-                    return HomeRecentReviewItemDto.of(
-                            dto.getReviewId(),
-                            dto.getAnimeId(),
-                            dto.getAnimeTitle(),
-                            dto.getReviewContent(),
-                            dto.getNickname(),
-                            formattedDate
-                    );
-                })
-                .toList();
-        return items;
-    }
-
-    @Transactional(readOnly = true)
-    public List<HomeComingSoonItemDto> getComingSoonAnimes() {
-        SortOption sortOption = SortOption.LATEST;
-        String orderByQuery = sortOption.getOrderByQuery();
-        List<ComingSoonItemBasicDto> comingSoonItemBasicDtos = homeMapper.selectHomeComingSoonAnimes(defaultCoverUrl, orderByQuery, 10);
-
-        List<ComingSoonItemBasicDto> typeToReleaseDateList = comingSoonItemBasicDtos.stream()
-                .map(ComingSoonItemBasicDto::typeToReleaseDate)
-                .toList();
-
-        List<HomeComingSoonItemDto> items = typeToReleaseDateList.stream()
-                .map(dto -> HomeComingSoonItemDto.of(
-                        dto.getAnimeId(),
-                        dto.getTitle(),
-                        dto.getCoverImageUrl(),
-                        dto.getStartDate()
-                ))
-                .toList();
-        return items;
-    }
-
-    public HomeRecommendationItemDto getRecommendations(Long userId) {
+    public UserMainRecommendationPageDto getRecommendations(Long userId, Long lastId, Long lastValue, Long size) {
         UserRecommendState userState = userRecommendStateMapper.findByUserId(userId);
 
         if (userState == null) {
@@ -106,7 +47,7 @@ public class HomeService {
                 Long latestHigh = reviewUserMapper.findMostRecentHighRateAnime(userId);
                 // 리뷰가 없을 경우
                 if (latestHigh == null) {
-                    return HomeRecommendationItemDto.of(null, List.of());
+                    return UserMainRecommendationPageDto.of(CursorDto.of(null), List.of());
                 }
                 if (!latestHigh.equals(userState.getReferenceAnimeId())) {
                     userRecommendStateMapper.updateReferenceAnime(userId, latestHigh);
@@ -116,15 +57,17 @@ public class HomeService {
         }
 
         List<AnimeItemDto> resultAnimes;
+        List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
 
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
 
             RecentHighCountOnlyRequest request =
-                    RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, null, null, 10L);
+                    RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, lastValue, lastId, size);
 
             List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+            recommendTagCountDtoAnimes = recommendAnimes;
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -149,9 +92,10 @@ public class HomeService {
                     .toList();
 
             TagBasedCountOnlyRequest request =
-                    TagBasedCountOnlyRequest.of(userId, tagIds, null, null, 10L);
+                    TagBasedCountOnlyRequest.of(userId, tagIds, lastValue, lastId, size);
 
             List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request);
+            recommendTagCountDtoAnimes = recommendAnimes;
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -161,21 +105,40 @@ public class HomeService {
                     ))
                     .toList();
         }
-        return HomeRecommendationItemDto.of(null, resultAnimes);
+
+        CursorDto cursor;
+
+        if (resultAnimes.isEmpty()) {
+            cursor = CursorDto.of(null, null, null);
+        } else {
+            Long nextId = recommendTagCountDtoAnimes.getLast().getAnimeId();
+            Long nextValue = recommendTagCountDtoAnimes.getLast().getTagCount();
+            cursor = CursorDto.of(null, nextId, nextValue.toString());
+        }
+
+        return UserMainRecommendationPageDto.of(cursor, resultAnimes);
     }
 
-    public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
+    public UserLastDetailAnimeRecommendationPageDto getLastDetailAnimeRecommendations(
+            Long animeId,
+            Long userId,
+            Long lastId,
+            Long lastValue,
+            Long size
+    ) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
         String referenceAnimeTitle = anime.getTitleKor();
 
         List<AnimeItemDto> resultAnimes;
+        List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
 
         List<Long> tagIds = animeTagMapper.findTopTagsByAnime(animeId, 5);
 
         RecentHighCountOnlyRequest request =
-                RecentHighCountOnlyRequest.of(userId, animeId, tagIds, null, null, 10L);
+                RecentHighCountOnlyRequest.of(userId, animeId, tagIds, lastValue, lastId, size);
 
         List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+        recommendTagCountDtoAnimes = recommendAnimes;
 
         resultAnimes = recommendAnimes.stream()
                 .map(rec -> new AnimeItemDto(
@@ -185,6 +148,16 @@ public class HomeService {
                 ))
                 .toList();
 
-        return HomeRecommendationItemDto.of(referenceAnimeTitle, resultAnimes);
+        CursorDto cursor;
+
+        if (resultAnimes.isEmpty()) {
+            cursor = CursorDto.of(null, null, null);
+        } else {
+            Long nextId = recommendTagCountDtoAnimes.getLast().getAnimeId();
+            Long nextValue = recommendTagCountDtoAnimes.getLast().getTagCount();
+            cursor = CursorDto.of(null, nextId, nextValue.toString());
+        }
+
+        return UserLastDetailAnimeRecommendationPageDto.of(referenceAnimeTitle, cursor, resultAnimes);
     }
 }
