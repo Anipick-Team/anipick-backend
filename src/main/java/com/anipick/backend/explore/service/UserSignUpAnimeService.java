@@ -83,21 +83,7 @@ public class UserSignUpAnimeService {
                 .map(dto -> {
                     List<String> genreList = new ArrayList<>();
                     // 들어있는 장르가 null이 아니면서 3개 이상일 경우
-                    if (dto.getGenres() != null) {
-                        genreList.addAll(dto.getGenres());
-                    }
-
-                    if (genreList.size() >= 3) {
-                        List<String> genreTop3 = new ArrayList<>();
-                        genreTop3.add(genreList.get(0));
-                        genreTop3.add(genreList.get(1));
-                        genreTop3.add(genreList.get(2));
-
-                        if (genres != null && !genreTop3.contains(genresName)) {
-                            genreTop3.set(2, genresName);
-                        }
-                        genreList = genreTop3;
-                    }
+                    genreList = anime3GentePick(genres, dto, genreList, genresName);
                     return SignUpAnimeItemDto.of(
                             dto.getAnimeId(),
                             dto.getTitle(),
@@ -117,6 +103,25 @@ public class UserSignUpAnimeService {
         CursorDto cursor = CursorDto.of(nextId);
 
         return UserSignUpAnimePageDto.of(totalCount, cursor, result);
+    }
+
+    private static List<String> anime3GentePick(Long genres, SignUpPopularAnimeItemDto dto, List<String> genreList, String genresName) {
+        if (dto.getGenres() != null) {
+            genreList.addAll(dto.getGenres());
+        }
+
+        if (genreList.size() >= 3) {
+            List<String> genreTop3 = new ArrayList<>();
+            genreTop3.add(genreList.get(0));
+            genreTop3.add(genreList.get(1));
+            genreTop3.add(genreList.get(2));
+
+            if (genres != null && !genreTop3.contains(genresName)) {
+                genreTop3.set(2, genresName);
+            }
+            genreList = genreTop3;
+        }
+        return genreList;
     }
 
     private static SignUpAnimeExploreSearchRequestDto makeExploreSearchRequestDto(
