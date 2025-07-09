@@ -3,11 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.ranking.mapper.RealTimeRankingMapper">
-    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto">
+    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RealTimeRankingAnimesFromQueryDto">
         <id property="animeId" column="animeId"/>
         <result property="title" column="title"/>
         <result property="coverImageUrl" column="coverImageUrl"/>
-        <result property="rank" column="rankNum"/>
         <collection property="genres" ofType="string" column="genreName"/>
     </resultMap>
 
@@ -16,7 +15,6 @@
             a.anime_id AS animeId,
             a.title_kor AS title,
             a.cover_image_url AS coverImageUrl,
-            rtar.rank_num AS rankNum,
             g.genre_kor AS genreName
         FROM Anime AS a
         JOIN RealTimeAnimeRanking AS rtar ON a.anime_id = rtar.anime_id
@@ -25,7 +23,9 @@
         <if test="genre != null">
             g.genre_kor = #{genre}
         </if>
-            AND DATE_FORMAT(rtar.rank_date, '%Y-%m-%d %H:%i') = #{rankDateTime}
-        ORDER BY ar.rank_num
+        and a.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
     </select>
 </mapper>
