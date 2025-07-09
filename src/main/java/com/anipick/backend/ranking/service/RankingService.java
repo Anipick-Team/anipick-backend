@@ -6,9 +6,13 @@ import com.anipick.backend.ranking.domain.Trend;
 import com.anipick.backend.ranking.dto.RankingAnimesDto;
 import com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto;
 import com.anipick.backend.ranking.dto.RankingResponse;
+import com.anipick.backend.ranking.dto.RedisRealTimeRankingAnimesDto;
 import com.anipick.backend.ranking.mapper.RankingMapper;
 import com.anipick.backend.ranking.mapper.RealTimeRankingMapper;
 import com.anipick.backend.user.mapper.UserMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,13 +29,17 @@ public class RankingService {
     private final RankingMapper rankingMapper;
     private final RealTimeRankingMapper realTimeRankingMapper;
     private final UserMapper userMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, String> redisTemplate;
 
-//    public RankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) {
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        redisTemplate.opsForValue().get(RankingDefaults.RANKING_SNAPSHOT_KEY.formatted());
-//    }
+    public RankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) throws JsonProcessingException {
+        String realTimeRankingKey = redisTemplate.opsForValue().get(RankingDefaults.RANKING_ALIAS_KEY);
+        String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
+
+        List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(realTimeRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
+
+
+    }
 
     public RankingResponse getYearSeasonRanking(Integer year, Integer season, String genre, Long lastId, Integer size) {
         LocalDate today = LocalDate.now();

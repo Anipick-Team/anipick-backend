@@ -12,20 +12,20 @@ import org.springframework.web.bind.annotation.*;
 public class RankingController {
     private final RankingService rankingService;
 
-//    @GetMapping("/real-time")
-//    public ApiResponse<RankingResponse> getRealTimeRanking(
-//            @RequestParam(value = "genre", required = false) String genre,
-//            @RequestParam(value = "lastId", required = false) Long lastId,
-//            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
-//    ) {
-//        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
-//        return ApiResponse.success(response);
-//    }
+    @GetMapping("/real-time")
+    public ApiResponse<RankingResponse> getRealTimeRanking(
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
+    ) {
+        RankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
+        return ApiResponse.success(response);
+    }
 
-    @GetMapping("/{year}/{season}")
+    @GetMapping("/year-season")
     public ApiResponse<RankingResponse> getYearSeasonRanking(
-            @PathVariable(value = "year", required = false) Integer year,
-            @PathVariable(value = "season", required = false) Integer season,
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "season", required = false) Integer season,
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "lastId", required = false) Long lastId,
             @RequestParam(value = "size", defaultValue = "20", required = false) Integer size
