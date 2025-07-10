@@ -26,4 +26,10 @@
         WHERE review_id = #{reviewId}
           AND user_id = #{userId}
     </delete>
+
+    <insert id="createReviewReport">
+        INSERT INTO Reportedreview
+            (review_id, user_id, created_at)
+        VALUES (#{reviewId}, #{userId}, NOW())
+    </insert>
 </mapper>

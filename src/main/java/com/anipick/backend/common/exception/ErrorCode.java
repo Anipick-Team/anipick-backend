@@ -42,6 +42,8 @@ public enum ErrorCode {
 	REVIEW_CONTENT_NOT_PROVIDED(301, "리뷰 내용 미작성", "내용을 입력해 주세요."),
 	REVIEW_NOT_FOUND(302, "리뷰 찾을 수 없음", null),
 	REVIEW_ALREADY_EXISTS(303, "이미 평가가 존재", null),
+	ALREADY_REPORT_REVIEW(304, "이미 신고한 리뷰", null),
+	SELF_REVIEW_REPORT_ERROR(305, "본인 리뷰는 신고 불가", null),
 	/**
 	 * Validation & Request Errors
 	 */
