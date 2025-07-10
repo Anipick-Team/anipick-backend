@@ -34,4 +34,19 @@ public interface LikeMapper {
             @Param(value = "userId") Long userId,
             @Param(value = "personId") Long personId
     );
+
+    Boolean selectUserLikeReview(
+            @Param(value = "userId") Long userId,
+            @Param(value = "reviewId") Long reviewId
+    );
+
+    void insertLikeReview(
+            @Param(value = "userId") Long userId,
+            @Param(value = "reviewId") Long reviewId
+    );
+
+    void deleteLikeReview(
+            @Param(value = "userId") Long userId,
+            @Param(value = "reviewId") Long reviewId
+    );
 }
