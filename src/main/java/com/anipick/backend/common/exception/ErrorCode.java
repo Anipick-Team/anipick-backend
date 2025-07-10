@@ -36,6 +36,8 @@ public enum ErrorCode {
 	EMAIL_PREPARE_ERROR(125, "메시지 준비 오류", "메시지 준비 중 오류가 발생하였습니다."),
 	EMAIL_SEND_FAILED(126, "메일 전송 실패", "메일 전송이 실패하였습니다."),
 	EMAIL_GENERIC_ERROR(127, "일반적인 메일 오류", "일반적인 메일 오류가 발생하였습니다."),
+	ALREADY_BLOCKED_USER(130, "이미 차단한 유저", null),
+	SELF_BLOCKED_USER_ERROR(131, "본인 자신은 차단 불가", null),
 	/**
 	 * Review
 	 */
