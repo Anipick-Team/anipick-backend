@@ -17,4 +17,11 @@
             (user_id, anime_id, status, created_at, updated_at)
         VALUES (#{userId}, #{animeId}, #{status}, NOW(), NOW())
     </insert>
+
+    <delete id="deleteUserAnimeStatus">
+        DELETE
+        FROM Useranimestatus
+        WHERE user_id = #{userId}
+        AND anime_id = #{animeId}
+    </delete>
 </mapper>
