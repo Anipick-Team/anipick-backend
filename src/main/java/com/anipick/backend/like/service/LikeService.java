@@ -31,4 +31,22 @@ public class LikeService {
             throw new CustomException(ErrorCode.LIKE_DATA_NOT_FOUND);
         }
     }
+
+    public void likeActor(Long userId, Long personId) {
+        Boolean isLiked = likeMapper.selectUserLikeActor(userId, personId);
+        if (!isLiked) {
+            likeMapper.insertLikeActor(userId, personId);
+        } else {
+            throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
+        }
+    }
+
+    public void notLikeActor(Long userId, Long personId) {
+        Boolean isLiked = likeMapper.selectUserLikeActor(userId, personId);
+        if (isLiked) {
+            likeMapper.deleteLikeActor(userId, personId);
+        } else {
+            throw new CustomException(ErrorCode.LIKE_DATA_NOT_FOUND);
+        }
+    }
 }

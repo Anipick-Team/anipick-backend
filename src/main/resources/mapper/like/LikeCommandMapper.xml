@@ -15,4 +15,17 @@
         WHERE user_id = #{userId}
         AND anime_id = #{animeId}
     </delete>
+
+    <insert id="insertLikeActor">
+        INSERT INTO Userlikedvoiceactor
+            (user_id, voiceactor_id, created_at)
+        VALUES (#{userId}, #{personId}, NOW())
+    </insert>
+
+    <delete id="deleteLikeActor">
+        DELETE
+        FROM Userlikedvoiceactor
+        WHERE user_id = #{userId}
+        AND voiceactor_id = #{personId}
+    </delete>
 </mapper>
