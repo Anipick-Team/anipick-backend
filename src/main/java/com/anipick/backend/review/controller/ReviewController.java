@@ -60,4 +60,14 @@ public class ReviewController {
         reviewService.deleteReview(reviewId, userId);
         return ApiResponse.success();
     }
+
+    @PostMapping("/{reviewId}/report")
+    public ApiResponse<Void> reportReview(
+        @PathVariable(name = "reviewId") Long reviewId,
+        @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        reviewService.reportReview(userId, reviewId);
+        return ApiResponse.success();
+    }
 }

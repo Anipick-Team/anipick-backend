@@ -6,10 +6,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.review.domain.Review;
-import com.anipick.backend.review.dto.RecentReviewItemDto;
-import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRequest;
-import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
@@ -128,5 +125,26 @@ public class ReviewService {
                 .collect(Collectors.averagingDouble(Review::getRating));
 
         animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+    }
+
+    @Transactional
+    public void reportReview(Long userId, Long reviewId) {
+        Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
+        ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
+
+        if (reviewById == null) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+
+        if (reportReview != null) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        }
+
+        Long reportedUserId = reviewById.getUserId();
+        if (reportedUserId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REVIEW_REPORT_ERROR);
+        }
+
+        reviewMapper.createReviewReport(userId, reviewId);
     }
 }

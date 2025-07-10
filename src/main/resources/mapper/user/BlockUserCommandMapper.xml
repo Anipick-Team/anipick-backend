@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.user.mapper.BlockUserMapper">
+    <insert id="insertBlockUser">
+        INSERT INTO Blockeduser
+            (user_id, blocked_user_id, created_at)
+        VALUES (#{userId}, #{targetUserId}, NOW())
+    </insert>
+</mapper>
