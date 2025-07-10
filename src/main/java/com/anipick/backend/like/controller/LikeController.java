@@ -53,4 +53,24 @@ public class LikeController {
 		likeService.notLikeActor(userId, personId);
 		return ApiResponse.success();
 	}
+
+	@PostMapping("/reviews/{reviewId}/like")
+	public ApiResponse<Void> likeReview(
+			@PathVariable(value = "reviewId") Long reviewId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		likeService.likeReview(userId, reviewId);
+		return ApiResponse.success();
+	}
+
+	@DeleteMapping("/reviews/{reviewId}/like")
+	public ApiResponse<Void> notLikeReview(
+			@PathVariable(value = "reviewId") Long reviewId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		likeService.notLikeReview(userId, reviewId);
+		return ApiResponse.success();
+	}
 }

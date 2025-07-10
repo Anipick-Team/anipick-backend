@@ -24,4 +24,12 @@ public interface ReviewMapper {
     void deleteReview(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
 
     List<Review> findAllByAnimeId(@Param("animeId") Long animeId);
+
+    void updatePlusReviewLikeCount(
+            @Param(value = "reviewId") Long reviewId
+    );
+
+    void updateMinusReviewLikeCount(
+            @Param(value = "reviewId") Long reviewId
+    );
 }

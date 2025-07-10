@@ -28,4 +28,17 @@
         WHERE user_id = #{userId}
         AND voiceactor_id = #{personId}
     </delete>
+
+    <insert id="insertLikeReview">
+        INSERT INTO Reviewlike
+            (user_id, review_id, created_at)
+        VALUES (#{userId}, #{reviewId}, NOW())
+    </insert>
+
+    <delete id="deleteLikeReview">
+        DELETE
+        FROM Reviewlike
+        WHERE user_id = #{userId}
+        AND review_id = #{reviewId}
+    </delete>
 </mapper>
