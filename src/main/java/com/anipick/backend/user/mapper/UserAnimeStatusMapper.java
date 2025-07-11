@@ -23,4 +23,9 @@ public interface UserAnimeStatusMapper {
             @Param(value = "animeId") Long animeId,
             @Param(value = "status") UserAnimeOfStatus status
     );
+
+    void deleteUserAnimeStatus(
+            @Param(value = "userId") Long userId,
+            @Param(value = "animeId") Long animeId
+    );
 }
