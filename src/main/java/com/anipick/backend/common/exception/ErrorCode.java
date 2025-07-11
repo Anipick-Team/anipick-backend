@@ -58,7 +58,12 @@ public enum ErrorCode {
 	/**
 	 * Search
 	 */
-	EMPTY_KEYWORD(701, "검색 키워드를 입력하지 않음", "검색 키워드를 입력해 주세요.");
+	EMPTY_KEYWORD(701, "검색 키워드를 입력하지 않음", "검색 키워드를 입력해 주세요."),
+	/**
+	 * LIKE
+	 */
+	LIKE_DATA_NOT_FOUND(801, "좋아요 데이터 찾을 수 없음", null),
+	ALREADY_LIKE_DATA(802, "좋아요 데이터가 이미 존재", null);
 
 	private final int code;
 	private final String errorReason;
