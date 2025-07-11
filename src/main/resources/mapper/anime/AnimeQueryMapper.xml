@@ -307,4 +307,74 @@
             c.character_id DESC
         LIMIT #{size}
     </select>
+
+    <resultMap id="AnimeCharacterActorResultMap"
+               type="com.anipick.backend.anime.dto.AnimeCharacterActorResultDto"
+               extends="AnimeCharacterActorItemMap">
+        <result column="role" property="role" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAnimeCharacterActors"
+            resultMap="AnimeCharacterActorResultMap">
+        SELECT c.character_id AS character_id,
+               c.name_kor AS character_name,
+               c.profile_image AS character_image_url,
+               v.voiceactor_id AS voiceactor_id,
+               v.name_kor AS voiceactor_name,
+               v.profile_image AS voiceactor_image_url,
+               c.role AS role
+        FROM `character` c
+            JOIN voiceactorcharacter vc
+        ON c.character_id = vc.character_id
+            JOIN voiceactor v
+        ON vc.voiceactor_id = v.voiceactor_id
+        <where>
+            c.anime_id = #{animeId}
+            <if test="lastId != null and lastValue != null">
+                AND (
+                (CASE c.role
+                    WHEN 'MAIN' THEN 0
+                    WHEN 'SUPPORTING' THEN 1
+                    WHEN 'BACKGROUND' THEN 2
+                    ELSE 3
+                END)
+                >
+                (CASE #{lastValue}
+                    WHEN 'MAIN' THEN 0
+                    WHEN 'SUPPORTING' THEN 1
+                    WHEN 'BACKGROUND' THEN 2
+                    ELSE 3
+                END)
+                OR
+                (
+                (CASE c.role
+                    WHEN 'MAIN' THEN 0
+                    WHEN 'SUPPORTING' THEN 1
+                    WHEN 'BACKGROUND' THEN 2
+                    ELSE 3
+                END)
+                =
+                (CASE #{lastValue}
+                    WHEN 'MAIN' THEN 0
+                    WHEN 'SUPPORTING' THEN 1
+                    WHEN 'BACKGROUND' THEN 2
+                    ELSE 3
+                END)
+                AND c.character_id
+                &lt;
+                #{lastId}
+                )
+                )
+            </if>
+        </where>
+        ORDER BY
+        CASE c.role
+            WHEN 'MAIN' THEN 0
+            WHEN 'SUPPORTING' THEN 1
+            WHEN 'BACKGROUND' THEN 2
+            ELSE 3
+        END,
+        c.character_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>

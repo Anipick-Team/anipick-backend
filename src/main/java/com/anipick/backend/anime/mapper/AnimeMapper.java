@@ -3,6 +3,7 @@ package com.anipick.backend.anime.mapper;
 import java.util.List;
 
 import com.anipick.backend.anime.domain.Anime;
+import com.anipick.backend.anime.domain.AnimeCharacterRole;
 import com.anipick.backend.anime.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -53,4 +54,11 @@ public interface AnimeMapper {
 			@Param("animeId") Long animeId,
 			@Param("reviewAverageScore") Double reviewAverageScore
 	);
+
+	List<AnimeCharacterActorResultDto> selectAnimeCharacterActors(
+        @Param(value = "animeId") Long animeId,
+        @Param(value = "lastId") Long lastId,
+        @Param(value = "lastValue") AnimeCharacterRole lastValue,
+        @Param(value = "size") int size
+    );
 }
