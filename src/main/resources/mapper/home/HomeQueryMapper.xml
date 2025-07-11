@@ -3,6 +3,18 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.home.mapper.HomeMapper">
+    <select id="selectHomeTrendingRanking" resultType="com.anipick.backend.home.dto.TrendingRankingFromQueryDto">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl
+        FROM Anime AS a
+        WHERE a.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
+    </select>
+
     <select id="selectHomeRecentReviews" resultType="com.anipick.backend.home.dto.HomeRecentReviewItemDto">
         SELECT
             r.review_id AS reviewId,
