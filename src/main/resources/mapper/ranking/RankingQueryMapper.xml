@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.ranking.mapper.RankingMapper">
+    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto">
+        <id property="animeId" column="animeId"/>
+        <result property="title" column="title"/>
+        <result property="coverImageUrl" column="coverImageUrl"/>
+        <result property="rank" column="rankNum"/>
+        <collection property="genres" ofType="com.anipick.backend.anime.dto.GenreDto">
+            <result property="name" column="genreName"/>
+        </collection>
+    </resultMap>
+
+    <select id="getYearSeasonRanking" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum,
+            g.genre_kor AS genreName
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
+        WHERE 1 = 1
+        <if test="year != null">
+            and ar.year = #{year}
+        </if>
+        <if test="season != null">
+            AND ar.season_int = #{season}
+        </if>
+        <if test="genre != null">
+            AND g.genre_kor = #{genre}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+    </select>
+
+    <select id="getYearSeasonRankingPaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum,
+            g.genre_kor AS genreName
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
+        WHERE 1 = 1
+        <if test="year != null">
+            and ar.year = #{year}
+        </if>
+        <if test="season != null">
+            AND ar.season_int = #{season}
+        </if>
+        <if test="genre != null">
+            AND g.genre_kor = #{genre}
+        </if>
+        <if test="lastId != null">
+            AND ar.rank_num &gt; #{lastId}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+        LIMIT #{size}
+    </select>
+
+    <select id="getAllTimeRanking" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum,
+            g.genre_kor AS genreName
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
+        WHERE
+                ar.is_all_time = true
+        <if test="genre != null">
+            AND g.genre_kor = #{genre}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+    </select>
+
+    <select id="getAllTimeRankingPaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum,
+            g.genre_kor AS genreName
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN AnimeGenres AS ag ON ar.anime_id = ag.anime_id
+        JOIN Genres AS g ON ag.genre_id = g.genre_id
+        WHERE
+                ar.is_all_time = true
+        <if test="genre != null">
+            AND g.genre_kor = #{genre}
+        </if>
+        <if test="lastId != null">
+            AND ar.rank_num &gt; #{lastId}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+        LIMIT #{size}
+    </select>
+</mapper>
