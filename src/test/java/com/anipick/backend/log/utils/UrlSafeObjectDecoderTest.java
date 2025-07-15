@@ -33,6 +33,25 @@ class UrlSafeObjectDecoderTest {
     }
 
     @Test
+    @DisplayName("URL 안전한 Base64로 인코딩된 UserActionSearchLog를 디코딩할 수 있다")
+    void decodeURL_UserActionSearchLog_Success() {
+        // given
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        UserActionLog originalLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, dataBody, "검색키워드");
+        String encoded = UrlSafeObjectEncoder.encodeURL(originalLog);
+
+        // when
+        UserActionLog decodedLog = UrlSafeObjectDecoder.decodeURL(encoded, UserActionLog.class);
+
+        // then
+        assertThat(decodedLog.getAction()).isEqualTo(originalLog.getAction());
+        assertThat(decodedLog.getPage()).isEqualTo(originalLog.getPage());
+        assertThat(decodedLog.getArea()).isEqualTo(originalLog.getArea());
+        assertThat(decodedLog.getDataBody().getContent()).isEqualTo(originalLog.getDataBody().getContent());
+        assertThat(decodedLog.getDataBody().getPosition()).isEqualTo(originalLog.getDataBody().getPosition());
+    }
+
+    @Test
     @DisplayName("잘못된 Base64 문자열을 디코딩할 때 예외가 발생한다")
     void decodeURL_InvalidBase64_ThrowsException() {
         // given
