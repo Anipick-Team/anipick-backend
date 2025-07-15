@@ -2,10 +2,6 @@ package com.anipick.backend.search.service;
 
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.log.domain.Area;
-import com.anipick.backend.log.domain.DefaultDataBody;
-import com.anipick.backend.log.domain.Page;
-import com.anipick.backend.log.domain.UserActionLog;
 import com.anipick.backend.search.dto.*;
 import com.anipick.backend.search.mapper.SearchMapper;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +39,7 @@ public class SearchService {
 		for (AnimeItemDto item : items) {
 			positionNumber++;
 			animeLogItems.add(
-					SearchLogAnimeItemDto.from(item, positionNumber, LOG_BASE_URL)
+					SearchLogAnimeItemDto.from(item, positionNumber, LOG_BASE_URL, query)
 			);
 		}
 

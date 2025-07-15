@@ -21,12 +21,13 @@ public class SearchLogAnimeItemDto {
     public static SearchLogAnimeItemDto from(
             AnimeItemDto item,
             int positionNumber,
-            String logBaseUrl
+            String logBaseUrl,
+            String query
     ) {
         DefaultDataBody logDataBody = DefaultDataBody.createAnimeData(item.getTitle(), positionNumber);
 
-        UserActionLog userActionClickLog = UserActionLog.createClickLog(Page.SEARCH, Area.ITEM, logDataBody);
-        UserActionLog userActionImpressionLog = UserActionLog.createImpressionLog(Page.SEARCH, Area.ITEM, logDataBody);
+        UserActionLog userActionClickLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, logDataBody, query);
+        UserActionLog userActionImpressionLog = UserActionLog.createImpressionSearchLog(Page.SEARCH, Area.ITEM, logDataBody, query);
 
         String encodeClickLogStr = UrlSafeObjectEncoder.encodeURL(userActionClickLog);
         String encodeImpressionLogStr = UrlSafeObjectEncoder.encodeURL(userActionImpressionLog);
