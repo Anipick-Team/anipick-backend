@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
-	private static final String LOG_BASE_URL = "http://localhost:8080/log/";
+	private static final String LOG_BASE_URL = "http://anipick.p-e.kr:8080/api/log/";
 
 	public SearchInitPageDto findWeekBestAnimes() {
 		LocalDate now = LocalDate.now();
