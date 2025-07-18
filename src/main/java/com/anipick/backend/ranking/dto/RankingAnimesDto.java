@@ -1,13 +1,10 @@
 package com.anipick.backend.ranking.dto;
 
-import com.anipick.backend.anime.domain.Anime;
-import com.anipick.backend.anime.dto.GenreDto;
 import com.anipick.backend.ranking.domain.Trend;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -20,7 +17,7 @@ public class RankingAnimesDto {
     private String trend;
     private List<String> genres;
 
-    public static RankingAnimesDto from(Long change, Trend trend, Long displayRank, RankingAnimesFromQueryDto dto) {
+    public static RankingAnimesDto from(Long change, Trend trend, Long displayRank, RankingAnimesFromQueryDto dto, List<String> genres) {
         return new RankingAnimesDto(
                 dto.getAnimeId(),
                 dto.getTitle(),
@@ -28,8 +25,7 @@ public class RankingAnimesDto {
                 displayRank,
                 change,
                 trend.toString().toLowerCase(),
-                dto.getGenres().stream()
-                        .map(GenreDto::getName)
+                genres.stream()
                         .limit(3)
                         .toList()
         );
