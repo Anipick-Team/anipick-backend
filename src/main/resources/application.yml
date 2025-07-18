@@ -14,3 +14,12 @@ management:
     metrics:
       cache:
         time-to-live: 30s
+    env.enabled: true
+    health:
+      enabled: true
+      show-details: always
+    info.enabled: true
+    loggers.enabled: true
+    mappings.enabled: true
+    metrics.enabled: true
+    prometheus.enabled: true
