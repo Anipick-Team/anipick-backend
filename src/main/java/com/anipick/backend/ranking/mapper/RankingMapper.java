@@ -1,6 +1,6 @@
 package com.anipick.backend.ranking.mapper;
 
-import com.anipick.backend.ranking.dto.RankingAnimesDto;
+import com.anipick.backend.ranking.dto.AnimeGenresDto;
 import com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -24,6 +24,10 @@ public interface RankingMapper {
             @Param("lastId") Long lastId,
             @Param("size") Integer size,
             @Param("rankDate") LocalDate rankDate
+    );
+
+    List<AnimeGenresDto> getGenresByAnimeIds(
+            @Param("animeIds") List<Long> animeIds
     );
 
     List<RankingAnimesFromQueryDto> getAllTimeRanking(
