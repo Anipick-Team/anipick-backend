@@ -19,13 +19,16 @@
         FROM Anime AS a
         JOIN RealTimeAnimeRanking AS rtar ON a.anime_id = rtar.anime_id
         JOIN Genres AS g ON rtar.genre_id = g.genre_id
-        WHERE
-        <if test="genre != null">
-            g.genre_kor = #{genre}
-        </if>
-        and a.anime_id IN
+        WHERE a.anime_id IN
         <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
             #{animeId}
         </foreach>
+        ORDER BY
+            CASE
+                WHEN g.genre_kor = #{genre}
+                THEN 0
+                ELSE 1
+                END,
+            g.genre_kor
     </select>
 </mapper>
