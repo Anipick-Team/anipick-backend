@@ -11,7 +11,10 @@ public final class NicknameValidator {
             = Pattern.compile("^[a-zA-Z0-9가-힣!@#$%^&*()_\\-+=\\[\\]{}|\\\\:;'\",.<>?/]+$");
 
     public static boolean checkValidateNickname(String nickname) {
-        if(nickname == null || nickname.isEmpty() || nickname.length() > 20) return false;
+        if(nickname == null || nickname.isEmpty() || nickname.length() > 20) {
+            return false;
+        }
+
         return NICKNAME_PATTERN.matcher(nickname).matches();
     }
 }
