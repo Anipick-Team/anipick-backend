@@ -5,3 +5,8 @@ spring:
       dev: dev-mysql
       prod: prod-mysql
 ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
