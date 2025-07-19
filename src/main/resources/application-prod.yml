@@ -18,8 +18,31 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_ADDRESS}
+    password: ${APP_PASSWORD}
+    properties:
+      mail:
+        debug: true
+        smtp.auth: true
+        smtp.connectiontimeout: 180000
+        smtp.timeout: 180000
+        smtp.writetimeout: 180000
+        smtp.starttls.enable: true
 ---
 jwt:
   secret-key: ${SECRET_KEY}
   access-token-expire-time: ${ACCESS_TOKEN_EXPIRE_TIME}
   refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME}
+
+anime:
+  default-cover-url: ${ANIME_DEFAULT_COVER_URL}
+
+app:
+  oauth2:
+    google:
+      android-client-id: ${ANDROID_CLIENT_ID}
+      ios-client-id: ${IOS_CLIENT_ID}
