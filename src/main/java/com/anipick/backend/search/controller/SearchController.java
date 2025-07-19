@@ -37,12 +37,13 @@ public class SearchController {
 		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "lastId", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "page", defaultValue = "1") Long page,
 		@AuthenticationPrincipal CustomUserDetails user
 	) {
 		if (query == null || query.isBlank()) {
 			throw new CustomException(ErrorCode.EMPTY_KEYWORD);
 		}
-		SearchAnimePageDto searchAnimes = searchService.findSearchAnimes(query, lastId, size);
+		SearchAnimePageDto searchAnimes = searchService.findSearchAnimes(query, lastId, size, page);
 		return ApiResponse.success(searchAnimes);
 	}
 

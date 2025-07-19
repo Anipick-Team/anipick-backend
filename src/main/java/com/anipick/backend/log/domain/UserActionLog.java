@@ -13,6 +13,22 @@ public class UserActionLog {
     private Page page;
     private Area area;
     private DefaultDataBody dataBody;
+    private String query;
+
+    public UserActionLog(Action action, Page page, Area area, DefaultDataBody dataBody) {
+        this.action = action;
+        this.page = page;
+        this.area = area;
+        this.dataBody = dataBody;
+    }
+
+    public static UserActionLog createClickSearchLog(final Page page, final Area area, final DefaultDataBody dataBody, final String query) {
+        return new UserActionLog(Action.CLICK, page, area, dataBody, query);
+    }
+
+    public static UserActionLog createImpressionSearchLog(final Page page, final Area area, final DefaultDataBody dataBody, final String query) {
+        return new UserActionLog(Action.IMPRESSION, page, area, dataBody, query);
+    }
 
     public static UserActionLog createClickLog(final Page page, final Area area, final DefaultDataBody dataBody) {
         return new UserActionLog(Action.CLICK, page, area, dataBody);

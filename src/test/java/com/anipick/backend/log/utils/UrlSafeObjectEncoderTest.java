@@ -32,6 +32,24 @@ class UrlSafeObjectEncoderTest {
     }
 
     @Test
+    @DisplayName("UserActionSearchLog 객체를 URL 안전한 Base64로 인코딩할 수 있다")
+    void encodeURL_UserActionSearchLog_Success() {
+        // given
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        UserActionLog userActionLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, dataBody, "검색키워드");
+
+        // when
+        String encoded = UrlSafeObjectEncoder.encodeURL(userActionLog);
+
+        // then
+        assertThat(encoded).isNotNull();
+        assertThat(encoded).isNotEmpty();
+        assertThat(encoded).doesNotContain("+");
+        assertThat(encoded).doesNotContain("/");
+        assertThat(encoded).doesNotContain("=");
+    }
+
+    @Test
     @DisplayName("null 객체를 인코딩할 때 예외가 발생한다")
     void encodeURL_NullObject_ThrowsException() {
         // given & when & then
