@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="true">
+
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="esb"
+                    class="org.springframework.boot.logging.logback.EnclosedInSquareBracketsConverter"/>
+    <conversionRule conversionWord="wex"
+                    class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="applicationName"
+                    class="org.springframework.boot.logging.logback.ApplicationNameConverter"/>
+    <conversionRule conversionWord="correlationId"
+                    class="org.springframework.boot.logging.logback.CorrelationIdConverter"/>
+
+    <property name="appLogPath" value="/home/logs"/>
+    <property name="appLogFilePath" value="${appLogPath}/springboot"/>
+
+    <springProfile name="local">
+        <appender name="CONSOLE_INNER" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>
+                    [%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                </pattern>
+            </encoder>
+        </appender>
+
+        <appender name="CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="CONSOLE_INNER"/>
+            <queueSize>512</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="FILE_INNER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${appLogFilePath}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${appLogFilePath}.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder>
+                <pattern>
+                    [%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                </pattern>
+            </encoder>
+        </appender>
+
+        <appender name="FILE" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="FILE_INNER"/>
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>
