@@ -61,4 +61,10 @@ public interface AnimeMapper {
         @Param(value = "lastValue") AnimeCharacterRole lastValue,
         @Param(value = "size") int size
     );
+
+	List<AnimeItemDto> selectRecommendationsByAnimeId(
+			@Param(value = "animeId") Long animeId,
+			@Param(value = "lastId") Long lastId,
+			@Param(value = "size") int size
+	);
 }
