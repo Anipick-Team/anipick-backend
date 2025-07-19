@@ -24,8 +24,10 @@
                 <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul}] %-5level ${PID:-} --- %-40.40logger{36} : %msg%n</pattern>
             </encoder>
         </appender>
+
         <root level="INFO">
             <appender-ref ref="APP_LOG_FILE"/>
+            <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 </configuration>
