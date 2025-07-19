@@ -2,11 +2,16 @@
 <configuration debug="false" scan="true">
 
     <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
-    <conversionRule conversionWord="esb" class="org.springframework.boot.logging.logback.EnclosedInSquareBracketsConverter"/>
-    <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
-    <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
-    <conversionRule conversionWord="applicationName" class="org.springframework.boot.logging.logback.ApplicationNameConverter"/>
-    <conversionRule conversionWord="correlationId" class="org.springframework.boot.logging.logback.CorrelationIdConverter"/>
+    <conversionRule conversionWord="esb"
+                    class="org.springframework.boot.logging.logback.EnclosedInSquareBracketsConverter"/>
+    <conversionRule conversionWord="wex"
+                    class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="applicationName"
+                    class="org.springframework.boot.logging.logback.ApplicationNameConverter"/>
+    <conversionRule conversionWord="correlationId"
+                    class="org.springframework.boot.logging.logback.CorrelationIdConverter"/>
 
     <property name="appLogPath" value="/home/logs"/>
     <property name="appLogFilePath" value="${appLogPath}/springboot"/>
@@ -15,7 +20,7 @@
         <appender name="CONSOLE_INNER" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>
-                    [%d{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                    [%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
                 </pattern>
             </encoder>
         </appender>
@@ -41,7 +46,7 @@
             </rollingPolicy>
             <encoder>
                 <pattern>
-                    [%d{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                    [%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
                 </pattern>
             </encoder>
         </appender>
