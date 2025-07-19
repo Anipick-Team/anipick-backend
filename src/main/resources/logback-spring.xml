@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="appLogPath" value="/home/logs"/>
+    <property name="appLogFilePath" value="${appLogPath}/springboot"/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProfile name="local">
+        <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint}
+                    %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                </pattern>
+                <timeZone>Asia/Seoul</timeZone>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="consoleAppender"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="APP_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${appLogFilePath}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover -->
+                <fileNamePattern>${appLogFilePath}.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+                <!-- keep 30 days' worth of history capped at 10GB total size -->
+                <maxHistory>10</maxHistory>
+                <totalSizeCap>100MB</totalSizeCap>
+            </rollingPolicy>
+
+            <encoder>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint}
+                    %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n
+                </pattern>
+                <timeZone>Asia/Seoul</timeZone>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="APP_LOG_FILE"/>
+        </root>
+
+    </springProfile>
+</configuration>
