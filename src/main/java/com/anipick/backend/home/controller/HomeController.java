@@ -4,6 +4,7 @@ import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.home.dto.HomeComingSoonItemDto;
 import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
+import com.anipick.backend.home.dto.HomeTrendingRankingDto;
 import com.anipick.backend.home.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +20,14 @@ import java.util.List;
 public class HomeController {
 
     private final HomeService homeService;
+
+    @GetMapping("/animes/trending")
+    public ApiResponse<List<HomeTrendingRankingDto>> getHomeTrendingRanking(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        List<HomeTrendingRankingDto> response = homeService.getTrendingRanking();
+        return ApiResponse.success(response);
+    }
 
     @GetMapping("/reviews/recent")
     public ApiResponse<List<HomeRecentReviewItemDto>> getHomeRecentReviews(
