@@ -14,24 +14,32 @@
     <select id="getMyLikedAnimes" resultType="com.anipick.backend.mypage.dto.LikedAnimesDto">
         SELECT
             ual.anime_id AS animeId,
+            ual.anime_like_id AS animeLikeId,
             a.title_kor AS title,
             a.cover_image_url AS coverImageUrl
         FROM UserAnimeLike AS ual
         JOIN Anime AS a ON ual.anime_id = a.anime_id
         WHERE ual.user_id = #{userId}
-        ORDER BY ual.created_at DESC
+        <if test="lastId != null">
+            AND ual.anime_like_id &lt; #{lastId}
+        </if>
+        ORDER BY ual.anime_like_id DESC
         LIMIT #{size}
     </select>
 
     <select id="getMyLikedPersons" resultType="com.anipick.backend.mypage.dto.LikedPersonsDto">
         SELECT
             ulva.voiceactor_id AS personId,
+            ulva.user_liked_voiceactor_id AS userLikedVoiceActorId,
             va.name_kor AS name,
             va.profile_image AS profileImageUrl
         FROM UserLikedVoiceActor AS ulva
         JOIN VoiceActor AS va ON ulva.voiceactor_id = va.voiceactor_id
         WHERE ulva.user_id = #{userId}
-        ORDER BY ulva.created_at DESC
+        <if test="lastId != null">
+            AND ulva.user_liked_voiceactor_id &lt; #{lastId}
+        </if>
+        ORDER BY ulva.user_liked_voiceactor_id DESC
         LIMIT #{size}
     </select>
 
@@ -96,8 +104,7 @@
 
     <select id="getMyReviewCount" resultType="Long">
         SELECT COUNT(*)
-        FROM anime AS a
-        JOIN review AS r ON a.anime_id = r.anime_id
+        FROM review AS r
         WHERE r.user_id = #{userId}
     </select>
 
@@ -227,5 +234,17 @@
         </choose>
 
         LIMIT #{size}
+    </select>
+
+    <select id="getMyAnimesLikeCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM useranimelike AS ual
+        WHERE ual.user_id = #{userId}
+    </select>
+
+    <select id="getMyPersonsLikeCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM userlikedvoiceactor AS ulva
+        WHERE ulva.user_id = #{userId}
     </select>
 </mapper>
