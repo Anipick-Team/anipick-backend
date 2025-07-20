@@ -1,5 +1,6 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
@@ -22,7 +23,6 @@ import java.util.List;
 public class MyPageService {
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
-    private final DateTimeFormatter formatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -33,8 +33,8 @@ public class MyPageService {
         Long finishedCount = myPageMapper.getMyWatchCount(userId, UserAnimeOfStatus.FINISHED.toString());
 
         WatchCountDto watchCountDto = WatchCountDto.from(watchListCount, watchingCount, finishedCount);
-        List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, MyPageDefaults.DEFAULT_PAGE_SIZE);
-        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, MyPageDefaults.DEFAULT_PAGE_SIZE);
+        List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
+        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
     }
@@ -68,4 +68,71 @@ public class MyPageService {
 
         return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
     }
+
+    public RatedAnimesResponse getMyAnimesRated(Long userId, Long lastId, Long lastCount, Double lastRating, Integer size, String sort, Boolean reviewOnly) {
+        Long count = myPageMapper.getMyReviewCount(userId);
+        SortOption sortOption = SortOption.of(sort);
+
+        List<AnimesReviewDto> animesReviews;
+        Long newLastId;
+        Long newLastLikeCount;
+        Double newLastRating;
+
+        if(reviewOnly) {
+            animesReviews = myPageMapper.getMyAnimesReviewsOnly(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
+        } else {
+            animesReviews = myPageMapper.getMyAnimesReviewsAll(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
+        }
+
+        newLastId = animesReviews.getLast().getReviewId();
+        newLastLikeCount = animesReviews.getLast().getLikeCount();
+        newLastRating = animesReviews.getLast().getRating();
+
+        CursorDto cursorDto = getCursorBySortOption(newLastId, newLastLikeCount, newLastRating, sort, sortOption);
+
+        return RatedAnimesResponse.from(count, cursorDto, animesReviews);
+    }
+
+    public LikedAnimesResponse getMyAnimesLiked(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyAnimesLikeCount(userId);
+        List<LikedAnimesDto> likedAnimes = myPageMapper.getMyLikedAnimes(userId, lastId, size);
+
+        Long newLastId = likedAnimes.getLast().getAnimeLikeId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return LikedAnimesResponse.from(count, cursorDto, likedAnimes);
+    }
+
+    public LikedPersonsResponse getMyPersonsLiked(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyPersonsLikeCount(userId);
+        List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size);
+
+        Long newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return LikedPersonsResponse.from(count, cursorDto, likedPersons);
+    }
+
+    private CursorDto getCursorBySortOption(Long lastId, Long lastCount, Double lastRating, String sort, SortOption sortOption) {
+        CursorDto cursorDto;
+        switch (sortOption) {
+            case LATEST:
+                cursorDto = CursorDto.of(sort, lastId);
+                break;
+            case LIKES:
+                cursorDto = CursorDto.of(sort, lastId, String.valueOf(lastCount));
+                break;
+            case RATING_ASC:
+                cursorDto = CursorDto.of(sort, lastId, String.valueOf(lastRating));
+                break;
+            case RATING_DESC:
+                cursorDto = CursorDto.of(sort, lastId, String.valueOf(lastRating));
+                break;
+            default:
+                cursorDto = CursorDto.of(sort, lastId);
+        }
+
+        return cursorDto;
+    }
 }
+
