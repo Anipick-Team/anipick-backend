@@ -1,5 +1,6 @@
 package com.anipick.backend.log.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,5 +41,20 @@ public class UserActionLog {
 
     private enum Action {
         CLICK, IMPRESSION
+    }
+
+    @JsonIgnore
+    public String getActionName() {
+        return action.name();
+    }
+
+    @JsonIgnore
+    public String getType() {
+        return dataBody.getTypeName();
+    }
+
+    @JsonIgnore
+    public String getContent() {
+        return dataBody.getContent();
     }
 }
