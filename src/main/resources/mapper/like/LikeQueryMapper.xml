@@ -18,9 +18,9 @@
     </select>
 
     <select id="selectUserLikeReview" resultType="boolean">
-        SELECT COUNT(*) > 0
-        FROM Reviewlike
-        WHERE user_id = #{userId}
-        AND review_id = #{reviewId}
+        SELECT EXISTS(SELECT 1
+                      FROM Reviewlike
+                      WHERE user_id = #{userId}
+                        AND review_id = #{reviewId})
     </select>
 </mapper>
