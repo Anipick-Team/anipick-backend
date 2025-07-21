@@ -11,9 +11,9 @@
     </select>
 
     <select id="selectUserLikeActor" resultType="boolean">
-        SELECT COUNT(*) > 0
-        FROM Userlikedvoiceactor
-        WHERE user_id = #{userId}
-        AND voiceactor_id = #{personId}
+        SELECT EXISTS(SELECT 1
+                      FROM Userlikedvoiceactor
+                      WHERE user_id = #{userId}
+                        AND voiceactor_id = #{personId})
     </select>
 </mapper>
