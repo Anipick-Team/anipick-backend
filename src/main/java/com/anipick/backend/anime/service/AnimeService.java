@@ -444,9 +444,11 @@ public class AnimeService {
 	}
 
 	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
-		long totalCount = mapper.countSeriesAnime(animeId);
+		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size);
+		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
+
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size);
 		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
 				.map(dto -> {
 					LocalDate date = dto.getStartDate();
