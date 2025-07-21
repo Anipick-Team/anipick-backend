@@ -4,9 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.like.mapper.LikeMapper">
     <select id="selectUserLikeAnime" resultType="boolean">
-        SELECT COUNT(*) > 0
-        FROM Useranimelike
-        WHERE user_id = #{userId}
-        AND anime_id = #{animeId}
+        SELECT EXISTS(SELECT 1
+                      FROM useranimelike
+                      WHERE user_id = #{userId}
+                        AND anime_id = #{animeId}
+                      )
     </select>
 </mapper>
