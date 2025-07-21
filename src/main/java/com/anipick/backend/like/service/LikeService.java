@@ -5,6 +5,7 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.like.mapper.LikeMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,12 +54,13 @@ public class LikeService {
     }
 
     public void likeReview(Long userId, Long reviewId) {
-        Boolean isLiked = likeMapper.selectUserLikeReview(userId, reviewId);
-        if (!isLiked) {
+        try {
             likeMapper.insertLikeReview(userId, reviewId);
             reviewMapper.updatePlusReviewLikeCount(reviewId);
-        } else {
+        } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
