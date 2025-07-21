@@ -4,6 +4,7 @@ import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.like.mapper.LikeMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +34,12 @@ public class LikeService {
     }
 
     public void likeActor(Long userId, Long personId) {
-        Boolean isLiked = likeMapper.selectUserLikeActor(userId, personId);
-        if (!isLiked) {
+        try {
             likeMapper.insertLikeActor(userId, personId);
-        } else {
+        } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
