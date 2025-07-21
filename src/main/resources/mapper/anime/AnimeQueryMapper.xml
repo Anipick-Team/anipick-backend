@@ -15,7 +15,7 @@
             ON a.anime_id = pao.anime_id
         WHERE a.start_date BETWEEN #{startDate} AND #{endDate}
         AND a.status = 'NOT_YET_RELEASED'
-        ORDER BY pao.popularity_anime_order_id
+        ORDER BY pao.score DESC
             LIMIT 30
     </select>
 
