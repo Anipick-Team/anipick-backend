@@ -35,4 +35,13 @@
         WHERE user_id = #{userId}
     </update>
 
+    <update id="updateUserByWithdrawal">
+        UPDATE User
+        SET profile_image_url = 'default.png',
+            nickname = #{nickname},
+            password = '',
+            login_format = '',
+            deleted_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
