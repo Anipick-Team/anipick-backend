@@ -34,4 +34,10 @@ public class SettingController {
         settingService.changePassword(user, request);
         return ApiResponse.success();
     }
+
+    @PatchMapping("/withdrawal")
+    public ApiResponse<Void> userWithdrawal(@AuthenticationPrincipal CustomUserDetails user) {
+        settingService.userWithdrawal(user);
+        return ApiResponse.success();
+    }
 }

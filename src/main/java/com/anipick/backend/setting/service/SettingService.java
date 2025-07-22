@@ -6,6 +6,7 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.setting.dto.ChangeEmailRequest;
 import com.anipick.backend.setting.dto.ChangeNicknameRequest;
 import com.anipick.backend.setting.dto.ChangePasswordRequest;
+import com.anipick.backend.setting.util.DeletedUserNicknameGenerator;
 import com.anipick.backend.setting.util.NicknameValidator;
 import com.anipick.backend.user.mapper.UserMapper;
 import com.anipick.backend.user.util.SignUpValidator;
@@ -74,5 +75,10 @@ public class SettingService {
         }
 
         userMapper.updateUserPassword(user.getUser().getEmail(), passwordEncoder.encode(newPassword));
+    }
+
+    public void userWithdrawal(CustomUserDetails user) {
+        String deletedUserNickname = DeletedUserNicknameGenerator.generateDeletedUserNickname();
+        userMapper.updateUserByWithdrawal(user.getUserId(), deletedUserNickname);
     }
 }
