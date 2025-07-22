@@ -285,27 +285,29 @@
 
 
     <select id="selectAnimeInfoCharacterActors" resultMap="AnimeCharacterActorItemMap">
-        SELECT c.character_id AS character_id,
+        SELECT c.character_id  AS character_id,
                c.name_kor AS character_name,
                c.profile_image AS character_image_url,
                v.voiceactor_id AS voiceactor_id,
                v.name_kor AS voiceactor_name,
                v.profile_image AS voiceactor_image_url
         FROM `Character` c
-            JOIN Voiceactorcharacter vc
-                ON c.character_id = vc.character_id
-            JOIN Voiceactor v
-                ON vc.voiceactor_id = v.voiceactor_id
+                 JOIN Characteranime ca
+                      ON c.character_id = ca.character_id
+                          AND ca.anime_id = c.anime_id
+                 JOIN Voiceactorcharacter vc
+                      ON c.character_id = vc.character_id
+                 JOIN Voiceactor v
+                      ON vc.voiceactor_id = v.voiceactor_id
         WHERE c.anime_id = #{animeId}
-        ORDER BY
-            CASE c.role
-                WHEN 'MAIN' THEN 0
-                WHEN 'SUPPORTING' THEN 1
-                WHEN 'BACKGROUND' THEN 2
-                ELSE 3
-            END,
-            c.character_id DESC
-        LIMIT #{size}
+        ORDER BY CASE ca.role
+                     WHEN 'MAIN' THEN 0
+                     WHEN 'SUPPORTING' THEN 1
+                     WHEN 'BACKGROUND' THEN 2
+                     ELSE 3
+                     END,
+                 c.character_id DESC
+            LIMIT #{size}
     </select>
 
     <resultMap id="AnimeCharacterActorResultMap"
