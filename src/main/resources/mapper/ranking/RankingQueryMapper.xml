@@ -10,7 +10,7 @@
         <result property="rank" column="rankNum"/>
     </resultMap>
 
-    <select id="getYearSeasonRanking" resultMap="RankingResultMap">
+    <select id="getYearSeasonRankingByGenre" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
@@ -18,6 +18,7 @@
             ar.rank_num AS rankNum
         FROM Anime AS a
         JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN Genres AS g ON ar.anime_id = g.anime_id
         WHERE 1 = 1
         <if test="year != null">
             AND ar.year = #{year}
@@ -25,16 +26,8 @@
         <if test="season != null">
             AND ar.season_int = #{season}
         </if>
-        AND ar.rank_type = 'year_season'
-        AND a.anime_id IN (
-            SELECT DISTINCT(ar2.anime_id)
-            FROM AnimeRanking AS ar2
-            JOIN AnimeGenres AS ag ON ar2.anime_id = ag.anime_id
-            JOIN Genres AS g ON ag.genre_id = g.genre_id
-            <if test="genre != null">
-                WHERE g.genre_kor = #{genre}
-            </if>
-        )
+            AND ar.rank_type = 'year_season'
+            AND g.genre_kor = #{genre}
             AND DATE(ar.rank_date) = #{rankDate}
         ORDER BY ar.rank_num
     </select>
@@ -52,7 +45,33 @@
         </foreach>
     </select>
 
-    <select id="getYearSeasonRankingPaging" resultMap="RankingResultMap">
+    <select id="getYearSeasonRankingByGenrePaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN Genres AS g ON ar.anime_id = g.anime_id
+        WHERE 1 = 1
+        <if test="year != null">
+            AND ar.year = #{year}
+        </if>
+        <if test="season != null">
+            AND ar.season_int = #{season}
+        </if>
+            AND ar.rank_type = 'year_season'
+            AND g.genre_kor = #{genre}
+        <if test="lastId != null">
+            AND ar.rank_num &gt; #{lastId}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+        LIMIT #{size}
+    </select>
+
+    <select id="getYearSeasonRankingNotFilter" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
@@ -68,15 +87,63 @@
             AND ar.season_int = #{season}
         </if>
             AND ar.rank_type = 'year_season'
-            AND a.anime_id IN (
-                SELECT DISTINCT(ar2.anime_id)
-                FROM AnimeRanking AS ar2
-                JOIN AnimeGenres AS ag ON ar2.anime_id = ag.anime_id
-                JOIN Genres AS g ON ag.genre_id = g.genre_id
-                <if test="genre != null">
-                    WHERE g.genre_kor = #{genre}
-                </if>
-        )
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY rank_num
+    </select>
+
+    <select id="getYearSeasonRankingNotFilterPaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        WHERE 1 = 1
+        <if test="year != null">
+            AND ar.year = #{year}
+        </if>
+        <if test="season != null">
+            AND ar.season_int = #{season}
+        </if>
+            AND ar.rank_type = 'year_season'
+        <if test="lastId != null">
+            AND ar.rank_num &gt; #{lastId}
+        </if>
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY rank_num
+    </select>
+
+    <select id="getAllTimeRankingByGenre" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        WHERE
+                ar.is_all_time = true
+            AND ar.rank_type = 'all_time'
+            AND g.genre_kor = #{genre}
+            AND DATE(ar.rank_date) = #{rankDate}
+        ORDER BY ar.rank_num
+    </select>
+
+    <select id="getAllTimeRankingByGenrePaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            ar.rank_num AS rankNum
+        FROM Anime AS a
+        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN Genres AS g ON ar.genre_id = g.genre_id
+        WHERE
+                ar.is_all_time = true
+            AND ar.rank_type = 'all_time'
+            AND g.genre_kor = #{genre}
         <if test="lastId != null">
             AND ar.rank_num &gt; #{lastId}
         </if>
@@ -85,7 +152,7 @@
         LIMIT #{size}
     </select>
 
-    <select id="getAllTimeRanking" resultMap="RankingResultMap">
+    <select id="getAllTimeRankingNotFilter" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
@@ -96,20 +163,11 @@
         WHERE
                 ar.is_all_time = true
             AND ar.rank_type = 'all_time'
-            AND a.anime_id IN (
-                SELECT DISTINCT(ar2.anime_id)
-                FROM AnimeRanking AS ar2
-                JOIN AnimeGenres AS ag ON ar2.anime_id = ag.anime_id
-                JOIN Genres AS g ON ag.genre_id = g.genre_id
-                <if test="genre != null">
-                    WHERE g.genre_kor = #{genre}
-                </if>
-        )
             AND DATE(ar.rank_date) = #{rankDate}
         ORDER BY ar.rank_num
     </select>
 
-    <select id="getAllTimeRankingPaging" resultMap="RankingResultMap">
+    <select id="getAllTimeRankingNotFilterPaging" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
@@ -120,15 +178,6 @@
         WHERE
                 ar.is_all_time = true
             AND ar.rank_type = 'all_time'
-            AND a.anime_id IN (
-                SELECT DISTINCT(ar2.anime_id)
-                FROM AnimeRanking AS ar2
-                JOIN AnimeGenres AS ag ON ar2.anime_id = ag.anime_id
-                JOIN Genres AS g ON ag.genre_id = g.genre_id
-                <if test="genre != null">
-                    WHERE g.genre_kor = #{genre}
-                </if>
-        )
         <if test="lastId != null">
             AND ar.rank_num &gt; #{lastId}
         </if>

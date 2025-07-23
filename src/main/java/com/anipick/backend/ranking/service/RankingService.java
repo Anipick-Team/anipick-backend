@@ -78,8 +78,17 @@ public class RankingService {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
 
-        List<RankingAnimesFromQueryDto> yearSeasonRankingToday = rankingMapper.getYearSeasonRankingPaging(year, season, genre, lastId, size, today);
-        List<RankingAnimesFromQueryDto> yearSeasonRankingYesterday = rankingMapper.getYearSeasonRanking(year, season, genre, yesterday);
+        List<RankingAnimesFromQueryDto> yearSeasonRankingToday;
+        List<RankingAnimesFromQueryDto> yearSeasonRankingYesterday;
+
+        if(genre != null) {
+            yearSeasonRankingToday = rankingMapper.getYearSeasonRankingByGenrePaging(year, season, genre, lastId, size, today);
+            yearSeasonRankingYesterday = rankingMapper.getYearSeasonRankingByGenre(year, season, genre, yesterday);
+        } else {
+            yearSeasonRankingToday = rankingMapper.getYearSeasonRankingNotFilterPaging(year, season, lastId, size, today);
+            yearSeasonRankingYesterday = rankingMapper.getYearSeasonRankingNotFilter(year, season, yesterday);
+        }
+
         List<Long> animeIds = yearSeasonRankingToday.stream()
                 .map(RankingAnimesFromQueryDto::getAnimeId)
                 .toList();
@@ -131,8 +140,17 @@ public class RankingService {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
 
-        List<RankingAnimesFromQueryDto> allTimeRankingToday = rankingMapper.getAllTimeRankingPaging(genre, lastId, size, today);
-        List<RankingAnimesFromQueryDto> allTimeRankingYesterday = rankingMapper.getAllTimeRanking(genre, yesterday);
+        List<RankingAnimesFromQueryDto> allTimeRankingToday;
+        List<RankingAnimesFromQueryDto> allTimeRankingYesterday;
+
+        if(genre != null) {
+            allTimeRankingToday = rankingMapper.getAllTimeRankingByGenrePaging(genre, lastId, size, today);
+            allTimeRankingYesterday = rankingMapper.getAllTimeRankingByGenre(genre, yesterday);
+        } else {
+            allTimeRankingToday = rankingMapper.getAllTimeRankingNotFilterPaging(lastId, size, today);
+            allTimeRankingYesterday = rankingMapper.getAllTimeRankingNotFilter(yesterday);
+        }
+
         List<Long> animeIds = allTimeRankingToday.stream()
                 .map(RankingAnimesFromQueryDto::getAnimeId)
                 .toList();
@@ -140,7 +158,6 @@ public class RankingService {
         List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
         Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
                 .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
-
         Map<Long, Long> yesterdayRankMap = allTimeRankingYesterday.stream()
                 .collect(Collectors.toMap(RankingAnimesFromQueryDto::getAnimeId, RankingAnimesFromQueryDto::getRank));
 
