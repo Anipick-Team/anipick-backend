@@ -7,6 +7,7 @@ import com.anipick.backend.user.domain.UserAnimeStatus;
 import com.anipick.backend.user.dto.UserAnimeStatusRequest;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +18,15 @@ public class UserAnimeStatusService {
 
     private final UserAnimeStatusMapper userAnimeStatusMapper;
 
+    @Transactional
     public void createUserAnimeOfStatus(Long animeId, Long userId, UserAnimeStatusRequest status) {
         UserAnimeOfStatus statusEnum = status.getStatus();
-        UserAnimeStatus statusByUserIdAndAnimeId = userAnimeStatusMapper.findByUserId(userId, animeId);
-        if (statusByUserIdAndAnimeId == null) {
+        try {
             userAnimeStatusMapper.createUserAnimeStatus(userId, animeId, statusEnum);
-        } else {
+        } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_USER_ANIME_OF_STATUS);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
