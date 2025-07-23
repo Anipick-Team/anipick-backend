@@ -19,4 +19,19 @@ public interface LikeMapper {
             @Param(value = "userId") Long userId,
             @Param(value = "animeId") Long animeId
     );
+
+    Boolean selectUserLikeActor(
+            @Param(value = "userId") Long userId,
+            @Param(value = "personId") Long personId
+    );
+
+    void insertLikeActor(
+            @Param(value = "userId") Long userId,
+            @Param(value = "personId") Long personId
+    );
+
+    void deleteLikeActor(
+            @Param(value = "userId") Long userId,
+            @Param(value = "personId") Long personId
+    );
 }

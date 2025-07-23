@@ -33,4 +33,24 @@ public class LikeController {
 		likeService.notLikeAnime(userId, animeId);
 		return ApiResponse.success();
 	}
+
+	@PostMapping("/persons/{personId}/like")
+	public ApiResponse<Void> likePerson(
+			@PathVariable(value = "personId") Long personId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		likeService.likeActor(userId, personId);
+		return ApiResponse.success();
+	}
+
+	@DeleteMapping("/persons/{personId}/like")
+	public ApiResponse<Void> notLikePerson(
+			@PathVariable(value = "personId") Long personId,
+			@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		likeService.notLikeActor(userId, personId);
+		return ApiResponse.success();
+	}
 }
