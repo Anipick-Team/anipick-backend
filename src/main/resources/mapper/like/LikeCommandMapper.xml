@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.like.mapper.LikeMapper">
+    <insert id="insertLikeAnime">
+        INSERT INTO Useranimelike
+            (user_id, anime_id, created_at)
+        VALUES (#{userId}, #{animeId}, NOW())
+    </insert>
+
+    <delete id="deleteLikeAnime">
+        DELETE
+        FROM Useranimelike
+        WHERE user_id = #{userId}
+        AND anime_id = #{animeId}
+    </delete>
+</mapper>

@@ -1,0 +1,36 @@
+package com.anipick.backend.like.service;
+
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.like.mapper.LikeMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class LikeService {
+
+    private final LikeMapper likeMapper;
+
+    public void likeAnime(Long userId, Long animeId) {
+        try {
+            likeMapper.insertLikeAnime(userId, animeId);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void notLikeAnime(Long userId, Long animeId) {
+        Boolean isLiked = likeMapper.selectUserLikeAnime(userId, animeId);
+        if (isLiked) {
+            likeMapper.deleteLikeAnime(userId, animeId);
+        } else {
+            throw new CustomException(ErrorCode.LIKE_DATA_NOT_FOUND);
+        }
+    }
+}
