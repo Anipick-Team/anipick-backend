@@ -34,4 +34,31 @@
         FROM Review r
         WHERE r.anime_id = #{animeId}
     </select>
+
+    <select id="selectReviewByReviewId" resultType="com.anipick.backend.review.domain.Review">
+        SELECT r.review_id AS reviewId,
+               r.anime_id AS animeId,
+               r.user_id AS userId,
+               r.rating AS rating,
+               r.content AS content,
+               r.is_spoiler AS isSpoiler,
+               r.like_count AS likeCount,
+               r.created_at AS createdAt,
+               r.updated_at AS updatedAt,
+               r.deleted_at AS deletedAt,
+               r.isReported AS isReported
+        FROM Review r
+        WHERE r.review_id = #{reviewId}
+    </select>
+
+    <select id="selectReportReviewByReviewId" resultType="com.anipick.backend.review.dto.ReportReviewDto">
+        SELECT rr.reported_review_id AS reportedReviewId,
+               rr.review_id AS reviewId,
+               rr.user_id AS userId,
+               rr.created_at AS createdAt,
+               rr.message AS message
+        FROM Reportedreview rr
+        WHERE rr.user_id = #{userId}
+        AND rr.review_id = #{reviewId}
+    </select>
 </mapper>

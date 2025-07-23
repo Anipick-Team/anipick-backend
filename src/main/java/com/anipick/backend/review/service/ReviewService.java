@@ -6,10 +6,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.review.domain.Review;
-import com.anipick.backend.review.dto.RecentReviewItemDto;
-import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRequest;
-import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
@@ -18,6 +15,7 @@ import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,5 +126,32 @@ public class ReviewService {
                 .collect(Collectors.averagingDouble(Review::getRating));
 
         animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+    }
+
+    @Transactional
+    public void reportReview(Long userId, Long reviewId) {
+        Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
+        ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
+
+        if (reviewById == null) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+
+        Long reportedUserId = reviewById.getUserId();
+        if (reportedUserId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REVIEW_REPORT_ERROR);
+        }
+
+        if (reportReview != null) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        }
+
+        try {
+            reviewMapper.createReviewReport(userId, reviewId);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }
