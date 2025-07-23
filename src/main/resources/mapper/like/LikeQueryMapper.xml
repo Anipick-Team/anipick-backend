@@ -17,4 +17,11 @@
                       WHERE user_id = #{userId}
                         AND voiceactor_id = #{personId})
     </select>
+
+    <select id="selectUserLikeReview" resultType="boolean">
+        SELECT EXISTS(SELECT 1
+                      FROM Reviewlike
+                      WHERE user_id = #{userId}
+                        AND review_id = #{reviewId})
+    </select>
 </mapper>
