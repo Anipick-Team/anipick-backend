@@ -55,6 +55,7 @@ public class LikeService {
         }
     }
 
+    @Transactional
     public void likeReview(Long userId, Long reviewId) {
         try {
             likeMapper.insertLikeReview(userId, reviewId);
