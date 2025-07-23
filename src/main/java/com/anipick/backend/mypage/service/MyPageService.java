@@ -42,8 +42,14 @@ public class MyPageService {
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = watchListAnimes.getLast().getUserAnimeStatusId();
+        if(watchListAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = watchListAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
@@ -52,8 +58,14 @@ public class MyPageService {
     public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = watchingAnimes.getLast().getUserAnimeStatusId();
+        if (watchingAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = watchingAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
@@ -62,8 +74,14 @@ public class MyPageService {
     public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+        if(finishedAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
@@ -84,9 +102,15 @@ public class MyPageService {
             animesReviews = myPageMapper.getMyAnimesReviewsAll(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
         }
 
-        newLastId = animesReviews.getLast().getReviewId();
-        newLastLikeCount = animesReviews.getLast().getLikeCount();
-        newLastRating = animesReviews.getLast().getRating();
+        if(animesReviews.isEmpty()) {
+            newLastId = null;
+            newLastLikeCount = 0L;
+            newLastRating = 0.0;
+        } else {
+            newLastId = animesReviews.getLast().getReviewId();
+            newLastLikeCount = animesReviews.getLast().getLikeCount();
+            newLastRating = animesReviews.getLast().getRating();
+        }
 
         CursorDto cursorDto = getCursorBySortOption(newLastId, newLastLikeCount, newLastRating, sort, sortOption);
 
@@ -96,8 +120,14 @@ public class MyPageService {
     public LikedAnimesResponse getMyAnimesLiked(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyAnimesLikeCount(userId);
         List<LikedAnimesDto> likedAnimes = myPageMapper.getMyLikedAnimes(userId, lastId, size);
+        Long newLastId;
 
-        Long newLastId = likedAnimes.getLast().getAnimeLikeId();
+        if(likedAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = likedAnimes.getLast().getAnimeLikeId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return LikedAnimesResponse.from(count, cursorDto, likedAnimes);
@@ -106,8 +136,14 @@ public class MyPageService {
     public LikedPersonsResponse getMyPersonsLiked(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyPersonsLikeCount(userId);
         List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size);
+        Long newLastId;
 
-        Long newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        if(likedPersons.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return LikedPersonsResponse.from(count, cursorDto, likedPersons);
