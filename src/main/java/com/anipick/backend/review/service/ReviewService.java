@@ -15,6 +15,7 @@ import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,15 +137,21 @@ public class ReviewService {
             throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
         }
 
-        if (reportReview != null) {
-            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
-        }
-
         Long reportedUserId = reviewById.getUserId();
         if (reportedUserId.equals(userId)) {
             throw new CustomException(ErrorCode.SELF_REVIEW_REPORT_ERROR);
         }
 
-        reviewMapper.createReviewReport(userId, reviewId);
+        if (reportReview != null) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        }
+
+        try {
+            reviewMapper.createReviewReport(userId, reviewId);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }
