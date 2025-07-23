@@ -61,10 +61,10 @@ class RankingServiceTest {
 
         // when
         // genre = null && lastId = null -> first paging
-        when(rankingMapper.getYearSeasonRankingPaging(year, season, genre, lastId, size, today))
+        when(rankingMapper.getYearSeasonRankingNotFilterPaging(year, season, lastId, size, today))
                 .thenReturn(yearSeasonRanking);
 
-        when(rankingMapper.getYearSeasonRanking(year, season, genre, yesterday))
+        when(rankingMapper.getYearSeasonRankingNotFilter(year, season, yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(animeIds))
@@ -76,10 +76,10 @@ class RankingServiceTest {
         System.out.println(json);
 
         // genre = null && lastId = 20L -> second paging
-        when(rankingMapper.getYearSeasonRankingPaging(year, season, genre, newLastId, size, today))
+        when(rankingMapper.getYearSeasonRankingNotFilterPaging(year, season, newLastId, size, today))
                 .thenReturn(lastRanking);
 
-        when(rankingMapper.getYearSeasonRanking(year, season, genre, yesterday))
+        when(rankingMapper.getYearSeasonRankingNotFilter(year, season, yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(lastAnimeIds))
@@ -155,10 +155,10 @@ class RankingServiceTest {
 
         // when
         // genre = "액션" && lastId = null -> first paging
-        when(rankingMapper.getYearSeasonRankingPaging(year, season, genre, lastId, size, today))
+        when(rankingMapper.getYearSeasonRankingByGenrePaging(year, season, genre, lastId, size, today))
                 .thenReturn(yearSeasonRankingWhenGenreIsAction);
 
-        when(rankingMapper.getYearSeasonRanking(year, season, genre, yesterday))
+        when(rankingMapper.getYearSeasonRankingByGenre(year, season, genre, yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(actionGenreAnimeIds))
@@ -213,10 +213,10 @@ class RankingServiceTest {
 
         // when
         // genre = null && lastId = null -> first page
-        when(rankingMapper.getAllTimeRankingPaging(genre, lastId, size, today))
+        when(rankingMapper.getAllTimeRankingNotFilterPaging(lastId, size, today))
                 .thenReturn(allTimeRanking);
 
-        when(rankingMapper.getAllTimeRanking(genre, yesterday))
+        when(rankingMapper.getAllTimeRankingNotFilter(yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(animeIds))
@@ -228,10 +228,10 @@ class RankingServiceTest {
         System.out.println(json);
 
         // genre = null && lastId = 20L -> second page
-        when(rankingMapper.getAllTimeRankingPaging(genre, newLastId, size, today))
+        when(rankingMapper.getAllTimeRankingNotFilterPaging(newLastId, size, today))
                 .thenReturn(lastRanking);
 
-        when(rankingMapper.getAllTimeRanking(genre, yesterday))
+        when(rankingMapper.getAllTimeRankingNotFilter(yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(lastAnimeIds))
@@ -300,10 +300,10 @@ class RankingServiceTest {
 
         // when
         // genre = "액션" && lastId = null -> first paging
-        when(rankingMapper.getAllTimeRankingPaging(genre, lastId, size, today))
+        when(rankingMapper.getAllTimeRankingByGenrePaging(genre, lastId, size, today))
                 .thenReturn(allTimeRankingWhenGenreIsAction);
 
-        when(rankingMapper.getAllTimeRanking(genre, yesterday))
+        when(rankingMapper.getAllTimeRankingByGenre(genre, yesterday))
                 .thenReturn(yesterdayRanking);
 
         when(rankingMapper.getGenresByAnimeIds(actionGenreAnimeIds))
