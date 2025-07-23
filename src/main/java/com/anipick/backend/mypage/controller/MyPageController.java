@@ -2,10 +2,7 @@ package com.anipick.backend.mypage.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
-import com.anipick.backend.mypage.dto.FinishedAnimesResponse;
-import com.anipick.backend.mypage.dto.MyPageResponse;
-import com.anipick.backend.mypage.dto.WatchListAnimesResponse;
-import com.anipick.backend.mypage.dto.WatchingAnimesResponse;
+import com.anipick.backend.mypage.dto.*;
 import com.anipick.backend.mypage.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,6 +57,43 @@ public class MyPageController {
     ) {
         Long userId = user.getUserId();
         FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, lastId, size);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/animes/rated")
+    public ApiResponse<RatedAnimesResponse> getMyAnimesRated(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "lastLikeCount", required = false) Long lastLikeCount,
+            @RequestParam(value = "lastRating", required = false) Double lastRating,
+            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size,
+            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
+            @RequestParam(value = "reviewOnly", required = false, defaultValue = "false") Boolean reviewOnly
+    ) {
+        Long userId = user.getUserId();
+        RatedAnimesResponse response = myPageService.getMyAnimesRated(userId, lastId, lastLikeCount, lastRating, size, sort, reviewOnly);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/animes/like")
+    public ApiResponse<LikedAnimesResponse> getMyAnimesLiked(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
+    ) {
+        Long userId = user.getUserId();
+        LikedAnimesResponse response = myPageService.getMyAnimesLiked(userId, lastId, size);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/persons/like")
+    public ApiResponse<LikedPersonsResponse> getMyPersonsLiked(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
+    ) {
+        Long userId = user.getUserId();
+        LikedPersonsResponse response = myPageService.getMyPersonsLiked(userId, lastId, size);
         return ApiResponse.success(response);
     }
 }

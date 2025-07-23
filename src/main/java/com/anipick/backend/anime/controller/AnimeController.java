@@ -1,16 +1,11 @@
 package com.anipick.backend.anime.controller;
 
 
-import com.anipick.backend.anime.dto.AnimeDetailInfoResultDto;
-import com.anipick.backend.anime.dto.AnimeItemDto;
-import com.anipick.backend.anime.dto.AnimeSeriesItemResultDto;
-import com.anipick.backend.anime.dto.AnimeCharacterActorItemDto;
-import com.anipick.backend.anime.dto.ComingSoonPageDto;
-import com.anipick.backend.anime.dto.UpcomingSeasonResultDto;
+import com.anipick.backend.anime.domain.AnimeCharacterRole;
+import com.anipick.backend.anime.dto.*;
 import com.anipick.backend.anime.service.AnimeService;
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
-import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -99,6 +94,40 @@ public class AnimeController {
 			@AuthenticationPrincipal CustomUserDetails user
 	) {
 		List<AnimeCharacterActorItemDto> result = animeService.getAnimeInfoCharacterActor(animeId);
+		return ApiResponse.success(result);
+	}
+
+	@GetMapping("/{animeId}/characters")
+    public ApiResponse<AnimeCharacterActorPageDto> getAnimeCharacterActor(
+        @PathVariable(value = "animeId") Long animeId,
+        @AuthenticationPrincipal CustomUserDetails user,
+        @RequestParam(value = "lastId", required = false) Long lastId,
+        @RequestParam(value = "lastValue", required = false) AnimeCharacterRole lastValue,
+        @RequestParam(value = "size", defaultValue = "18") int size
+    ) {
+        AnimeCharacterActorPageDto result = animeService.getAnimeCharacterActor(animeId, lastId, lastValue, size);
+        return ApiResponse.success(result);
+    }
+
+	@GetMapping("/{animeId}/recommendations")
+	public ApiResponse<AnimeRecommendationPageDto> getAnimeRecommendations(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user,
+			@RequestParam(value = "lastId", required = false) Long lastId,
+			@RequestParam(value = "size", defaultValue = "18") int size
+	) {
+		AnimeRecommendationPageDto result = animeService.getRecommendationsByAnime(animeId, lastId, size);
+		return ApiResponse.success(result);
+	}
+
+	@GetMapping("/{animeId}/series")
+	public ApiResponse<AnimeSeriesPageDto> getAnimeSeries(
+			@PathVariable(value = "animeId") Long animeId,
+			@AuthenticationPrincipal CustomUserDetails user,
+			@RequestParam(value = "lastId", required = false) Long lastId,
+			@RequestParam(value = "size", defaultValue = "18") int size
+	) {
+		AnimeSeriesPageDto result = animeService.getSeriesByAnime(animeId, lastId, size);
 		return ApiResponse.success(result);
 	}
 }

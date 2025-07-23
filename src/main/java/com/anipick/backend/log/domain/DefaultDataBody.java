@@ -1,6 +1,7 @@
 package com.anipick.backend.log.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,11 @@ public class DefaultDataBody {
 
     public static DefaultDataBody createAnimeData(final String content, final int position) {
         return new DefaultDataBody(ContentType.ANIME, content, position);
+    }
+
+    @JsonIgnore
+    public String getTypeName() {
+        return type.name();
     }
 
     private enum ContentType {

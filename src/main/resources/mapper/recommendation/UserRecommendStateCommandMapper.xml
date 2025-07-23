@@ -19,4 +19,10 @@
         WHERE user_id = #{userId}
     </update>
 
+    <update id="updateReferenceAnime">
+        UPDATE Userrecommendationstate
+        SET reference_anime_id = #{referenceAnimeId},
+            start_date = NOW()
+        WHERE user_id = #{userId}
+    </update>
 </mapper>

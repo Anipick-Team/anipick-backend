@@ -1,9 +1,7 @@
 package com.anipick.backend.anime.service;
 
+import com.anipick.backend.anime.domain.*;
 import com.anipick.backend.anime.dto.*;
-import com.anipick.backend.anime.domain.RangeDate;
-import com.anipick.backend.anime.domain.Season;
-import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 
 import com.anipick.backend.anime.mapper.GenreMapper;
@@ -400,5 +398,79 @@ public class AnimeService {
 	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
 		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
 		return items;
+	}
+
+	public AnimeCharacterActorPageDto getAnimeCharacterActor(Long animeId, Long lastId, AnimeCharacterRole lastValue, int size) {
+        List<AnimeCharacterActorResultDto> items = mapper.selectAnimeCharacterActors(animeId, lastId, lastValue, size);
+
+        Long nextId;
+        AnimeCharacterRole nextValue;
+
+        if (items.isEmpty()) {
+            nextId = null;
+            nextValue = null;
+        } else {
+            nextId = items.getLast().getCharacter().getId();
+            nextValue = items.getLast().getRole();
+        }
+
+        String nextValueStr;
+        if (nextValue == null) {
+            nextValueStr = null;
+        } else {
+            nextValueStr = nextValue.toString();
+        }
+
+        CursorDto cursor = CursorDto.of(null, nextId, nextValueStr);
+        return AnimeCharacterActorPageDto.of(cursor, items);
+    }
+
+	public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {
+		Anime anime = mapper.selectAnimeByAnimeId(animeId);
+		String animeTitle = anime.getTitleKor();
+
+		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size);
+
+		Long nextId;
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getAnimeId();
+		}
+		CursorDto cursor = CursorDto.of(nextId);
+		return AnimeRecommendationPageDto.of(animeTitle, cursor, items);
+	}
+
+	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
+		long totalCount = mapper.countSeriesAnime(animeId);
+
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size);
+		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
+				.map(dto -> {
+					LocalDate date = dto.getStartDate();
+					Season season = Season.containsSeason(date);
+					String seasonName = season.getName();
+
+					String resultAirDate = date.getYear() + "년 " + seasonName;
+
+					return AnimeSeriesItemResultDto.of(
+							dto.getAnimeId(),
+							dto.getTitle(),
+							dto.getCoverImageUrl(),
+							resultAirDate
+					);
+				})
+				.toList();
+
+		Long nextId;
+		if (items.isEmpty()) {
+			nextId = null;
+		} else {
+			nextId = items.getLast().getAnimeId();
+		}
+
+		CursorDto cursor = CursorDto.of(nextId);
+
+		return AnimeSeriesPageDto.of(totalCount, cursor, airDateConvertItems);
 	}
 }

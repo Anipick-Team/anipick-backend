@@ -1,21 +1,21 @@
 package com.anipick.backend.search.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import com.anipick.backend.search.dto.*;
-import org.springframework.stereotype.Service;
-
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.search.dto.*;
 import com.anipick.backend.search.mapper.SearchMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
+	private static final String LOG_BASE_URL = "http://anipick.p-e.kr:8080/api/log/";
 
 	public SearchInitPageDto findWeekBestAnimes() {
 		LocalDate now = LocalDate.now();
@@ -23,13 +23,25 @@ public class SearchService {
 		return new SearchInitPageDto(items);
 	}
 
-	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size) {
+	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size, Long page) {
 
+		long nextPage = page + 1;
 		long totalCount = mapper.countSearchAnime(query);
 		long personCount = mapper.countSearchPerson(query);
 		long studioCount = mapper.countSearchStudio(query);
 
 		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size);
+
+		int positionNumber = (int) ((page - 1) * size);
+
+		List<SearchLogAnimeItemDto> animeLogItems = new ArrayList<>(18);
+
+		for (AnimeItemDto item : items) {
+			positionNumber++;
+			animeLogItems.add(
+					SearchLogAnimeItemDto.from(item, positionNumber, LOG_BASE_URL, query)
+			);
+		}
 
 		Long nextId;
 
@@ -41,7 +53,7 @@ public class SearchService {
 
 		CursorDto cursor = CursorDto.of(nextId);
 
-		return new SearchAnimePageDto(totalCount, personCount, studioCount, cursor, items);
+		return new SearchAnimePageDto(totalCount, nextPage, personCount, studioCount, cursor, animeLogItems);
 	}
 
 	public SearchPersonPageDto findSearchPersons(String query, Long lastId, Long size) {

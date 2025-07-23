@@ -37,4 +37,12 @@ public interface ReviewMapper {
             @Param(value = "userId") Long userId,
             @Param(value = "reviewId") Long reviewId
     );
+  
+    void updatePlusReviewLikeCount(
+            @Param(value = "reviewId") Long reviewId
+    );
+
+    void updateMinusReviewLikeCount(
+            @Param(value = "reviewId") Long reviewId
+    );
 }
