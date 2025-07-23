@@ -15,16 +15,7 @@ public class LogService {
 
     public void createLog(String logPath) {
         UserActionLog decodedLog = UrlSafeObjectDecoder.decodeURL(logPath, UserActionLog.class);
-
-        LogCreateRequestDto logCreateRequestDto = LogCreateRequestDto.of(
-                decodedLog.getActionName(),
-                decodedLog.getPage().name(),
-                decodedLog.getArea().name(),
-                decodedLog.getType(),
-                decodedLog.getContent(),
-                decodedLog.getDataBody().getPosition(),
-                decodedLog.getQuery()
-        );
+        LogCreateRequestDto logCreateRequestDto = LogCreateRequestDto.from(decodedLog);
         logMapper.createLog(logCreateRequestDto);
     }
 }
