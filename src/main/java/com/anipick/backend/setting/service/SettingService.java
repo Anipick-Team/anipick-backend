@@ -6,6 +6,7 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.setting.dto.ChangeEmailRequest;
 import com.anipick.backend.setting.dto.ChangeNicknameRequest;
 import com.anipick.backend.setting.dto.ChangePasswordRequest;
+import com.anipick.backend.setting.dto.SettingViewResponse;
 import com.anipick.backend.setting.util.DeletedUserNicknameGenerator;
 import com.anipick.backend.setting.util.NicknameValidator;
 import com.anipick.backend.user.mapper.UserMapper;
@@ -19,6 +20,14 @@ import org.springframework.stereotype.Service;
 public class SettingService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+
+    public SettingViewResponse getSettingView(CustomUserDetails user) {
+        if(user == null) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return SettingViewResponse.from(user.getNickname(), user.getUsername(), user.getLoginFormat());
+    }
 
     public void changeNickname(Long userId, ChangeNicknameRequest request) {
         String newNickName = request.getNickname();
