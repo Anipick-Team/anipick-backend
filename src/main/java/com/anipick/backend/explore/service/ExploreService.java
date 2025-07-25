@@ -63,7 +63,7 @@ public class ExploreService {
 		if (internal.isEmpty()) {
 			nextId = null;
 		} else if ("popularity".equalsIgnoreCase(sort)){
-			nextId = internal.get(lastIndex).getPopularId();
+			nextId = internal.get(lastIndex).getScore();
 		} else {
 			nextId = internal.get(lastIndex).getId();
 		}
