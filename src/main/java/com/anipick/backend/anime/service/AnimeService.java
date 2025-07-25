@@ -473,4 +473,16 @@ public class AnimeService {
 
 		return AnimeSeriesPageDto.of(totalCount, cursor, airDateConvertItems);
 	}
+
+	public AnimeMyReviewResultDto getAnimeMyReview(Long animeId, Long userId) {
+		AnimeMyReviewResultDto result = mapper.selectAnimeMyReview(animeId, userId);
+		if (result == null) {
+			return AnimeMyReviewResultDto.empty();
+		}
+		String reviewCreatedAt = result.getCreatedAt();
+		LocalDateTime dateTime = LocalDateTime.parse(reviewCreatedAt, parser);
+
+		String formattedDate = dateTime.format(formatter);
+		return AnimeMyReviewResultDto.createdAtFormatted(result, formattedDate);
+	}
 }
