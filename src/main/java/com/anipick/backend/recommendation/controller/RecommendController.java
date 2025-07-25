@@ -2,6 +2,7 @@ package com.anipick.backend.recommendation.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.common.util.LastValueTypeConverter;
 import com.anipick.backend.recommendation.dto.UserLastDetailAnimeRecommendationPageDto;
 import com.anipick.backend.recommendation.dto.UserMainRecommendationPageDto;
 import com.anipick.backend.recommendation.service.RecommendService;
@@ -20,11 +21,12 @@ public class RecommendController {
     public ApiResponse<UserMainRecommendationPageDto> getRecommendationAnimes(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "lastValue", required = false) Long lastValue,
+            @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", defaultValue = "18") Long size
     ) {
         Long userId = user.getUserId();
-        UserMainRecommendationPageDto result = recommendationService.getRecommendations(userId, lastId, lastValue, size);
+        Long parsedLongLastValue = LastValueTypeConverter.toLong(lastValue);
+        UserMainRecommendationPageDto result = recommendationService.getRecommendations(userId, lastId, parsedLongLastValue, size);
         return ApiResponse.success(result);
     }
 
@@ -33,12 +35,13 @@ public class RecommendController {
             @PathVariable(value = "animeId") Long animeId,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "lastValue", required = false) Long lastValue,
+            @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", defaultValue = "18") Long size
     ) {
         Long userId = user.getUserId();
+        Long parsedLongLastValue = LastValueTypeConverter.toLong(lastValue);
         UserLastDetailAnimeRecommendationPageDto result =
-                recommendationService.getLastDetailAnimeRecommendations(animeId, userId, lastId, lastValue, size);
+                recommendationService.getLastDetailAnimeRecommendations(animeId, userId, lastId, parsedLongLastValue, size);
         return ApiResponse.success(result);
     }
 }

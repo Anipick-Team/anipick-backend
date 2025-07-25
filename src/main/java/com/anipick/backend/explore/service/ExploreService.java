@@ -30,7 +30,7 @@ public class ExploreService {
 		Integer year, Integer season,
 		List<Long> genres, GenresOption genreOp,
 		String type, String sort,
-		Long lastId, Integer lastValue,
+		Long lastId, Double lastValue,
 		int size
 	) {
 		log.debug(
@@ -68,7 +68,7 @@ public class ExploreService {
 			nextId = internal.get(lastIndex).getId();
 		}
 
-		Integer nextValue;
+		Double nextValue;
 		if (!"rating".equalsIgnoreCase(sort) || internal.isEmpty()) {
 			nextValue = null;
 		} else {
@@ -92,7 +92,7 @@ public class ExploreService {
 	}
 
 	private static ExploreRequestDto makeExploreRequestDto(Integer year, Integer season, List<Long> genres, String type,
-        String sort, Long lastId, Integer lastValue, int size, int genresSize, String genreOpName, List<String> convert,
+        String sort, Long lastId, Double lastValue, int size, int genresSize, String genreOpName, List<String> convert,
         int typeConvertSize, String orderByQuery) {
         if (year != null && season != null) {
             RangeDate dateRange = SeasonConverter.getRangDate(year, season);
