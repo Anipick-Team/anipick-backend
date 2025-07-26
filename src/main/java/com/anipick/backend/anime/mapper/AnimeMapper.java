@@ -75,4 +75,9 @@ public interface AnimeMapper {
 			@Param(value = "lastId") Long lastId,
 			@Param(value = "size") int size
 	);
+
+	AnimeMyReviewResultDto selectAnimeMyReview(
+		@Param(value = "animeId") Long animeId,
+		@Param(value = "userId") Long userId
+	);
 }

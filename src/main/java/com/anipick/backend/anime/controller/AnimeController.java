@@ -130,4 +130,14 @@ public class AnimeController {
 		AnimeSeriesPageDto result = animeService.getSeriesByAnime(animeId, lastId, size);
 		return ApiResponse.success(result);
 	}
+
+	@GetMapping("/{animeId}/my-review")
+	public ApiResponse<AnimeMyReviewResultDto> getAnimeMyReview(
+		@PathVariable(value = "animeId") Long animeId,
+		@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		AnimeMyReviewResultDto result = animeService.getAnimeMyReview(animeId, userId);
+		return ApiResponse.success(result);
+	}
 }
