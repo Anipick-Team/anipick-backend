@@ -154,4 +154,15 @@ public class ReviewService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public MyReviewProviderResultDto getAnimeMyReview(Long animeId, Long userId) {
+        MyReviewProviderResultDto result = reviewMapper.selectAnimeByMyReview(animeId, userId);
+        if (result == null) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+        if (result.getContent() == null) {
+            return MyReviewProviderResultDto.nonContent(result);
+        }
+        return MyReviewProviderResultDto.of(result);
+    }
 }

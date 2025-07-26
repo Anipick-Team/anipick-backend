@@ -2,6 +2,7 @@ package com.anipick.backend.review.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.review.dto.MyReviewProviderResultDto;
 import com.anipick.backend.review.dto.RecentReviewPageDto;
 import com.anipick.backend.review.dto.ReviewRequest;
 import com.anipick.backend.review.dto.SignupRatingRequest;
@@ -69,5 +70,15 @@ public class ReviewController {
         Long userId = user.getUserId();
         reviewService.reportReview(userId, reviewId);
         return ApiResponse.success();
+    }
+
+    @GetMapping("/{animeId}/my-review")
+    public ApiResponse<MyReviewProviderResultDto> getAnimeMyReview(
+        @PathVariable(name = "animeId") Long animeId,
+        @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        MyReviewProviderResultDto result = reviewService.getAnimeMyReview(animeId, userId);
+        return ApiResponse.success(result);
     }
 }

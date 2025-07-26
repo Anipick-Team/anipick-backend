@@ -61,4 +61,14 @@
         WHERE rr.user_id = #{userId}
         AND rr.review_id = #{reviewId}
     </select>
+
+    <select id="selectAnimeByMyReview" resultType="com.anipick.backend.review.dto.MyReviewProviderResultDto">
+        SELECT r.review_id AS reviewId,
+               r.anime_id AS animeId,
+               r.rating AS rating,
+               r.content AS content
+        FROM Review r
+        WHERE r.anime_id = #{animeId}
+        AND r.user_id = #{userId}
+    </select>
 </mapper>
