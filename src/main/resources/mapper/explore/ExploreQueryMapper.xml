@@ -118,7 +118,7 @@
                             (
                               a.review_average_score &lt; #{lastValue}
                               OR
-                              (a.review_average_score = #{lastValue} AND a.anime_id &gt; #{lastId})
+                              (a.review_average_score = #{lastValue} AND a.anime_id &lt; #{lastId})
                             )
                           </when>
                           <!-- ID만 있을 경우 -->

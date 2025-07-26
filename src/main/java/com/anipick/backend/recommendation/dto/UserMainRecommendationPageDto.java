@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor(staticName = "of")
 public class UserMainRecommendationPageDto {
+    private String referenceAnimeTitle;
     private CursorDto cursor;
     private List<AnimeItemDto> animes;
 }

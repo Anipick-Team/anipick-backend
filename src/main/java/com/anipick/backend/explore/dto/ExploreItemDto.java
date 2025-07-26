@@ -9,6 +9,6 @@ public class ExploreItemDto {
 	private Long    id;
 	private String  title;
 	private String  coverImageUrl;
-	private Integer averageScore;
+	private Double averageScore;
 	private Long popularId;
 }

@@ -7,6 +7,7 @@ import com.anipick.backend.recommendation.dto.UserMainRecommendationPageDto;
 import com.anipick.backend.recommendation.service.RecommendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,11 +21,18 @@ public class RecommendController {
     public ApiResponse<UserMainRecommendationPageDto> getRecommendationAnimes(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "lastValue", required = false) Long lastValue,
+            @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", defaultValue = "18") Long size
     ) {
         Long userId = user.getUserId();
-        UserMainRecommendationPageDto result = recommendationService.getRecommendations(userId, lastId, lastValue, size);
+        boolean lastValueIsText = StringUtils.hasText(lastValue);
+        Long lastValueToLong;
+        if (lastValueIsText) {
+            lastValueToLong = Long.valueOf(lastValue);
+        } else {
+            lastValueToLong = null;
+        }
+        UserMainRecommendationPageDto result = recommendationService.getRecommendations(userId, lastId, lastValueToLong, size);
         return ApiResponse.success(result);
     }
 
@@ -33,12 +41,19 @@ public class RecommendController {
             @PathVariable(value = "animeId") Long animeId,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "lastValue", required = false) Long lastValue,
+            @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", defaultValue = "18") Long size
     ) {
         Long userId = user.getUserId();
+        boolean lastValueIsText = StringUtils.hasText(lastValue);
+        Long lastValueToLong;
+        if (lastValueIsText) {
+            lastValueToLong = Long.valueOf(lastValue);
+        } else {
+            lastValueToLong = null;
+        }
         UserLastDetailAnimeRecommendationPageDto result =
-                recommendationService.getLastDetailAnimeRecommendations(animeId, userId, lastId, lastValue, size);
+                recommendationService.getLastDetailAnimeRecommendations(animeId, userId, lastId, lastValueToLong, size);
         return ApiResponse.success(result);
     }
 }
