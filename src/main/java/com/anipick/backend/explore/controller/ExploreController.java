@@ -3,8 +3,8 @@ package com.anipick.backend.explore.controller;
 import java.util.List;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
-import com.anipick.backend.common.util.LastValueTypeConverter;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,9 +40,15 @@ public class ExploreController {
 		if (year == null && season != null) {
 			return ApiResponse.error(ErrorCode.EMPTY_YEAR);
 		}
-		Double parsedIntegerLastValue = LastValueTypeConverter.toDouble(lastValue);
+		boolean lastValueIsText = StringUtils.hasText(lastValue);
+		Double lastValueToDouble;
+		if (lastValueIsText) {
+			lastValueToDouble = Double.valueOf(lastValue);
+		} else {
+			lastValueToDouble = null;
+		}
 		ExplorePageDto page = exploreService.explore(
-			year, season, genres, genreOp, type, sort, lastId, parsedIntegerLastValue, size
+			year, season, genres, genreOp, type, sort, lastId, lastValueToDouble, size
 		);
 		return ApiResponse.success(page);
 	}
