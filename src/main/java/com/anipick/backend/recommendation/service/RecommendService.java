@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Stack;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +86,11 @@ public class RecommendService {
 
             List<Long> topRatedAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
 
+            // 리뷰 데이터가 없는 경우
+            if (topRatedAnimeIds.isEmpty()) {
+                return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+            }
+            
             List<Long> filteredIds = topRatedAnimeIds.stream()
                     .filter(topRatedAnimeIds::contains)
                     .toList();
