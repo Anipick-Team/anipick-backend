@@ -116,7 +116,14 @@ public class RankingService {
                         return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
                     })
                     .toList();
-            newLastId = animes.getLast().getRank();
+
+            if(!doesRankingExist(animes)) {
+                CursorDto cursor = CursorDto.of(null);
+                return RankingResponse.of(cursor, animes);
+            } else {
+                newLastId = animes.getLast().getRank();
+            }
+
         } else {
             animes = yearSeasonRankingToday.stream()
                     .map(dto -> {
@@ -128,7 +135,13 @@ public class RankingService {
                         return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
                     })
                     .toList();
-            newLastId = animes.getLast().getRank();
+
+            if(!doesRankingExist(animes)) {
+                CursorDto cursor = CursorDto.of(null);
+                return RankingResponse.of(cursor, animes);
+            } else {
+                newLastId = animes.getLast().getRank();
+            }
         }
 
         CursorDto cursor = CursorDto.of(newLastId);
@@ -176,7 +189,14 @@ public class RankingService {
                         return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
                     })
                     .toList();
-            newLastId = animes.getLast().getRank();
+
+            if(!doesRankingExist(animes)) {
+                CursorDto cursor = CursorDto.of(null);
+                return RankingResponse.of(cursor, animes);
+            } else {
+                newLastId = animes.getLast().getRank();
+            }
+
         } else { // 장르가 없을 때는 DB 순위를 그대로 가져와서 보여줌
             animes = allTimeRankingToday.stream()
                     .map(dto -> {
@@ -188,7 +208,14 @@ public class RankingService {
                         return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
                     })
                     .toList();
-            newLastId = animes.getLast().getRank();
+
+            if(!doesRankingExist(animes)) {
+                CursorDto cursor = CursorDto.of(null);
+                return RankingResponse.of(cursor, animes);
+            } else {
+                newLastId = animes.getLast().getRank();
+            }
+
         }
 
         CursorDto cursor = CursorDto.of(newLastId);
@@ -234,5 +261,9 @@ public class RankingService {
         }
 
         return RankingAnimesDto.from(change, trend, displayRank, dto, genreNames);
+    }
+
+    private boolean doesRankingExist(List<RankingAnimesDto> animes) {
+        return animes != null && !animes.isEmpty();
     }
 }
