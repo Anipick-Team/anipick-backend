@@ -1,6 +1,7 @@
 package com.anipick.backend.review.mapper;
 
 import com.anipick.backend.review.domain.Review;
+import com.anipick.backend.review.dto.MyReviewProviderResultDto;
 import com.anipick.backend.review.dto.ReportReviewDto;
 import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.dto.ReviewRequest;
@@ -44,5 +45,10 @@ public interface ReviewMapper {
 
     void updateMinusReviewLikeCount(
             @Param(value = "reviewId") Long reviewId
+    );
+
+    MyReviewProviderResultDto selectAnimeByMyReview(
+            @Param(value = "animeId") Long animeId,
+            @Param(value = "userId") Long userId
     );
 }
