@@ -322,6 +322,70 @@ class RankingServiceTest {
         assertEquals("액션", allTimeRankingWhenGenreIsNotNullAtFirstPage.getAnimes().getLast().getGenres().getFirst());
     }
 
+    @Test
+    @DisplayName("연도/분기 랭킹 조회 결과가 0인 경우 빈 리스트를 반환해야 한다.")
+    void ifGetYearSeasonRankingSizeIsZero_mustReturnEmptyList() throws JsonProcessingException {
+        Integer year = 2025;
+        Integer season = 1;
+        String genre = null;
+        Long lastId = null;
+        Long newLastId = 20L;
+        Integer size = 20;
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<RankingAnimesFromQueryDto> yearSeasonRanking = List.of();
+        List<RankingAnimesFromQueryDto> yesterdayRanking = List.of();
+        List<AnimeGenresDto> genres = List.of();
+
+        when(rankingMapper.getYearSeasonRankingNotFilterPaging(year, season, lastId, size, today))
+                .thenReturn(yearSeasonRanking);
+
+        when(rankingMapper.getYearSeasonRankingNotFilter(year, season, yesterday))
+                .thenReturn(yesterdayRanking);
+
+        when(rankingMapper.getGenresByAnimeIds(List.of()))
+                .thenReturn(genres);
+
+        RankingResponse response = rankingService.getYearSeasonRanking(year, season, genre, lastId, size);
+        String json = mapper.writeValueAsString(response);
+        System.out.println(json);
+
+        assertEquals(0, response.getAnimes().size());
+    }
+
+    @Test
+    @DisplayName("역대 랭킹 조회 결과가 0인 경우 빈 리스트를 반환해야 한다.")
+    void ifGetAllTimeRankingSizeIsZero_mustReturnEmptyList() throws JsonProcessingException {
+        String genre = null;
+        Long lastId = null;
+        Long newLastId = 20L;
+        Integer size = 20;
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<RankingAnimesFromQueryDto> allTimeRanking = List.of();
+        List<RankingAnimesFromQueryDto> yesterdayRanking = List.of();
+        List<AnimeGenresDto> genres = List.of();
+
+        when(rankingMapper.getAllTimeRankingNotFilterPaging(lastId, size, today))
+                .thenReturn(allTimeRanking);
+
+        when(rankingMapper.getAllTimeRankingNotFilter(yesterday))
+                .thenReturn(yesterdayRanking);
+
+        when(rankingMapper.getGenresByAnimeIds(List.of()))
+                .thenReturn(genres);
+
+        RankingResponse response = rankingService.getAllTimeRanking(genre, lastId, size);
+        String json = mapper.writeValueAsString(response);
+        System.out.println(json);
+
+        assertEquals(0, response.getAnimes().size());
+    }
+
     private List<RankingAnimesFromQueryDto> generateTodayRanking() {
         return List.of(
                 new RankingAnimesFromQueryDto(1L, "Anime 1", "default.png", 1L),
