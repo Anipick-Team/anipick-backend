@@ -47,7 +47,6 @@ public class AnimeController {
 	public ApiResponse<AnimeDetailInfoReviewsPageDto> getAnimeInfoReviews(
 			@PathVariable(value = "animeId") Long animeId,
 			@RequestParam(value = "sort", defaultValue = "latest") String sort,
-			@RequestParam(value = "isSpoiler", defaultValue = "false") Boolean isSpoiler,
 			@RequestParam(value = "lastId", required = false) Long lastId,
 			@RequestParam(value = "lastValue", required = false) String lastValue,
 			@RequestParam(value = "size", defaultValue = "20") int size,
@@ -55,7 +54,7 @@ public class AnimeController {
 	) {
 		Long userId = user.getUserId();
 		AnimeDetailInfoReviewsPageDto result = animeService.getAnimeInfoReviews(
-				animeId, userId, sort, isSpoiler, lastId, lastValue, size
+				animeId, userId, sort, lastId, lastValue, size
 		);
 		return ApiResponse.success(result);
 	}
