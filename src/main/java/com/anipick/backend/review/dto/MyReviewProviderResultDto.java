@@ -10,13 +10,15 @@ public class MyReviewProviderResultDto {
     private Long animeId;
     private Double rating;
     private String content;
+    private Boolean isSpoiler;
 
     public static MyReviewProviderResultDto nonContent(MyReviewProviderResultDto dto) {
         return new MyReviewProviderResultDto(
                 dto.getReviewId(),
                 dto.getAnimeId(),
                 dto.getRating(),
-                null
+                null,
+                dto.getIsSpoiler()
         );
     }
 
@@ -25,7 +27,8 @@ public class MyReviewProviderResultDto {
                 dto.getReviewId(),
                 dto.getAnimeId(),
                 dto.getRating(),
-                dto.getContent()
+                dto.getContent(),
+                dto.getIsSpoiler()
         );
     }
 }
