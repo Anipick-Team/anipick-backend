@@ -193,12 +193,12 @@ public class AnimeService {
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
   
-	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Boolean isSpoiler, Long lastId, String lastValue, int size) {
+	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Long lastId, String lastValue, int size) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
 
 		AnimeDetailInfoReviewsRequestDto reviewsRequestDto =
-				AnimeDetailInfoReviewsRequestDto.of(animeId, userId, sort, orderByQuery, isSpoiler, lastId, lastValue, size);
+				AnimeDetailInfoReviewsRequestDto.of(animeId, userId, sort, orderByQuery, lastId, lastValue, size);
 
 		long totalCount = mapper.selectAnimeReviewCount(animeId);
 

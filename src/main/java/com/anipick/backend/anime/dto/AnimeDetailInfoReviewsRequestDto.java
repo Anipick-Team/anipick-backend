@@ -10,7 +10,6 @@ public class AnimeDetailInfoReviewsRequestDto {
     private Long userId;
     private String sort;
     private String orderByQuery;
-    private Boolean isSpoiler;
     private Long lastId;
     private String lastValue;
     private int size;
