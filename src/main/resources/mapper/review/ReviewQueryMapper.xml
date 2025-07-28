@@ -66,7 +66,8 @@
         SELECT r.review_id AS reviewId,
                r.anime_id AS animeId,
                r.rating AS rating,
-               r.content AS content
+               r.content AS content,
+               r.is_spoiler AS isSpoiler
         FROM Review r
         WHERE r.anime_id = #{animeId}
         AND r.user_id = #{userId}
