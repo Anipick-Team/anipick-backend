@@ -68,6 +68,10 @@ public class RecommendService {
             referenceAnimeTitle = anime.getTitleKor();
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
 
+            if (tagIds.isEmpty()) {
+                return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+            }
+
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, lastValue, lastId, size);
 
