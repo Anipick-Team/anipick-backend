@@ -6,10 +6,8 @@ import com.anipick.backend.mypage.dto.*;
 import com.anipick.backend.mypage.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +19,16 @@ public class MyPageController {
     public ApiResponse<MyPageResponse> getMyPage(@AuthenticationPrincipal CustomUserDetails user) {
         Long userId = user.getUserId();
         MyPageResponse response = myPageService.getMyPage(userId);
+        return ApiResponse.success(response);
+    }
+
+    @PostMapping("/profile-image")
+    public ApiResponse<ProfileImageResponse> updateProfileImage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestPart("profileImageRequest") ProfileImageRequest request,
+            @RequestPart("profileImageFile") MultipartFile profileImageFile
+    ) {
+        ProfileImageResponse response = myPageService.updateProfileImage(user, request, profileImageFile);
         return ApiResponse.success(response);
     }
 

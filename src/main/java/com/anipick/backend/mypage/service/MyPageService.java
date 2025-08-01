@@ -1,5 +1,6 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
@@ -11,16 +12,28 @@ import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.format.DateTimeFormatter;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MyPageService {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
 
@@ -37,6 +50,45 @@ public class MyPageService {
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
+    }
+
+    @Transactional
+    public ProfileImageResponse updateProfileImage(CustomUserDetails user, ProfileImageRequest request, MultipartFile profileImageFile) {
+        String requestProfileImageUrl = request.getProfileImageUrl();
+        String originalFilename = profileImageFile.getOriginalFilename();
+        String uploadImageUrl;
+        String resultUrl;
+
+        try {
+            BufferedImage bufferedImage = ImageIO.read(profileImageFile.getInputStream());
+            if(bufferedImage == null) {
+                throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
+            }
+
+            byte[] compressedBytes = compressImageWithThumbnailator(profileImageFile);
+            uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
+
+            File directory = new File(uploadDir);
+            if(!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            File outputFile = new File(directory, uploadImageUrl);
+            try(FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+                fileOutputStream.write(compressedBytes);
+            }
+
+            userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
+            resultUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path(MyPageDefaults.PROFILE_IMAGE_FORMAT)
+                    .path(uploadImageUrl)
+                    .toUriString();
+
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return ProfileImageResponse.from(resultUrl);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
@@ -169,6 +221,23 @@ public class MyPageService {
         }
 
         return cursorDto;
+    }
+
+    private String getUploadImageUrl(String fileName, Long userId) {
+        String baseName = FilenameUtils.getBaseName(fileName);
+        String extension = FilenameUtils.getExtension(fileName);
+        return userId + System.currentTimeMillis() + baseName + "." + extension;
+    }
+
+    private byte[] compressImageWithThumbnailator(MultipartFile file) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Thumbnails.of(file.getInputStream())
+                .size(800, 800)
+                .outputQuality(0.7)
+                .toOutputStream(outputStream);
+
+        return outputStream.toByteArray();
     }
 }
 
