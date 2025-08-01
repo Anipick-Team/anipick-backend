@@ -22,6 +22,7 @@ public interface UserMapper {
     void updateUserNickname(@Param("userId") Long userId, @Param("nickname") String nickname);
     void updateUserEmail(@Param("userId") Long userId, @Param("email") String email);
     void updateUserByWithdrawal(@Param("userId") Long userId, @Param("nickname") String nickname);
+    void updateUserProfileImage(@Param("userId") Long userId, @Param("profileImageUrl") String profileImageUrl);
 
     void deleteUserById(Long userId);
 }
