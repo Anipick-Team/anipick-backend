@@ -44,4 +44,10 @@
             deleted_at = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <update id="updateUserProfileImage">
+        UPDATE user
+        SET profile_image_url = #{profileImageUrl}
+        WHERE user_id = #{userId}
+    </update>
 </mapper>

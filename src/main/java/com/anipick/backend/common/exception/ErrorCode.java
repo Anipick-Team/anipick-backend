@@ -69,7 +69,11 @@ public enum ErrorCode {
 	 * LIKE
 	 */
 	LIKE_DATA_NOT_FOUND(801, "좋아요 데이터 찾을 수 없음", null),
-	ALREADY_LIKE_DATA(802, "좋아요 데이터가 이미 존재", null);
+	ALREADY_LIKE_DATA(802, "좋아요 데이터가 이미 존재", null),
+	/**
+	 * Image
+	 */
+	INVAILD_IMAGE_EXTENSION(901, "유효한 이미지 확장자가 아님", null);
 
 	private final int code;
 	private final String errorReason;

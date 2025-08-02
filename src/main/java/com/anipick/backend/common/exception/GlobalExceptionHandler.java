@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 	// CustomException
 	@ExceptionHandler(CustomException.class)
 	public ApiResponse<?> handleBusiness(CustomException ex) {
-		log.error("log info {} : ", ex.getErrorCode().getErrorReason());
+		log.error("log info : ", ex);
 		ErrorCode ec = ex.getErrorCode();
 		return ApiResponse.error(ec);
 	}
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 	// 그 외 모든 예외 (서버 오류)
 	@ExceptionHandler(Exception.class)
 	public ApiResponse<?> handleAll(Exception ex) {
-		log.error("log info {} : ", ex.getMessage());
+		log.error("log info : ", ex);
 		return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
 	}
 }
