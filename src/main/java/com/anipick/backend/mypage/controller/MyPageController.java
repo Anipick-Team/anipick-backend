@@ -25,10 +25,9 @@ public class MyPageController {
     @PostMapping("/profile-image")
     public ApiResponse<ProfileImageResponse> updateProfileImage(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart("profileImageRequest") ProfileImageRequest request,
             @RequestPart("profileImageFile") MultipartFile profileImageFile
     ) {
-        ProfileImageResponse response = myPageService.updateProfileImage(user, request, profileImageFile);
+        ProfileImageResponse response = myPageService.updateProfileImage(user, profileImageFile);
         return ApiResponse.success(response);
     }
 

@@ -53,8 +53,7 @@ public class MyPageService {
     }
 
     @Transactional
-    public ProfileImageResponse updateProfileImage(CustomUserDetails user, ProfileImageRequest request, MultipartFile profileImageFile) {
-        String requestProfileImageUrl = request.getProfileImageUrl();
+    public ProfileImageResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
         String originalFilename = profileImageFile.getOriginalFilename();
         String uploadImageUrl;
         String resultUrl;
