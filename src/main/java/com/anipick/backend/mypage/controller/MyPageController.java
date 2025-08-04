@@ -23,11 +23,20 @@ public class MyPageController {
     }
 
     @PostMapping("/profile-image")
-    public ApiResponse<ProfileImageResponse> updateProfileImage(
+    public ApiResponse<ImageIdResponse> updateProfileImage(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart("profileImageFile") MultipartFile profileImageFile
     ) {
-        ProfileImageResponse response = myPageService.updateProfileImage(user, profileImageFile);
+        ImageIdResponse response = myPageService.updateProfileImage(user, profileImageFile);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/profile-image/{imageId}")
+    public ApiResponse<ImageResponse> getProfileImage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("imageId") Long imageId
+    ) {
+        ImageResponse response = myPageService.getProfileImage(user, imageId);
         return ApiResponse.success(response);
     }
 

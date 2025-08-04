@@ -5,20 +5,22 @@ import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.Image;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
 import com.anipick.backend.mypage.dto.*;
+import com.anipick.backend.image.mapper.ImageMapper;
 import com.anipick.backend.mypage.mapper.MyPageMapper;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,16 +28,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MyPageService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final ImageMapper imageMapper;
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -53,10 +60,10 @@ public class MyPageService {
     }
 
     @Transactional
-    public ProfileImageResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
+    public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
         String originalFilename = profileImageFile.getOriginalFilename();
         String uploadImageUrl;
-        String resultUrl;
+        Image image;
 
         try {
             BufferedImage bufferedImage = ImageIO.read(profileImageFile.getInputStream());
@@ -76,18 +83,45 @@ public class MyPageService {
             try(FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
                 fileOutputStream.write(compressedBytes);
             }
+            log.info("uploadImageUrl : {}", uploadImageUrl);
 
             userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
-            resultUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path(MyPageDefaults.PROFILE_IMAGE_FORMAT)
-                    .path(uploadImageUrl)
-                    .toUriString();
+
+            log.info("output file : {}", outputFile.getAbsolutePath());
+
+            image = Image.builder()
+                    .authId(user.getUserId())
+                    .imageName(originalFilename)
+                    .imagePath(outputFile.getAbsolutePath())
+                    .build();
+            imageMapper.insertImage(image);
 
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        return ProfileImageResponse.from(resultUrl);
+        return ImageIdResponse.from(image.getImageId());
+    }
+
+    public ImageResponse getProfileImage(CustomUserDetails user, Long imageId) {
+        if(user == null) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        Image image = imageMapper.findByImageId(imageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
+        String imagePath = image.getImagePath();
+        byte[] imageBytes;
+
+        try {
+            Path filePath = Paths.get(imagePath);
+            log.info("filePath : {}", filePath);
+            imageBytes = Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return ImageResponse.from(imageBytes);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
