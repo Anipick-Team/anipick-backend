@@ -9,6 +9,13 @@ spring:
   config:
     activate:
       on-profile: prod-mysql
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -46,3 +53,6 @@ app:
     google:
       android-client-id: ${ANDROID_CLIENT_ID}
       ios-client-id: ${IOS_CLIENT_ID}
+
+file:
+  upload-dir: ./uploads/images/profile/

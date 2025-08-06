@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.image.mapper.ImageMapper">
+    <select id="findByImageId" resultType="com.anipick.backend.image.domain.Image">
+        SELECT
+            i.image_id AS imageId,
+            i.auth_id AS authId,
+            i.image_name AS imageName,
+            i.image_path AS imagePath
+        FROM Image AS i
+        WHERE image_id = #{imageId}
+    </select>
+
+    <select id="findByUserId" resultType="com.anipick.backend.image.domain.Image">
+        SELECT
+            i.image_id AS imageId,
+            i.auth_id AS authId,
+            i.image_name AS imageName,
+            i.image_path AS imagePath
+        FROM Image AS i
+        WHERE auth_id = #{userId}
+    </select>
+</mapper>

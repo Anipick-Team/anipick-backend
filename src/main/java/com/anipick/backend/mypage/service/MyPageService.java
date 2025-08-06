@@ -1,28 +1,48 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.Image;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
 import com.anipick.backend.mypage.dto.*;
+import com.anipick.backend.image.mapper.ImageMapper;
 import com.anipick.backend.mypage.mapper.MyPageMapper;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.format.DateTimeFormatter;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MyPageService {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final ImageMapper imageMapper;
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -37,6 +57,60 @@ public class MyPageService {
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
+    }
+
+    @Transactional
+    public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
+        String originalFilename = profileImageFile.getOriginalFilename();
+        String uploadImageUrl;
+        Image image;
+
+        try {
+            BufferedImage bufferedImage = ImageIO.read(profileImageFile.getInputStream());
+            if(bufferedImage == null) {
+                throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
+            }
+
+            byte[] compressedBytes = compressImageWithThumbnailator(profileImageFile);
+            uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
+
+            File directory = new File(uploadDir);
+            if(!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            File outputFile = new File(directory, uploadImageUrl);
+            try(FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+                fileOutputStream.write(compressedBytes);
+            }
+
+            userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
+
+            image = Image.builder()
+                    .authId(user.getUserId())
+                    .imageName(originalFilename)
+                    .imagePath(outputFile.getAbsolutePath())
+                    .build();
+            imageMapper.insertImage(image);
+
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return ImageIdResponse.from(image.getImageId());
+    }
+
+    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
+        if(user == null) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        Image image = imageMapper.findByImageId(imageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
+        String imagePath = image.getImagePath();
+        Path filePath = Paths.get(imagePath);;
+
+        return new FileSystemResource(filePath);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
@@ -169,6 +243,23 @@ public class MyPageService {
         }
 
         return cursorDto;
+    }
+
+    private String getUploadImageUrl(String fileName, Long userId) {
+        String baseName = FilenameUtils.getBaseName(fileName);
+        String extension = FilenameUtils.getExtension(fileName);
+        return userId + System.currentTimeMillis() + baseName + "." + extension;
+    }
+
+    private byte[] compressImageWithThumbnailator(MultipartFile file) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Thumbnails.of(file.getInputStream())
+                .size(800, 800)
+                .outputQuality(0.7)
+                .toOutputStream(outputStream);
+
+        return outputStream.toByteArray();
     }
 }
 
