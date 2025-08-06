@@ -35,7 +35,6 @@ public class ReviewService {
     private final AnimeMapper animeMapper;
     private final RatingMapper ratingMapper;
     private final UserMapper userMapper;
-    private final UserAnimeStatusMapper userAnimeStatusMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
