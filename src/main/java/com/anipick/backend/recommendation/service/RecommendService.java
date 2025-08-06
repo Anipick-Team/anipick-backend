@@ -32,6 +32,7 @@ public class RecommendService {
     private final AnimeMapper animeMapper;
 
     public UserMainRecommendationPageDto getRecommendations(Long userId, Long lastId, Long lastValue, Long size) {
+        /*
         UserRecommendState userState = userRecommendStateMapper.findByUserId(userId);
 
         if (userState == null) {
@@ -57,11 +58,12 @@ public class RecommendService {
                 }
             }
         }
+         */
 
         List<AnimeItemDto> resultAnimes;
         List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
         String referenceAnimeTitle;
-
+        /*
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
             Anime anime = animeMapper.selectAnimeByAnimeId(referenceAnimeId);
@@ -86,6 +88,8 @@ public class RecommendService {
                     ))
                     .toList();
         } else {
+
+         */
             referenceAnimeTitle = null;
 
             List<Long> topRatedAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
@@ -120,7 +124,7 @@ public class RecommendService {
                             rec.getCoverImage()
                     ))
                     .toList();
-        }
+        // }
 
         CursorDto cursor;
 
