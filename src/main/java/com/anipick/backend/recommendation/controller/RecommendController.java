@@ -20,11 +20,13 @@ public class RecommendController {
     @GetMapping("/animes")
     public ApiResponse<UserMainRecommendationPageDto> getRecommendationAnimes(
             @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "userId", required = false) Long userIdParam,
             @RequestParam(value = "lastId", required = false) Long lastId,
             @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", defaultValue = "18") Long size
     ) {
-        Long userId = user.getUserId();
+//        Long userId = user.getUserId();
+        Long userId = (user != null) ? user.getUserId() : userIdParam;
         boolean lastValueIsText = StringUtils.hasText(lastValue);
         Long lastValueToLong;
         if (lastValueIsText) {
