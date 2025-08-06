@@ -103,6 +103,11 @@ public class ReviewService {
         }
 
         ratingMapper.createSignupReviewRating(userId, ratingRequests);
+
+        ratingRequests.stream()
+            .map(SignupRatingRequest::getAnimeId)
+            .forEach(this::updateReviewAverageScore);
+
         userMapper.updateReviewCompletedYn(userId);
     }
 
