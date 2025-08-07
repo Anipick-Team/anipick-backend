@@ -19,6 +19,8 @@ import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,6 +44,7 @@ public class ReviewService {
     private final UserMapper userMapper;
     private final UserAnimeStatusMapper userAnimeStatusMapper;
     private final UserRecommendStateMapper userRecommendStateMapper;
+    private final RedissonClient redissonClient;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -92,13 +96,37 @@ public class ReviewService {
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
-        if (review.getContent() == null) {
-            animeMapper.updatePlusReviewCount(animeId);
+
+        RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
+        boolean isLocked = false;
+
+        try {
+            isLocked = lock.tryLock(5, 30, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+
+            if (review.getContent() == null) {
+                animeMapper.updatePlusReviewCount(animeId);
+            }
+
+            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+            Double ratingAveraging = reviewsByAnimeId.stream()
+                    .collect(Collectors.averagingDouble(Review::getRating));
+
+            animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
         }
       
         Long reviewId = review.getReviewId();
-        updateReviewAverageScore(animeId);
-
         reviewMapper.updateReview(reviewId, userId, request);
     }
 
@@ -133,18 +161,55 @@ public class ReviewService {
 
         Long animeId = review.getAnimeId();
 
-        animeMapper.updateMinusReviewCount(animeId);
-        reviewMapper.deleteReview(reviewId, userId);
+        RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
+        boolean isLocked = false;
 
-        updateReviewAverageScore(animeId);
+        try {
+            isLocked = lock.tryLock(5, 30, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+            animeMapper.updateMinusReviewCount(animeId);
+            reviewMapper.deleteReview(reviewId, userId);
+
+            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+            Double ratingAveraging = reviewsByAnimeId.stream()
+                    .collect(Collectors.averagingDouble(Review::getRating));
+
+            animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
+        }
     }
 
     private void updateReviewAverageScore(Long animeId) {
-        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-        Double ratingAveraging = reviewsByAnimeId.stream()
-                .collect(Collectors.averagingDouble(Review::getRating));
+        RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
+        boolean isLocked = false;
+        try {
+            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+            Double ratingAveraging = reviewsByAnimeId.stream()
+                    .collect(Collectors.averagingDouble(Review::getRating));
 
-        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+            animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
+        }
     }
 
     @Transactional
