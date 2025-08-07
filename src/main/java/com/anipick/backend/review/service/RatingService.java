@@ -14,12 +14,17 @@ import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.domain.UserAnimeStatus;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RatingService {
@@ -29,6 +34,8 @@ public class RatingService {
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
     private final UserRecommendStateMapper userRecommendMapper;
+    private final RedissonClient redissonClient;
+
 
     @Transactional
     public void createReviewRating(Long animeId, ReviewRatingRequest request, Long userId) {
@@ -82,10 +89,26 @@ public class RatingService {
     }
 
     private void updateReviewAverageScore(Long animeId) {
-        List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-        Double ratingAveraging = reviewsByAnimeId.stream()
-                .collect(Collectors.averagingDouble(Review::getRating));
+        RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
+        boolean isLocked = false;
+        try {
+            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
+            Double ratingAveraging = reviewsByAnimeId.stream()
+                    .collect(Collectors.averagingDouble(Review::getRating));
 
-        animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+            animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
+        }
     }
 }
