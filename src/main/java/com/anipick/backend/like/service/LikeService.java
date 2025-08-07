@@ -5,10 +5,16 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.like.mapper.LikeMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -16,6 +22,8 @@ public class LikeService {
 
     private final LikeMapper likeMapper;
     private final ReviewMapper reviewMapper;
+    private final RedissonClient redissonClient;
+
 
     public void likeAnime(Long userId, Long animeId) {
         try {
@@ -57,23 +65,56 @@ public class LikeService {
 
     @Transactional
     public void likeReview(Long userId, Long reviewId) {
+        RLock lock = redissonClient.getLock("review:" + reviewId + ":likeLock");
+        boolean isLocked = false;
         try {
-            likeMapper.insertLikeReview(userId, reviewId);
+            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+
+            try {
+                likeMapper.insertLikeReview(userId, reviewId);
+            } catch (DuplicateKeyException e) {
+                throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
+
             reviewMapper.updatePlusReviewLikeCount(reviewId);
-        } catch (DuplicateKeyException e) {
-            throw new CustomException(ErrorCode.ALREADY_LIKE_DATA);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
         }
     }
 
     public void notLikeReview(Long userId, Long reviewId) {
-        Boolean isLiked = likeMapper.selectUserLikeReview(userId, reviewId);
-        if (isLiked) {
+        RLock lock = redissonClient.getLock("review:" + reviewId + ":likeLock");
+        boolean isLocked = false;
+        try {
+            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!isLocked) {
+                log.error("락 획득 실패");
+                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
+            }
+            boolean isLiked = likeMapper.selectUserLikeReview(userId, reviewId);
+            if (!isLiked) {
+                throw new CustomException(ErrorCode.LIKE_DATA_NOT_FOUND);
+            }
             likeMapper.deleteLikeReview(userId, reviewId);
             reviewMapper.updateMinusReviewLikeCount(reviewId);
-        } else {
-            throw new CustomException(ErrorCode.LIKE_DATA_NOT_FOUND);
+        } catch (InterruptedException e) {
+            log.error("락 인터럽트 : {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            if (isLocked) {
+                lock.unlock();
+            }
         }
     }
 }
