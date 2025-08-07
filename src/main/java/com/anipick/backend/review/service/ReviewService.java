@@ -5,6 +5,9 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.recommendation.domain.UserRecommendMode;
+import com.anipick.backend.recommendation.domain.UserRecommendState;
+import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
@@ -35,6 +38,7 @@ public class ReviewService {
     private final AnimeMapper animeMapper;
     private final RatingMapper ratingMapper;
     private final UserMapper userMapper;
+    private final UserRecommendStateMapper userRecommendStateMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -107,6 +111,15 @@ public class ReviewService {
         ratingRequests.stream()
             .map(SignupRatingRequest::getAnimeId)
             .forEach(this::updateReviewAverageScore);
+
+        Long lastIndexAnimeId = ratingRequests.getLast().getAnimeId();
+
+        UserRecommendState recommendStateByUserId = userRecommendStateMapper.findByUserId(userId);
+        if (recommendStateByUserId == null) {
+            userRecommendStateMapper.insertInitialState(userId, UserRecommendMode.RECENT_HIGH, lastIndexAnimeId);
+        } else {
+            userRecommendStateMapper.updateMode(userId, UserRecommendMode.RECENT_HIGH, lastIndexAnimeId);
+        }
 
         userMapper.updateReviewCompletedYn(userId);
     }
