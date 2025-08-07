@@ -93,6 +93,7 @@ public class LikeService {
         }
     }
 
+    @Transactional
     public void notLikeReview(Long userId, Long reviewId) {
         RLock lock = redissonClient.getLock("review:" + reviewId + ":likeLock");
         boolean isLocked = false;
