@@ -111,15 +111,9 @@ public class ReviewService {
         ratingRequests.stream()
             .map(SignupRatingRequest::getAnimeId)
             .forEach(this::updateReviewAverageScore);
+        // 본 애니로 전부 등록 필요
 
-        Long lastIndexAnimeId = ratingRequests.getLast().getAnimeId();
-
-        UserRecommendState recommendStateByUserId = userRecommendStateMapper.findByUserId(userId);
-        if (recommendStateByUserId == null) {
-            userRecommendStateMapper.insertInitialState(userId, UserRecommendMode.RECENT_HIGH, lastIndexAnimeId);
-        } else {
-            userRecommendStateMapper.updateMode(userId, UserRecommendMode.RECENT_HIGH, lastIndexAnimeId);
-        }
+        userRecommendStateMapper.insertTagBasedState(userId);
 
         userMapper.updateReviewCompletedYn(userId);
     }
