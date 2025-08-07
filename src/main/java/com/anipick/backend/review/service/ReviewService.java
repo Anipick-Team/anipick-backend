@@ -14,6 +14,7 @@ import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
 import com.anipick.backend.user.domain.User;
+import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class ReviewService {
     private final AnimeMapper animeMapper;
     private final RatingMapper ratingMapper;
     private final UserMapper userMapper;
+    private final UserAnimeStatusMapper userAnimeStatusMapper;
     private final UserRecommendStateMapper userRecommendStateMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -110,8 +112,14 @@ public class ReviewService {
 
         ratingRequests.stream()
             .map(SignupRatingRequest::getAnimeId)
-            .forEach(this::updateReviewAverageScore);
-        // 본 애니로 전부 등록 필요
+            .forEach(animeId -> {
+                userAnimeStatusMapper.createUserAnimeStatus(
+                        userId,
+                        animeId,
+                        UserAnimeOfStatus.FINISHED
+                );
+                updateReviewAverageScore(animeId);
+            });
 
         userRecommendStateMapper.insertTagBasedState(userId);
 
