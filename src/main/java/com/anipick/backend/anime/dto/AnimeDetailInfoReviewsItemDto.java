@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor(staticName = "of")
 public class AnimeDetailInfoReviewsItemDto {
     private Long reviewId;
+    private Long userId;
     private String nickname;
     private String profileImageUrl;
     private Double rating;
