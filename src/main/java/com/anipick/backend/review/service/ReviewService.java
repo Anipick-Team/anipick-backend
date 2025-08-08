@@ -129,7 +129,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public void reportReview(Long userId, Long reviewId) {
+    public void reportReview(Long userId, Long reviewId, ReviewReportMessage reportMessage) {
         Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
         ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
 
@@ -147,7 +147,7 @@ public class ReviewService {
         }
 
         try {
-            reviewMapper.createReviewReport(userId, reviewId);
+            reviewMapper.createReviewReport(userId, reviewId, reportMessage);
         } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
         } catch (Exception e) {
