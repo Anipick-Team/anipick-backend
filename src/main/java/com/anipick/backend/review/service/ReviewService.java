@@ -1,6 +1,5 @@
 package com.anipick.backend.review.service;
 
-import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
@@ -10,7 +9,6 @@ import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
-import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,8 +126,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public void reportReview(Long userId, Long reviewId, ReviewReportMessage reportMessage) {
-        reportMessage.validate();
+    public void reportReview(Long userId, Long reviewId, ReviewReportMessageRequest reportMessageRequest) {
+        reportMessageRequest.validate();
 
         Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
         ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
@@ -148,8 +145,10 @@ public class ReviewService {
             throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
         }
 
+        String requestMessage = reportMessageRequest.getMessage();
+
         try {
-            reviewMapper.createReviewReport(userId, reviewId, reportMessage);
+            reviewMapper.createReviewReport(userId, reviewId, requestMessage);
         } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
         } catch (Exception e) {

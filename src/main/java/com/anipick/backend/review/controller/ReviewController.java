@@ -62,7 +62,7 @@ public class ReviewController {
     @PostMapping("/{reviewId}/report")
     public ApiResponse<Void> reportReview(
         @PathVariable(name = "reviewId") Long reviewId,
-        @RequestBody ReviewReportMessage reportMessage,
+        @RequestBody ReviewReportMessageRequest reportMessage,
         @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();

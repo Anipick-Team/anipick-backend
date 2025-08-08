@@ -35,7 +35,7 @@ public interface ReviewMapper {
     void createReviewReport(
             @Param(value = "userId") Long userId,
             @Param(value = "reviewId") Long reviewId,
-            @Param(value = "reportMessage")ReviewReportMessage reportMessage
+            @Param(value = "reportMessage") String reportMessage
             );
   
     void updatePlusReviewLikeCount(
