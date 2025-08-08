@@ -48,6 +48,7 @@ public enum ErrorCode {
 	REVIEW_ALREADY_EXISTS(303, "이미 평가가 존재", null),
 	ALREADY_REPORT_REVIEW(304, "이미 신고한 리뷰", null),
 	SELF_REVIEW_REPORT_ERROR(305, "본인 리뷰는 신고 불가", null),
+	REPORT_MESSAGE_EMPTY(306, "신고 메시지 필수", null),
 	/**
 	 * Validation & Request Errors
 	 */

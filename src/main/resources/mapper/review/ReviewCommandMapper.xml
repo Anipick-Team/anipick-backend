@@ -29,8 +29,8 @@
 
     <insert id="createReviewReport">
         INSERT INTO Reportedreview
-            (review_id, user_id, created_at)
-        VALUES (#{reviewId}, #{userId}, NOW())
+            (review_id, user_id, created_at, message)
+        VALUES (#{reviewId}, #{userId}, NOW(), #{reportMessage})
     </insert>
 
     <update id="updatePlusReviewLikeCount">

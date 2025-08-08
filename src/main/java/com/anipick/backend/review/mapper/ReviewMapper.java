@@ -1,10 +1,7 @@
 package com.anipick.backend.review.mapper;
 
 import com.anipick.backend.review.domain.Review;
-import com.anipick.backend.review.dto.MyReviewProviderResultDto;
-import com.anipick.backend.review.dto.ReportReviewDto;
-import com.anipick.backend.review.dto.ReviewRatingRequest;
-import com.anipick.backend.review.dto.ReviewRequest;
+import com.anipick.backend.review.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -37,8 +34,9 @@ public interface ReviewMapper {
 
     void createReviewReport(
             @Param(value = "userId") Long userId,
-            @Param(value = "reviewId") Long reviewId
-    );
+            @Param(value = "reviewId") Long reviewId,
+            @Param(value = "reportMessage") String reportMessage
+            );
   
     void updatePlusReviewLikeCount(
             @Param(value = "reviewId") Long reviewId
