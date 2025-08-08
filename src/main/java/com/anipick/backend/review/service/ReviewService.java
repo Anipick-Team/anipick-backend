@@ -130,6 +130,8 @@ public class ReviewService {
 
     @Transactional
     public void reportReview(Long userId, Long reviewId, ReviewReportMessage reportMessage) {
+        reportMessage.validate();
+
         Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
         ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
 
