@@ -56,4 +56,4 @@ app:
       ios-client-id: ${IOS_CLIENT_ID}
 
 file:
-  upload-dir: ./uploads/images/profile/
+  upload-dir: ${FILE_UPLOAD_DIR}
