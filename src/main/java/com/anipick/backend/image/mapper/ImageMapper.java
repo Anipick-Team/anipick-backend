@@ -9,6 +9,7 @@ import java.util.Optional;
 @Mapper
 public interface ImageMapper {
     void insertImage(Image image);
+    void deleteImage(@Param("imageId") Long imageId);
 
     Optional<Image> findByImageId(@Param("imageId") Long imageId);
 
