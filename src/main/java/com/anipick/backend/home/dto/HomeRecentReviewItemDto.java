@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor(staticName = "of")
 public class HomeRecentReviewItemDto {
     private Long reviewId;
+    private Long userId;
     private Long animeId;
     private String animeTitle;
     private String reviewContent;

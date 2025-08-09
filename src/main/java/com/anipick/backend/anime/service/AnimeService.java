@@ -211,6 +211,7 @@ public class AnimeService {
 
 					return AnimeDetailInfoReviewsResultDto.of(
 							dto.getReviewId(),
+							dto.getUserId(),
 							dto.getNickname(),
 							dto.getProfileImageUrl(),
 							dto.getRating(),

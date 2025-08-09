@@ -146,6 +146,7 @@
             parameterType="com.anipick.backend.anime.dto.AnimeDetailInfoReviewsRequestDto"
             resultType="com.anipick.backend.anime.dto.AnimeDetailInfoReviewsItemDto">
         SELECT r.review_id AS reviewId,
+               u.user_id AS userId,
                u.nickname AS nickname,
                u.profile_image_url AS profileImageUrl,
                r.rating AS rating,

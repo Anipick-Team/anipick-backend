@@ -55,6 +55,7 @@ public class ReviewService {
 
                     return RecentReviewItemDto.builder()
                             .reviewId(dto.getReviewId())
+                            .userId(dto.getUserId())
                             .animeId(dto.getAnimeId())
                             .animeTitle(dto.getAnimeTitle())
                             .animeCoverImageUrl(dto.getAnimeCoverImageUrl())
