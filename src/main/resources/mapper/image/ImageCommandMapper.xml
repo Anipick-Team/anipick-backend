@@ -9,4 +9,9 @@
         VALUES
             (#{authId}, #{imageName}, #{imagePath})
     </insert>
+
+    <delete id="deleteImage">
+        DELETE FROM Image
+        WHERE image_id = #{imageId}
+    </delete>
 </mapper>

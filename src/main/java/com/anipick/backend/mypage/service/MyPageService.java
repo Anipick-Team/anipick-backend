@@ -6,6 +6,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.image.domain.Image;
+import com.anipick.backend.image.service.ImageService;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
 import com.anipick.backend.mypage.dto.*;
 import com.anipick.backend.image.mapper.ImageMapper;
@@ -37,8 +38,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final ImageService imageService;
 
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
@@ -66,32 +66,12 @@ public class MyPageService {
         Image image;
 
         try {
-            BufferedImage bufferedImage = ImageIO.read(profileImageFile.getInputStream());
-            if(bufferedImage == null) {
-                throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
-            }
-
-            byte[] compressedBytes = compressImageWithThumbnailator(profileImageFile);
-            uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
-
-            File directory = new File(uploadDir);
-            if(!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            File outputFile = new File(directory, uploadImageUrl);
-            try(FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
-                fileOutputStream.write(compressedBytes);
-            }
+            File outputFile = imageService.compressAndSaveImageToServer(user, profileImageFile);
+            uploadImageUrl = outputFile.getPath();
 
             userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
 
-            image = Image.builder()
-                    .authId(user.getUserId())
-                    .imageName(originalFilename)
-                    .imagePath(outputFile.getAbsolutePath())
-                    .build();
-            imageMapper.insertImage(image);
+            image = imageService.insertImage(user, originalFilename, outputFile);
 
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -105,12 +85,7 @@ public class MyPageService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        Image image = imageMapper.findByImageId(imageId)
-                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
-        String imagePath = image.getImagePath();
-        Path filePath = Paths.get(imagePath);;
-
-        return new FileSystemResource(filePath);
+        return imageService.getImageResourceOnServer(imageId);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
@@ -243,23 +218,6 @@ public class MyPageService {
         }
 
         return cursorDto;
-    }
-
-    private String getUploadImageUrl(String fileName, Long userId) {
-        String baseName = FilenameUtils.getBaseName(fileName);
-        String extension = FilenameUtils.getExtension(fileName);
-        return userId + System.currentTimeMillis() + baseName + "." + extension;
-    }
-
-    private byte[] compressImageWithThumbnailator(MultipartFile file) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        Thumbnails.of(file.getInputStream())
-                .size(800, 800)
-                .outputQuality(0.7)
-                .toOutputStream(outputStream);
-
-        return outputStream.toByteArray();
     }
 }
 
