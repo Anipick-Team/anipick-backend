@@ -25,4 +25,11 @@
             start_date = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <insert id="insertTagBasedState">
+        INSERT INTO Userrecommendationstate
+            (user_id, mode, start_date)
+        VALUES
+            (#{userId}, 'TAG_BASED', NOW())
+    </insert>
 </mapper>

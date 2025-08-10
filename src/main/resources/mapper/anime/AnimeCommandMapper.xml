@@ -21,4 +21,19 @@
         SET review_average_score = #{reviewAverageScore}
         WHERE anime_id = #{animeId}
     </update>
+    
+    <update id="updateReviewAverageScoresByAnimeIds">
+        UPDATE Anime a
+        JOIN (
+            SELECT r.anime_id AS animeId,
+               AVG (r.rating) AS avgRating
+            FROM Review r
+            WHERE r.anime_id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            GROUP BY r.anime_id
+        ) agg ON agg.animeId = a.anime_id
+        SET a.review_average_score = agg.avgRating
+    </update>
 </mapper>
