@@ -40,7 +40,7 @@ class ReviewServiceTest {
         given(mapper.countRecentReviews(userId)).willReturn(50L);
 
         RecentReviewItemDto sampleDto = new RecentReviewItemDto(
-                10L, 123L, "타이틀", "url",
+                10L, userId,123L, "타이틀", "url",
                 4.5, "내용43254", "345efew", "imgUrl",
                 "2025-05-03 17:16:46", 3L, true, false
         );
