@@ -2,10 +2,7 @@ package com.anipick.backend.review.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
-import com.anipick.backend.review.dto.MyReviewProviderResultDto;
-import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRequest;
-import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -65,10 +62,11 @@ public class ReviewController {
     @PostMapping("/{reviewId}/report")
     public ApiResponse<Void> reportReview(
         @PathVariable(name = "reviewId") Long reviewId,
+        @RequestBody ReviewReportMessageRequest reportMessage,
         @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
-        reviewService.reportReview(userId, reviewId);
+        reviewService.reportReview(userId, reviewId, reportMessage);
         return ApiResponse.success();
     }
 
