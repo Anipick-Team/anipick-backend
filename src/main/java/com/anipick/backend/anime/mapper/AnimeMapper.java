@@ -55,6 +55,8 @@ public interface AnimeMapper {
 			@Param("reviewAverageScore") Double reviewAverageScore
 	);
 
+	void updateReviewAverageScoresByAnimeIds(@Param(value = "ids") List<Long> ids);
+
 	List<AnimeCharacterActorResultDto> selectAnimeCharacterActors(
         @Param(value = "animeId") Long animeId,
         @Param(value = "lastId") Long lastId,

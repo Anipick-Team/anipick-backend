@@ -1,19 +1,15 @@
 package com.anipick.backend.review.service;
 
-import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
-import com.anipick.backend.recommendation.domain.UserRecommendMode;
-import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
-import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
@@ -25,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +82,7 @@ public class ReviewService {
     @Transactional
     public void createAndUpdateReview(Long animeId, ReviewRequest request, Long userId) {
         Review review = reviewMapper.findByAnimeId(animeId, userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
@@ -95,7 +90,7 @@ public class ReviewService {
         if (review.getContent() == null) {
             animeMapper.updatePlusReviewCount(animeId);
         }
-      
+
         Long reviewId = review.getReviewId();
         updateReviewAverageScore(animeId);
 
@@ -110,16 +105,19 @@ public class ReviewService {
 
         ratingMapper.createSignupReviewRating(userId, ratingRequests);
 
-        ratingRequests.stream()
-            .map(SignupRatingRequest::getAnimeId)
-            .forEach(animeId -> {
-                userAnimeStatusMapper.createUserAnimeStatus(
+        List<UserAnimeStatusInsertRequest> statusBulkList = ratingRequests.stream()
+                .map(r -> UserAnimeStatusInsertRequest.of(
                         userId,
-                        animeId,
-                        UserAnimeOfStatus.FINISHED
-                );
-                updateReviewAverageScore(animeId);
-            });
+                        r.getAnimeId(),
+                        UserAnimeOfStatus.FINISHED.name()
+                ))
+                .toList();
+        userAnimeStatusMapper.createUserAnimeStatusBulk(statusBulkList);
+
+        List<Long> animeIds = ratingRequests.stream()
+                .map(SignupRatingRequest::getAnimeId)
+                .toList();
+        animeMapper.updateReviewAverageScoresByAnimeIds(animeIds);
 
         userRecommendStateMapper.insertTagBasedState(userId);
 
@@ -129,7 +127,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
         Review review = reviewMapper.findByReviewId(reviewId, userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         Long animeId = review.getAnimeId();
 
