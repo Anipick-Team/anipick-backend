@@ -11,22 +11,21 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class NicknameInitializer {
     private static final int NICKNAME_THRESHOLD = 1000;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
     private static final String COLON = ":";
 
     private final RedisTemplate<String, String> redisTemplate;
 
     public String generateNickname(LoginFormat loginFormat) {
-        String timeStamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
+        String randomUuid = UUID.randomUUID().toString().substring(0, 8);
         String loginFormatFirstLetter = loginFormat.toString().substring(0, 1);
-        String redisKey = UserDefaults.DEFAULT_NICKNAME_FORMAT_KEY + loginFormat + COLON + timeStamp;
+        String redisKey = UserDefaults.DEFAULT_NICKNAME_FORMAT_KEY + loginFormat + COLON + randomUuid;
         Long count = redisTemplate.opsForValue().increment(redisKey);
 
         if(count == null) {
@@ -42,6 +41,6 @@ public class NicknameInitializer {
         int tailCount = (int) ((count - 1L) % NICKNAME_THRESHOLD);
         String tailNickname = String.format("%03d", tailCount);
 
-        return loginFormatFirstLetter + timeStamp + tailNickname;
+        return loginFormatFirstLetter + randomUuid + tailNickname;
     }
 }
