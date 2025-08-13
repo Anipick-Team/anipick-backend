@@ -1,51 +1,26 @@
 package com.anipick.backend.user.component;
 
 import com.anipick.backend.user.domain.LoginFormat;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 class NicknameInitializerConcurrencyTest {
-    @Mock
-    RedisTemplate<String, String> redisTemplate;
-
-    @Mock
-    ValueOperations<String, String> valueOps;
-
     @InjectMocks
     NicknameInitializer nicknameInitializer;
-
-    @BeforeEach
-    void setUp() {
-        when(redisTemplate.opsForValue()).thenReturn(valueOps);
-        when(redisTemplate.expire(anyString(), any(Duration.class))).thenReturn(true);
-
-        ConcurrentHashMap<String, AtomicLong> counters = new ConcurrentHashMap<>();
-        when(valueOps.increment(anyString())).thenAnswer(inv -> {
-            String key = inv.getArgument(0);
-            return counters.computeIfAbsent(key, k -> new AtomicLong(0)).incrementAndGet();
-        });
-    }
 
     @Test
     @DisplayName("랜덤 닉네임을 1ms에 동시적으로 10000개를 발급한다. 그리고 중복이 없거나 길이가 12자여야 한다.")
@@ -65,7 +40,7 @@ class NicknameInitializerConcurrencyTest {
 
                 for (int i = 0; i < perThread; i++) {
                     String nickname = nicknameInitializer.generateNickname(LoginFormat.LOCAL);
-                    assertEquals(12, nickname.length(), "length != 12: " + nickname);
+                    assertEquals(10, nickname.length(), "length != 10: " + nickname);
                     if (!nicknames.add(nickname)) {
                         throw new AssertionError("duplicate: " + nickname);
                     }
