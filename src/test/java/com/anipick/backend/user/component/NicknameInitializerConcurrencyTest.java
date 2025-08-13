@@ -23,7 +23,7 @@ class NicknameInitializerConcurrencyTest {
     NicknameInitializer nicknameInitializer;
 
     @Test
-    @DisplayName("랜덤 닉네임을 1ms에 동시적으로 10000개를 발급한다. 그리고 중복이 없거나 길이가 12자여야 한다.")
+    @DisplayName("랜덤 닉네임을 1ms에 동시적으로 10000개를 발급한다. 그리고 중복이 없거나 길이가 10자여야 한다.")
     void nicknameConcurrencyTest() throws InterruptedException, ExecutionException {
         int threads = 100;
         int perThread = 100;
