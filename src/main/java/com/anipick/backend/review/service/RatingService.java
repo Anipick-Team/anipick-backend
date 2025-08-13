@@ -92,7 +92,7 @@ public class RatingService {
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
         try {
-            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            isLocked = lock.tryLock(1,  TimeUnit.SECONDS);
             if (!isLocked) {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);

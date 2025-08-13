@@ -101,7 +101,7 @@ public class ReviewService {
         boolean isLocked = false;
 
         try {
-            isLocked = lock.tryLock(5, 30, TimeUnit.SECONDS);
+            isLocked = lock.tryLock(2,  TimeUnit.SECONDS);
             if (!isLocked) {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);
@@ -165,7 +165,7 @@ public class ReviewService {
         boolean isLocked = false;
 
         try {
-            isLocked = lock.tryLock(5, 30, TimeUnit.SECONDS);
+            isLocked = lock.tryLock(2, TimeUnit.SECONDS);
             if (!isLocked) {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);
@@ -192,7 +192,7 @@ public class ReviewService {
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
         try {
-            isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            isLocked = lock.tryLock(2, TimeUnit.SECONDS);
             if (!isLocked) {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);
