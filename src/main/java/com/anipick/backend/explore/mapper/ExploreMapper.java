@@ -11,4 +11,7 @@ public interface ExploreMapper {
     long countExplored(ExploreRequestDto exploreRequestDto);
 
     List<ExploreItemDto> selectExplored(ExploreRequestDto exploreRequestDto);
+
+    List<ExploreItemDto> selectExploredTest(ExploreRequestDto exploreRequestDto);
+
 }

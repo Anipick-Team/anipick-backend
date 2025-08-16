@@ -137,4 +137,44 @@
         LIMIT #{size}
     </select>
 
+    <select id="selectExploredTest"
+            parameterType="com.anipick.backend.explore.dto.ExploreRequestDto"
+            resultType="com.anipick.backend.explore.dto.ExploreItemDto">
+        SELECT DISTINCT
+            a.anime_id        AS id,
+            a.title_kor       AS title,
+            a.cover_image_url AS coverImageUrl,
+            a.review_average_score   AS averageScore,
+            pao.popularity_anime_order_id AS popularId
+        FROM Anime a
+        JOIN AnimeGenres ag
+            ON ag.anime_id = a.anime_id
+        AND genre_id IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+        LEFT JOIN anipick2.PopularityAnimeOrder pao
+        ON pao.anime_id = a.anime_id
+                AND a.format IN ('TV', 'TV_SHORT', 'ONA')
+        <if test="startDate != null and endDate != null">
+            AND a.start_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+                ORDER BY a.review_average_score DESC, a.anime_id DESC
+    </select>
+
 </mapper>
+
+
+<!--        SELECT distinct-->
+<!--        a.anime_id        AS id,-->
+<!--        a.title_kor       AS title,-->
+<!--        a.cover_image_url AS coverImageUrl,-->
+<!--        a.review_average_score   AS averageScore,-->
+<!--        pao.popularity_anime_order_id AS popularId-->
+<!--        FROM anipick2.Anime a-->
+<!--        JOIN anipick2.AnimeGenres ag-->
+<!--        ON ag.anime_id = a.anime_id-->
+<!--        and genre_id IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)-->
+<!--        LEFT JOIN anipick2.PopularityAnimeOrder pao-->
+<!--        ON pao.anime_id = a.anime_id-->
+
+<!--        AND a.format IN ('TV', 'TV_SHORT', 'ONA')-->
+<!--        AND       a.start_date BETWEEN '2010-02-03' and '2020-10-30'-->
+<!--        ORDER BY a.review_average_score DESC, a.anime_id DESC-->
