@@ -82,4 +82,34 @@ public class ExploreController {
 		);
 		return ApiResponse.success(page);
 	}
+
+	// 세미 조인
+	@GetMapping("/test2")
+	public ApiResponse<ExplorePageDto> explore3(
+		@RequestParam(value = "year", required = false) Integer year,
+		@RequestParam(value = "season", required = false) Integer season,
+		@RequestParam(value = "genres", required = false) List<Long> genres,
+		@RequestParam(value = "genreOp", defaultValue = "OR") GenresOption genreOp,
+		@RequestParam(value = "type", required = false) String type,
+		@RequestParam(value = "sort", defaultValue = "popularity") String sort,
+		@RequestParam(value = "lastId", required = false) Long lastId,
+		@RequestParam(value = "lastValue", required = false) String lastValue,
+		@RequestParam(value = "size", defaultValue = "18") int size,
+		@AuthenticationPrincipal CustomUserDetails user
+	) {
+		if (year == null && season != null) {
+			return ApiResponse.error(ErrorCode.EMPTY_YEAR);
+		}
+		boolean lastValueIsText = StringUtils.hasText(lastValue);
+		Double lastValueToDouble;
+		if (lastValueIsText) {
+			lastValueToDouble = Double.valueOf(lastValue);
+		} else {
+			lastValueToDouble = null;
+		}
+		ExplorePageDto page = exploreService.explore3(
+			year, season, genres, genreOp, type, sort, lastId, lastValueToDouble, size
+		);
+		return ApiResponse.success(page);
+	}
 }
