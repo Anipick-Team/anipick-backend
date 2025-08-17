@@ -92,14 +92,14 @@ public class RatingService {
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
         try {
-            isLocked = lock.tryLock(1,  TimeUnit.SECONDS);
+            isLocked = lock.tryLock(1, TimeUnit.SECONDS);
             if (!isLocked) {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);
             }
-            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-            Double ratingAveraging = reviewsByAnimeId.stream()
-                    .collect(Collectors.averagingDouble(Review::getRating));
+            List<Double> ratings = reviewMapper.findAllRatingByAnimeId(animeId);
+            Double ratingAveraging = ratings.stream()
+                    .collect(Collectors.averagingDouble(Double::doubleValue));
 
             animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
         } catch (InterruptedException e) {
