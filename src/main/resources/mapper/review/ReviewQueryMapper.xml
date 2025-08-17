@@ -51,6 +51,12 @@
         WHERE r.anime_id = #{animeId}
     </select>
 
+    <select id="findAllRatingByAnimeId" resultType="double">
+        SELECT r.rating
+        FROM Review r
+        WHERE r.anime_id = #{animeId}
+    </select>
+
     <select id="selectReviewByReviewId" resultType="com.anipick.backend.review.domain.Review">
         SELECT r.review_id AS reviewId,
                r.anime_id AS animeId,
