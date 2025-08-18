@@ -15,4 +15,6 @@ public interface ExploreMapper {
     List<ExploreItemDto> selectExploredTest(ExploreRequestDto exploreRequestDto);
 
     List<ExploreItemDto> selectExploredSemiJoin(ExploreRequestDto exploreRequestDto);
+
+    List<ExploreItemDto> selectExploredBestFast(ExploreRequestDto exploreRequestDto);
 }

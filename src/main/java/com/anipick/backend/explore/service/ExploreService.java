@@ -251,4 +251,59 @@ public class ExploreService {
 
 		return ExplorePageDto.of(total, cursor, responseItems);
 	}
+
+	public ExplorePageDto explore4(Integer year, Integer season, List<Long> genres, GenresOption genreOp, String type,
+		String sort, Long lastId, Double lastValue, int size) {
+		int genresSize = genres == null ? 0 : genres.size();
+
+		List<String> convert = FormatConvert.toConvert(type);
+
+		int typeConvertSize = convert.size();
+
+		SortOption sortOption = SortOption.of(sort);
+		String orderByQuery = sortOption.getOrderByQuery();
+
+		String genreOpName = genreOp.name();
+
+		ExploreRequestDto exploreRequestDto = makeExploreRequestDto(
+			year, season, genres, type, sort, lastId, lastValue, size,
+			genresSize, genreOpName, convert, typeConvertSize, orderByQuery);
+
+		long total = mapper.countExplored(exploreRequestDto);
+
+		List<ExploreItemDto> internal = mapper.selectExploredBestFast(exploreRequestDto);
+
+		int lastIndex = internal.size() - 1;
+
+		Long nextId;
+		if (internal.isEmpty()) {
+			nextId = null;
+		} else if ("popularity".equalsIgnoreCase(sort)){
+			nextId = internal.get(lastIndex).getPopularId();
+		} else {
+			nextId = internal.get(lastIndex).getId();
+		}
+
+		Double nextValue;
+		if (!"rating".equalsIgnoreCase(sort) || internal.isEmpty()) {
+			nextValue = null;
+		} else {
+			nextValue = internal.get(lastIndex).getAverageScore();
+		}
+
+		String nextValStr;
+		if (nextValue != null) {
+			nextValStr = nextValue.toString();
+		} else {
+			nextValStr = null;
+		}
+
+		CursorDto cursor = CursorDto.of(sort, nextId, nextValStr);
+
+		List<AnimeItemDto> responseItems = internal.stream()
+			.map(e -> new AnimeItemDto(e.getId(), e.getTitle(), e.getCoverImageUrl()))
+			.collect(Collectors.toList());
+
+		return ExplorePageDto.of(total, cursor, responseItems);
+	}
 }
