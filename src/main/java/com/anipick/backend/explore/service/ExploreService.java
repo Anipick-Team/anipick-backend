@@ -269,7 +269,7 @@ public class ExploreService {
 			year, season, genres, type, sort, lastId, lastValue, size,
 			genresSize, genreOpName, convert, typeConvertSize, orderByQuery);
 
-		long total = mapper.countExplored(exploreRequestDto);
+		long total = mapper.countBestFast(exploreRequestDto);
 
 		List<ExploreItemDto> internal = mapper.selectExploredBestFast(exploreRequestDto);
 
