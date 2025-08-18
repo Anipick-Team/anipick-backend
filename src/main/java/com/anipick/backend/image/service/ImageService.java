@@ -76,8 +76,13 @@ public class ImageService {
         return new FileSystemResource(filePath);
     }
 
-    public Image getImage(Long imageId) {
+    public Image getImageByImageId(Long imageId) {
         return imageMapper.findByImageId(imageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
+    }
+
+    public Image getImageByAuthId(Long userId) {
+        return imageMapper.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
     }
 
