@@ -137,7 +137,7 @@ public class ExploreController {
 		} else {
 			lastValueToDouble = null;
 		}
-		ExplorePageDto page = exploreService.explore3(
+		ExplorePageDto page = exploreService.explore4(
 			year, season, genres, genreOp, type, sort, lastId, lastValueToDouble, size
 		);
 		return ApiResponse.success(page);
