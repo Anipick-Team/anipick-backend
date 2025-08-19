@@ -155,14 +155,14 @@ class RankingServiceTest {
         ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
 
         // when
-        RealTimeRankingResponse resp = rankingService.getRealTimeRanking(genre, lastId, size);
+        RealTimeRankingResponse response = rankingService.getRealTimeRanking(genre, lastId, size);
 
         // then
-        assertThat(resp).isNotNull();
-        assertThat(resp.getAnimes()).hasSize(3);
+        assertThat(response).isNotNull();
+        assertThat(response.getAnimes()).hasSize(3);
 
         // 1위(up, +3)
-        RealTimeRankingAnimesDto r1 = resp.getAnimes().get(0);
+        RealTimeRankingAnimesDto r1 = response.getAnimes().get(0);
         assertThat(r1.getAnimeId()).isEqualTo(100L);
         assertThat(r1.getTitle()).isEqualTo("A1");
         assertThat(r1.getCoverImageUrl()).isEqualTo("cover1");
@@ -172,14 +172,14 @@ class RankingServiceTest {
         assertThat(r1.getGenres()).containsExactlyInAnyOrder("액션", "모험");
 
         // 2위(same, 0)
-        RealTimeRankingAnimesDto r2 = resp.getAnimes().get(1);
+        RealTimeRankingAnimesDto r2 = response.getAnimes().get(1);
         assertThat(r2.getAnimeId()).isEqualTo(101L);
         assertThat(r2.getRank()).isEqualTo(2L);
         assertThat(r2.getChange()).isEqualTo(0L);
         assertThat(r2.getTrend()).isEqualTo("same");
 
         // 3위(down, -2) + 장르 3개 제한은 다른 테스트에서 별도 검증
-        RealTimeRankingAnimesDto r3 = resp.getAnimes().get(2);
+        RealTimeRankingAnimesDto r3 = response.getAnimes().get(2);
         assertThat(r3.getAnimeId()).isEqualTo(102L);
         assertThat(r3.getRank()).isEqualTo(3L);
         assertThat(r3.getChange()).isEqualTo(-2L);
