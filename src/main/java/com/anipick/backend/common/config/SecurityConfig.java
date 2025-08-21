@@ -31,7 +31,13 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers("/api/users/**", "/api/auth/**", "/api/oauth/**", "/api/animes/meta-data-group", "/intro.html", "/image/anipick_mascot.png")
+                                auth.requestMatchers("/api/users/**",
+                                                     "/api/auth/**",
+                                                     "/api/oauth/**",
+                                                     "/api/animes/meta-data-group",
+                                                     "/intro.html",
+                                                     "./upload/image/anipick_mascot.png",
+                                                     "/images/profile/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()
