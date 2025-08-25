@@ -251,6 +251,12 @@
         LIMIT #{size}
     </select>
 
+    <select id="selectSeriesGroupIdByAnimeId" resultType="long">
+        SELECT ra.series_group_id
+        FROM Relatedanime ra
+        WHERE ra.anime_id = #{animeId}
+    </select>
+
     <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS title,
@@ -259,8 +265,10 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.related_anime_id = #{animeId})
-        ORDER BY a.anime_id DESC
+                           WHERE ra.series_group_id = #{seriesGroupId}
+                           AND ra.anime_id != #{refAnimeId}
+                           )
+        ORDER BY a.anime_id
         LIMIT #{size}
     </select>
   
@@ -398,7 +406,8 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.related_anime_id = #{animeId})
+                           WHERE ra.series_group_id = #{seriesGroupId}
+                           AND ra.anime_id != #{refAnimeId})
     </select>
 
     <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
@@ -409,11 +418,13 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.related_anime_id = #{animeId})
+                           WHERE ra.series_group_id = #{seriesGroupId}
+                           AND ra.anime_id != #{refAnimeId}
+                           )
         <if test="lastId != null">
-            AND a.anime_id &lt; #{lastId}
+            AND a.anime_id > #{lastId}
         </if>
-        ORDER BY a.anime_id DESC
+        ORDER BY a.anime_id
         LIMIT #{size}
     </select>
 
