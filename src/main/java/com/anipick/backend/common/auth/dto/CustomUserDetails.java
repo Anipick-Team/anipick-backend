@@ -40,10 +40,6 @@ public class CustomUserDetails implements UserDetails {
         return user.getNickname();
     }
 
-    public String getProfileImageUrl() {
-        return user.getProfileImageUrl();
-    }
-
     public String getLoginFormat() {
         return user.getLoginFormat().toString();
     }

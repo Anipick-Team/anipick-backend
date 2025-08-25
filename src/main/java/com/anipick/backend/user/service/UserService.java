@@ -58,7 +58,6 @@ public class UserService {
                 .password(passwordEncoder.encode(requestPassword))
                 .nickname(nicknameInitializer.generateNickname(LoginFormat.LOCAL))
                 .loginFormat(LoginFormat.LOCAL)
-                .profileImageUrl(UserDefaults.DEFAULT_PROFILE_IMAGE_URL)
                 .termsAndConditions(request.getTermsAndConditions())
                 .adultYn(UserDefaults.DEFAULT_ADULT_YN)
                 .reviewCompletedYn(UserDefaults.DEFAULT_REVIEW_COMPLETED_YN)
