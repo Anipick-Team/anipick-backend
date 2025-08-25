@@ -1,42 +1,65 @@
 package com.anipick.backend.user.component;
 
-import com.anipick.backend.common.exception.CustomException;
-import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.user.domain.LoginFormat;
-import com.anipick.backend.user.domain.UserDefaults;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.lang.management.ManagementFactory;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import java.util.Base64;
+import java.util.UUID;
+
 
 @Component
 @RequiredArgsConstructor
 public class NicknameInitializer {
-    private static final int NICKNAME_THRESHOLD = 10;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+    private static final Base64.Encoder BASE64 = Base64.getUrlEncoder().withoutPadding();
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private volatile long lastMs = -1L;
+    private int sequence = 0;
+
+    private final int serverId = ManagementFactory.getRuntimeMXBean().getName().hashCode() & 0x3FF;
 
     public String generateNickname(LoginFormat loginFormat) {
-        String redisKey = UserDefaults.DEFAULT_NICKNAME_FORMAT_KEY + loginFormat;
-        Long count = redisTemplate.opsForValue().increment(redisKey);
-
-        if(count == null) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        if(count >= NICKNAME_THRESHOLD) {
-            redisTemplate.delete(redisKey);
-        }
-
-        long normalizedCount = count % NICKNAME_THRESHOLD;
-        String timeStamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
         String loginFormatFirstLetter = loginFormat.toString().substring(0, 1);
-        String nickname = loginFormatFirstLetter + timeStamp + normalizedCount;
+        TsSequence tsSequence = nextTsSequence(System.currentTimeMillis());
+        int rand32 = (int) (UUID.randomUUID().getLeastSignificantBits() & 0xFFFF_FFFFL);
 
-        return nickname;
+        ByteBuffer buf = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN);
+        buf.putShort((short) tsSequence.sequence);
+        buf.putInt(rand32);
+        buf.putLong(tsSequence.ms);
+        buf.putShort((short) serverId);
+        String tail = BASE64.encodeToString(buf.array()).substring(0, 9);
+
+        return loginFormatFirstLetter + tail;
+    }
+
+    private synchronized TsSequence nextTsSequence(long now) {
+        if(now <= lastMs) {
+            if(++sequence >= 1000) {
+                lastMs++;
+                sequence = 0;
+            }
+        } else {
+            lastMs = now;
+            sequence = 0;
+        }
+
+        return new TsSequence(lastMs, sequence);
+    }
+
+    private static final class TsSequence {
+        final long ms;
+        final int sequence;
+
+        TsSequence(long ms, int sequence) {
+            this.ms = ms;
+            this.sequence = sequence;
+        }
     }
 }
