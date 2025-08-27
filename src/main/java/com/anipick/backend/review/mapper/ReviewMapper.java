@@ -25,6 +25,8 @@ public interface ReviewMapper {
 
     List<Review> findAllByAnimeId(@Param("animeId") Long animeId);
 
+    List<Double> findAllRatingByAnimeId(@Param(value = "animeId") Long animeId);
+
     Review selectReviewByReviewId(@Param(value = "reviewId") Long reviewId);
 
     ReportReviewDto selectReportReviewByReviewId(
