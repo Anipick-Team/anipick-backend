@@ -35,7 +35,6 @@ public class CommonLogin {
                     .email(email)
                     .nickname(nickname)
                     .loginFormat(loginFormat)
-                    .profileImageUrl(UserDefaults.DEFAULT_PROFILE_IMAGE_URL)
                     .termsAndConditions(true)
                     .adultYn(UserDefaults.DEFAULT_ADULT_YN)
                     .reviewCompletedYn(UserDefaults.DEFAULT_REVIEW_COMPLETED_YN)
