@@ -100,7 +100,7 @@ public class ImageService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Thumbnails.of(file.getInputStream())
-                .size(800, 800)
+                .size(200, 200)
                 .outputQuality(0.7)
                 .toOutputStream(outputStream);
 
