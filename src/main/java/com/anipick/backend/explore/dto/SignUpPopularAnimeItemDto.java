@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 public class SignUpPopularAnimeItemDto  {
     private Long animeId;
-    private Long popularId;
+    private Long score;
     private String title;
     private String coverImageUrl;
     private List<String> genres;

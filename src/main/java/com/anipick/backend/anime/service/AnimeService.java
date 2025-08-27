@@ -137,7 +137,7 @@ public class AnimeService {
 		if (imgFilterItems.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getPopularId();
+			nextId = imgFilterItems.getLast().getScore();
 		}
 
 		List<ComingSoonItemDto> items = imgFilterItems.stream()
