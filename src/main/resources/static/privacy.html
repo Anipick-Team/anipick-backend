@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AniPick 개인정보처리방침</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+    <style>
+        :root{
+            --bg-deep:#0f1224;
+            --ink:#0f1530;
+            --ink-2:#2b3355;
+            --muted:#6b77a4;
+            --card:#ffffff;
+            --chip:#2b2f46;
+            --brand:#5CC9FF;
+            --brand-2:#2db0f5;
+            --mint:#5CC398;
+            --footer:#22202C;
+            --radius-s:12px;
+            --radius-m:18px;
+            --radius-l:28px;
+            --shadow-1:0 12px 28px rgba(10,16,40,.12);
+            --shadow-2:0 20px 60px rgba(9,14,40,.18);
+            --w:1000px;
+            --bg:#f7fbff;
+            --line:#e6ebff;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            color:var(--ink);
+            background:linear-gradient(180deg,#f6fbff 0%,#eff6ff 100%);
+            font-family:"Noto Sans KR","Pretendard",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple SD Gothic Neo,"Malgun Gothic",sans-serif;
+            -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+        }
+        a{color:inherit;text-decoration:none}
+        img{max-width:100%;display:block}
+
+        /* Header */
+        header{
+            position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(10px);
+            background:rgba(255,255,255,.78); border-bottom:1px solid var(--line);
+        }
+        .bar{max-width:var(--w); margin:0 auto; padding:14px 20px; display:flex; align-items:center; gap:12px}
+        .brand{display:flex; align-items:center; gap:10px; font-weight:900}
+        .brand .dot{width:10px;height:10px;border-radius:999px;background:var(--brand)}
+        .spacer{flex:1}
+        .back a{font-weight:800; padding:8px 12px; border-radius:999px; border:1px solid var(--line); background:#fff}
+
+        /* Page */
+        .container{max-width:var(--w); margin:28px auto; padding:0 20px 80px}
+        .hero{
+            background:#fff; border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow-1);
+            padding:28px 24px; display:grid; gap:6px
+        }
+        .hero h1{margin:0; font-family:"Pretendard","Noto Sans KR",sans-serif; font-weight:900; letter-spacing:-.02em; font-size:clamp(24px,3.6vw,34px)}
+        .meta{color:#5a68a1; font-weight:700; font-size:14px}
+        .utility{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+        .btn{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; font-weight:800}
+
+        /* Layout */
+        .grid{display:grid; gap:20px; margin-top:18px}
+        @media (min-width: 980px){ .grid{grid-template-columns: 280px 1fr} }
+
+        /* TOC */
+        .toc{position:sticky; top:72px; align-self:start}
+        .toc .card{background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-1); padding:16px}
+        .toc h2{margin:0 0 10px; font-size:16px; color:#122048}
+        .toc nav{display:grid; gap:6px}
+        .toc a{display:block; font-size:14px; color:#2b345c; padding:6px 8px; border-radius:8px}
+        .toc a:hover{background:#f0f5ff}
+
+        /* Policy content */
+        .policy{display:grid; gap:18px}
+        .section{background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-1); padding:20px}
+        .section h3{margin:0 0 12px; font-size:20px; letter-spacing:-.01em}
+        .section p{margin:8px 0; line-height:1.8; color:#33406f}
+        .section ul{margin:8px 0 8px 18px; line-height:1.9; color:#33406f}
+        .section li{margin:4px 0}
+        .note{background:#f1f9ff; border:1px dashed #b9dfff; border-radius:12px; padding:12px; color:#13406a; font-weight:700}
+
+        /* Tables */
+        .table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; border:1px solid var(--line)}
+        .table th, .table td{padding:12px 10px; text-align:left; vertical-align:top}
+        .table thead th{background:#f5f8ff; font-size:14px}
+        .table tbody tr+tr td{border-top:1px solid #eef2ff}
+
+        /* Footer Help */
+        .help{margin-top:8px; font-size:13px; color:#5a68a1}
+
+        /* Print */
+        @media print{
+            header, .toc, .utility{display:none}
+            body{background:#fff}
+            .container{padding:0}
+            .section{break-inside:avoid}
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="bar">
+        <div class="brand"><span class="dot"></span><span>AniPick</span></div>
+        <div class="spacer"></div>
+        <div class="back"><a href="javascript:history.back()" aria-label="이전 페이지로">이전으로</a></div>
+    </div>
+</header>
+
+<main class="container">
+    <section class="hero" aria-labelledby="page-title">
+        <h1 id="page-title">개인정보처리방침</h1>
+        <div class="meta" aria-label="시행일 및 버전">
+            시행일: <time datetime="2025-08-01">2025년 8월 1일</time>
+        </div>
+        <div class="utility" role="group" aria-label="도구">
+            <button class="btn" onclick="window.print()" aria-label="문서 인쇄">🖨️ 인쇄하기</button>
+            <a class="btn" href="#policy-1">처음 조항으로 이동</a>
+        </div>
+    </section>
+
+    <div class="grid">
+        <!-- TOC -->
+        <aside class="toc" aria-labelledby="toc-title">
+            <div class="card">
+                <h2 id="toc-title">목차</h2>
+                <nav>
+                    <a href="#policy-1">제 1조. 기본 방향</a>
+                    <a href="#policy-2">제 2조. 수집 및 이용목적</a>
+                    <a href="#policy-3">제 3조. 보유 및 이용기간</a>
+                    <a href="#policy-4">제 4조. 제3자 제공</a>
+                    <a href="#policy-5">제 5조. 이용자와 법정대리인의 권리</a>
+                    <a href="#policy-6">제 6조. 수집 항목 및 방법</a>
+                    <a href="#policy-7">제 7조. 파기절차 및 방법</a>
+                    <a href="#policy-8">제 8조. 쿠키 운영 및 거부</a>
+                    <a href="#policy-9">제 9조. 개인정보 보호책임자</a>
+                    <a href="#policy-10">제 10조. 침해 상담 및 신고</a>
+                    <a href="#policy-11">제 11조. 방침의 변경</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <section class="policy" aria-label="정책 본문">
+            <!-- 제1조 -->
+            <article id="policy-1" class="section" aria-labelledby="h1">
+                <h3 id="h1">제 1조 개인정보 처리방침의 기본 방향</h3>
+                <p>
+                    애니픽(이하 "회사")는 고객님의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법률을 준수하고 있습니다.
+                    회사는 개인정보처리방침을 통하여 고객님께서 제공하시는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.
+                </p>
+            </article>
+
+            <!-- 제2조 -->
+            <article id="policy-2" class="section" aria-labelledby="h2">
+                <h3 id="h2">제 2조 개인정보의 수집 및 이용목적</h3>
+                <p>회사는 수집한 개인정보를 다음의 목적을 위하여 처리하며, 다음 목적 이외의 용도로는 이용하지 않습니다.</p>
+                <ul>
+                    <li><strong>서비스 제공에 관한 계약 이행</strong> — 콘텐츠 제공</li>
+                    <li><strong>회원 관리</strong> — 본인 식별·인증, 회원자격 유지·관리, 개인 식별, 불량회원의 부정 이용 방지 및 비인가 사용 방지, 가입 의사 확인, 연령확인, 만14세 미만 아동 법정대리인 동의 여부 확인, 민원처리, 광고성 정보 미포함 이용 설문 및 고지사항 전달</li>
+                    <li><strong>마케팅 및 광고 활용</strong> — 동의자에 한한 이벤트·광고성 정보 전달, 접속 빈도 파악 또는 서비스 이용 통계</li>
+                </ul>
+            </article>
+
+            <!-- 제3조 -->
+            <article id="policy-3" class="section" aria-labelledby="h3">
+                <h3 id="h3">제 3조 개인정보의 보유 및 이용기간</h3>
+                <p>
+                    회원의 개인정보는 수집·이용 목적이 달성되면 지체 없이 파기됩니다. 회원이 회원탈퇴를 하거나 개인정보 허위기재로 인해 회원 ID 삭제 처분을 받은 경우, 수집된 개인정보는 완전히 삭제되어 어떠한 용도로도 이용할 수 없도록 처리합니다.
+                </p>
+                <p>또한 명의 도용 등 분쟁 발생 시 본인확인을 위해 제출받은 신분증 사본은 본인 확인 후 즉시 파기합니다.</p>
+                <h4>1) 회사 내부방침에 의한 보유 사유</h4>
+                <p>탈퇴 회원의 재가입 악용 방지, 분쟁 해결 및 수사기관 요청 협조를 위하여 해지일로부터 <strong>1년간</strong> 보유할 수 있습니다.</p>
+                <h4>2) 관련 법령에 의한 보유 사유</h4>
+                <table class="table" aria-label="관련 법령에 따른 보유 항목 및 기간">
+                    <thead>
+                    <tr>
+                        <th scope="col">보존 항목</th>
+                        <th scope="col">보존 이유</th>
+                        <th scope="col">보존 기간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>계약 또는 청약철회 등에 관한 기록</td>
+                        <td>전자상거래 등에서의 소비자보호에 관한 법률</td>
+                        <td>5년</td>
+                    </tr>
+                    <tr>
+                        <td>소비자 불만 또는 분쟁처리에 관한 기록</td>
+                        <td>전자상거래 등에서의 소비자보호에 관한 법률</td>
+                        <td>3년</td>
+                    </tr>
+                    <tr>
+                        <td>웹사이트 방문 기록</td>
+                        <td>통신비밀보호법</td>
+                        <td>3개월</td>
+                    </tr>
+                    <tr>
+                        <td>신용정보의 수집·처리·이용 기록</td>
+                        <td>신용정보의 이용 및 보호에 관한 법률</td>
+                        <td>3년</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <!-- 제4조 -->
+            <article id="policy-4" class="section" aria-labelledby="h4">
+                <h3 id="h4">제 4조 개인정보의 제3자 제공에 관한 사항</h3>
+                <ol>
+                    <li>
+                        회사는 본 방침에서 명시된 범위를 초과하여 개인정보를 이용하거나, 명시된 제공 대상자 외 제3자에게 제공하지 않습니다. 다만 다음의 경우는 예외로 합니다.
+                        <ul>
+                            <li>관계 법령에 의하여 수사, 재판 또는 행정상의 목적으로 관계기관으로부터 요구가 있는 경우</li>
+                            <li>금융실명거래 및 비밀보장에 관한 법률, 신용정보법, 전기통신기본법, 전기통신사업법, 지방세법, 소비자보호법, 한국은행법, 형사소송법 등 관계 법령에서 정한 절차에 따른 요청이 있는 경우</li>
+                        </ul>
+                    </li>
+                    <li>영업의 전부 또는 일부 양도, 합병/상속 등으로 권리·의무가 이전되는 경우, 개인정보보호 관련 권리 보장을 위하여 그 사실을 회원에게 통지합니다.</li>
+                    <li>
+                        보다 나은 서비스 제공을 위하여 제3자 제공이 필요한 경우, 제휴사, 제공 항목, 이용 목적, 보유·이용 기간, 보호·관리 방안을 사전 고지하고 동의를 받습니다. 동의하지 않은 정보는 제공하거나 공유하지 않습니다.
+                    </li>
+                </ol>
+            </article>
+
+            <!-- 제5조 -->
+            <article id="policy-5" class="section" aria-labelledby="h5">
+                <h3 id="h5">제 5조 이용자 및 법정대리인의 권리와 그 행사방법</h3>
+                <ol>
+                    <li>회원 및 법정대리인은 언제든지 본인 또는 만 14세 미만 아동의 개인정보 조회·수정, 동의 철회(가입 해지)를 요청할 수 있습니다. 단, 서비스 이용에 제한이 있을 수 있습니다.</li>
+                    <li>개인정보 조회·수정은 ‘마이페이지 → 설정’, 가입해지는 ‘마이페이지 → 설정 → 회원탈퇴’에서 본인 확인 후 진행 가능합니다.</li>
+                    <li>또는 개인정보보호책임자에게 서면, 전화 또는 이메일로 요청하실 수 있습니다.</li>
+                    <li>개인정보 오류 정정 요청 시 정정 완료 전까지 해당 개인정보를 이용·제공하지 않습니다. 이미 제3자에게 제공된 경우 정정 결과를 지체 없이 통지합니다.</li>
+                    <li>해지 또는 삭제된 개인정보는 본 방침의 보유·이용 기간에 따라 처리되며, 그 외 용도로 열람 또는 이용할 수 없도록 처리합니다.</li>
+                </ol>
+            </article>
+
+            <!-- 제6조 -->
+            <article id="policy-6" class="section" aria-labelledby="h6">
+                <h3 id="h6">제 6조 수집하는 개인정보 항목 및 수집방법</h3>
+                <h4>1) 수집하는 개인정보의 항목</h4>
+                <p>회원가입, 상담, 서비스 제공 등을 위해 아래 정보를 수집합니다.</p>
+                <table class="table" aria-label="수집 항목 표">
+                    <thead>
+                    <tr>
+                        <th scope="col">수집 목적</th>
+                        <th scope="col">필수 여부</th>
+                        <th scope="col">수집 항목</th>
+                        <th scope="col">보유 기간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td rowspan="4">개인 식별 및 회원 관리, 서비스 이용 안내 연락</td>
+                        <td>필수</td>
+                        <td>이메일 가입 — 이메일, 비밀번호</td>
+                        <td rowspan="4">회원 탈퇴 즉시 파기</td>
+                    </tr>
+                    <tr>
+                        <td>필수</td>
+                        <td>카카오 간편 가입 — 이메일</td>
+                    </tr>
+                    <tr>
+                        <td>필수</td>
+                        <td>구글 간편 가입 — 이메일</td>
+                    </tr>
+                    <tr>
+                        <td>필수</td>
+                        <td>애플 간편 가입 — 이메일</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h4>2) 서비스 이용 과정에서 수집될 수 있는 정보</h4>
+                <ul>
+                    <li><strong>PC</strong>: PC MacAddress, PC 사양 정보, 브라우저 정보, 기타 서비스 이용 프로그램 버전 정보</li>
+                    <li><strong>모바일/스마트 기기</strong>: 모델명, 기기별 고유번호(UDID, IMEI 등), OS 정보, 이동통신사, 구글/애플 광고 ID</li>
+                    <li><strong>기타</strong>: 서비스 이용(정지) 기록, 접속 로그, 쿠키, 접속 IP 정보</li>
+                    <li><strong>보유 기간</strong>: 회원 탈퇴 즉시 파기</li>
+                </ul>
+
+                <h4>3) 수집 방법</h4>
+                <ul>
+                    <li>회원가입 및 서비스 이용 과정에서 동의 후 직접 입력</li>
+                    <li>온라인/오프라인 이벤트 진행 시</li>
+                    <li>제휴사로부터의 제공</li>
+                    <li>고객센터 상담(웹페이지, 메일, 팩스, 전화 등)</li>
+                    <li>PC 웹, 모바일 웹/앱 이용 과정에서 자동 생성·수집(기기정보 등)</li>
+                </ul>
+
+                <div class="note" role="note">회사는 인종·민족, 사상·신조, 출신지·본적지, 정치 성향·범죄기록, 건강·성생활 등 기본권 침해 우려가 있는 정보는 요구하지 않으며, 위 항목 외 목적에도 사용하지 않습니다.</div>
+            </article>
+
+            <!-- 제7조 -->
+            <article id="policy-7" class="section" aria-labelledby="h7">
+                <h3 id="h7">제 7조 개인정보의 파기절차 및 방법</h3>
+                <p>회사는 개인정보 수집·이용 목적 달성 후 해당 정보를 지체 없이 파기합니다. 파기 절차·기한·방법은 아래와 같습니다.</p>
+                <ul>
+                    <li><strong>파기절차</strong>: 수집 목적 달성 후 별도 DB(또는 서류함)로 이동하여 내부 방침 및 법령에 따른 보관 후 파기. 별도 DB의 개인정보는 법률에 의한 경우를 제외하고 다른 목적으로 이용하지 않음.</li>
+                    <li><strong>파기방법</strong>: 전자적 파일은 복구 불가능한 기술적 방법으로 삭제.</li>
+                    <li><strong>파기기한</strong>: 보유기간 경과 시 종료일로부터 <strong>5일 이내</strong>, 처리 목적 달성·서비스 폐지·사업 종료 등 불필요해진 경우 불필요한 것으로 인정된 날로부터 <strong>5일 이내</strong> 파기.</li>
+                </ul>
+            </article>
+
+            <!-- 제8조 -->
+            <article id="policy-8" class="section" aria-labelledby="h8">
+                <h3 id="h8">제 8조 개인정보 자동수집 장치(쿠키)의 설치·운영 및 거부</h3>
+                <p>회사는 회원의 정보를 수시로 저장·찾아내는 쿠키(cookie)를 운용합니다. 쿠키는 웹사이트 운영 서버가 브라우저로 전송하는 작은 텍스트 파일입니다.</p>
+                <h4>1) 쿠키 사용 목적</h4>
+                <ul>
+                    <li>접속 빈도·방문 시간 분석, 이용자 취향·관심분야 파악 및 자취 추적</li>
+                    <li>이벤트 참여 정도 및 방문 회수 파악을 통한 타겟 마케팅 및 맞춤형 서비스 제공</li>
+                    <li>회원은 브라우저 설정을 통해 모든 쿠키 허용/매회 확인/전체 거부를 선택할 수 있습니다.</li>
+                </ul>
+                <h4>2) 쿠키 설정 거부 방법</h4>
+                <p class="help">브라우저별 경로는 버전에 따라 다를 수 있습니다.</p>
+                <ul>
+                    <li>Internet Explorer: 도구 &gt; 인터넷 옵션 &gt; 개인정보</li>
+                    <li>Microsoft Edge: 설정 &gt; 고급 설정 보기 &gt; 쿠키</li>
+                    <li>Chrome(데스크톱): 설정 &gt; 고급 &gt; 콘텐츠 설정 &gt; 쿠키</li>
+                    <li>Chrome(모바일): 더보기 &gt; 방문 기록 &gt; 인터넷 사용 기록 삭제</li>
+                    <li>Safari(모바일): 설정 &gt; Safari &gt; 방문기록 및 웹사이트 데이터 지우기</li>
+                    <li>Naver(모바일): 설정 &gt; 캐시 삭제 + 인터넷 사용 기록 &gt; 쿠키 삭제</li>
+                </ul>
+                <p><em>쿠키를 차단할 경우 일부 서비스 제공이 제한될 수 있습니다.</em></p>
+            </article>
+
+            <!-- 제9조 -->
+            <article id="policy-9" class="section" aria-labelledby="h9">
+                <h3 id="h9">제 9조 개인정보 보호책임자</h3>
+                <p>회사는 회원의 개인정보를 안전하게 보호하기 위해 최선을 다하고 있습니다. 개인정보 관련 민원은 고객센터로 신고하시면 신속히 답변드리겠습니다.</p>
+                <ul>
+                    <li><strong>개인정보 보호책임자</strong>: 신우찬</li>
+                    <li><strong>이메일</strong>: <a href="mailto:teamanipick@gmail.com">teamanipick@gmail.com</a></li>
+                </ul>
+                <p class="help">※ 위 연락처는 개인정보 보호 담당부서로 연결됩니다.</p>
+            </article>
+
+            <!-- 제10조 -->
+            <article id="policy-10" class="section" aria-labelledby="h10">
+                <h3 id="h10">제 10조 개인정보 침해 관련 상담 및 신고</h3>
+                <p>개인정보 침해 신고·상담이 필요하신 경우 다음 기관에 문의하실 수 있습니다.</p>
+                <ul>
+                    <li>개인정보 침해신고센터: (국번없이)118 — <a href="http://privacy.kisa.or.kr" target="_blank" rel="noopener">privacy.kisa.or.kr</a></li>
+                    <li>개인정보 분쟁조정위원회: 1833-6972 — <a href="http://www.kopico.go.kr" target="_blank" rel="noopener">www.kopico.go.kr</a></li>
+                    <li>대검찰청 사이버수사과: (국번없이)1301 — <a href="mailto:cid@spo.go.kr">cid@spo.go.kr</a> — <a href="http://www.spo.go.kr" target="_blank" rel="noopener">www.spo.go.kr</a></li>
+                    <li>경찰청 사이버범죄 신고시스템: (국번없이)182 — <a href="https://ecrm.cyber.go.kr" target="_blank" rel="noopener">ecrm.cyber.go.kr</a></li>
+                </ul>
+                <p>본 방침에서 규정되지 않은 사항은 관계 법령의 범위 내에서 <strong>회사 이용약관</strong>을 우선 적용합니다.</p>
+            </article>
+
+            <!-- 제11조 -->
+            <article id="policy-11" class="section" aria-labelledby="h11">
+                <h3 id="h11">제 11조 개인정보 처리방침의 변경</h3>
+                <p>
+                    회사는 법률, 규제 또는 운영상의 요구 사항에 따라 본 개인정보처리방침을 수시로 수정할 수 있습니다. 법률에 따라 변경 내용과 효력 발생일을 고지하며, 효력 발생 이후 서비스를 계속 이용하는 경우 변경 사항에 동의한 것으로 간주됩니다. 변경 사항에 동의하지 않는 경우 서비스 이용을 취소할 수 있습니다.
+                </p>
+                <p><strong>시행일</strong>: <time datetime="2025-08-01">2025년 8월 1일</time></p>
+            </article>
+        </section>
+    </div>
+</main>
+</body>
+</html>

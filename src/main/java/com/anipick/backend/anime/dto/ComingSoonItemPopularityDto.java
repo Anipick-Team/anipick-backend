@@ -17,7 +17,7 @@ public class ComingSoonItemPopularityDto {
     private String coverImageUrl;
     private String startDate;
     private String format;
-    private Long popularId;
+    private Long score;
     private Boolean isAdult;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy. MM. dd");

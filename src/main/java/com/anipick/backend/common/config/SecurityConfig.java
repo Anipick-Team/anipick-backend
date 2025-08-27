@@ -38,6 +38,7 @@ public class SecurityConfig {
                                                      "/intro.html",
                                                      "./upload/image/anipick_mascot.png",
                                                      "/images/profile/**")
+                                auth.requestMatchers("/api/users/**", "/api/auth/**", "/api/oauth/**", "/api/animes/meta-data-group", "/intro.html", "/image/anipick_mascot.png", "/privacy.html", "/terms.html")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()

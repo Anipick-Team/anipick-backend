@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +43,10 @@ public class UserSignUpAnimeService {
             genresName = null;
         }
 
+        String nowString = LocalDate.now().toString();
+
         SignUpAnimeExploreSearchRequestDto requestDto =
-                makeExploreSearchRequestDto(query, year, season, genres, lastId, size);
+                makeExploreSearchRequestDto(query, year, season, genres, lastId, size, nowString);
 
         long totalCount = userSignUpAnimeMapper.countExploredAndSearch(requestDto);
 
@@ -97,7 +101,7 @@ public class UserSignUpAnimeService {
         if (items.isEmpty()) {
             nextId = null;
         } else {
-            nextId = items.getLast().getPopularId();
+            nextId = items.getLast().getScore();
         }
 
         CursorDto cursor = CursorDto.of(nextId);
@@ -125,7 +129,7 @@ public class UserSignUpAnimeService {
     }
 
     private static SignUpAnimeExploreSearchRequestDto makeExploreSearchRequestDto(
-            String query, Integer year, Integer season, Long genres, Long lastId, Integer size
+            String query, Integer year, Integer season, Long genres, Long lastId, Integer size, String nowString
     ) {
         if (year != null && season != null) {
             RangeDate dateRange = SeasonConverter.getRangDate(year, season);
@@ -134,7 +138,8 @@ public class UserSignUpAnimeService {
                     query,
                     genres,
                     lastId,
-                    size
+                    size,
+                    nowString
             );
         } else if (year != null) {
             RangeDate dateRange = SeasonConverter.getYearRangDate(year);
@@ -143,14 +148,16 @@ public class UserSignUpAnimeService {
                     query,
                     genres,
                     lastId,
-                    size
+                    size,
+                    nowString
             );
         }
         return SignUpAnimeExploreSearchRequestDto.dateNullOf(
                 query,
                 genres,
                 lastId,
-                size
+                size,
+                nowString
         );
     };
 }

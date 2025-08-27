@@ -13,7 +13,6 @@ public class User {
     private String email;
     private String password;
     private String nickname;
-    private String profileImageUrl;
     private LoginFormat loginFormat;
     private Boolean termsAndConditions;
     private Boolean adultYn;

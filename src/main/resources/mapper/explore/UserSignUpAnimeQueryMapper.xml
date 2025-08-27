@@ -26,6 +26,7 @@
             JOIN anime a
                 ON pa.anime_id = a.anime_id
         <where>
+            pa.created_at = #{nowString}
             <!-- 검색 -->
             <if test="query != null and query.trim() != ''">
                 AND a.title_search LIKE CONCAT('%', #{query}, '%')
@@ -52,7 +53,7 @@
      <select id="selectAnimeExploredAndSearch"
           parameterType="com.anipick.backend.explore.dto.SignUpAnimeExploreSearchRequestDto"
           resultType="com.anipick.backend.explore.dto.SignUpPopularAnimeItemDto">
-         SELECT pa.popularity_anime_order_id AS popularId,
+         SELECT pa.score AS score,
                 a.anime_id AS animeId,
                 a.title_kor AS title,
                 a.cover_image_url AS coverImageUrl
@@ -60,6 +61,7 @@
             JOIN anime a
                 ON pa.anime_id = a.anime_id
          <where>
+             pa.created_at = #{nowString}
              <!-- 검색 -->
              <if test="query != null and query.trim() != ''">
                  AND a.title_search LIKE CONCAT('%', #{query}, '%')
@@ -82,11 +84,11 @@
 
              <!-- 커서 -->
              <if test="lastId != null">
-                 AND pa.popularity_anime_order_id > #{lastId}
+                 AND pa.score &lt; #{lastId}
              </if>
          </where>
 
-         ORDER BY pa.popularity_anime_order_id ASC
+         ORDER BY pa.score DESC
          LIMIT #{size}
   </select>
 
