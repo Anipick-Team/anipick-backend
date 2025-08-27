@@ -55,6 +55,7 @@ public class ReviewService {
 
                     return RecentReviewItemDto.builder()
                             .reviewId(dto.getReviewId())
+                            .userId(dto.getUserId())
                             .animeId(dto.getAnimeId())
                             .animeTitle(dto.getAnimeTitle())
                             .animeCoverImageUrl(dto.getAnimeCoverImageUrl())
@@ -146,7 +147,9 @@ public class ReviewService {
     }
 
     @Transactional
-    public void reportReview(Long userId, Long reviewId) {
+    public void reportReview(Long userId, Long reviewId, ReviewReportMessageRequest reportMessageRequest) {
+        reportMessageRequest.validate();
+
         Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
         ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
 
@@ -163,8 +166,10 @@ public class ReviewService {
             throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
         }
 
+        String requestMessage = reportMessageRequest.getMessage();
+
         try {
-            reviewMapper.createReviewReport(userId, reviewId);
+            reviewMapper.createReviewReport(userId, reviewId, requestMessage);
         } catch (DuplicateKeyException e) {
             throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
         } catch (Exception e) {

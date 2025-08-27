@@ -10,5 +10,5 @@ public class ExploreItemDto {
 	private String  title;
 	private String  coverImageUrl;
 	private Double averageScore;
-	private Long popularId;
+	private Long score;
 }

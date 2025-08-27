@@ -33,8 +33,10 @@
                           AND v.voiceactor_id = #{personId}
                  JOIN `character` c
                       ON c.character_id = vc.character_id
+                 JOIN CharacterAnime ca
+                      ON ca.character_id = c.character_id
                  JOIN anime a
-                      ON a.anime_id = c.anime_id
+                      ON a.anime_id = ca.anime_id
         <if test="lastId != null">
             WHERE a.anime_id &lt; #{lastId}
         </if>

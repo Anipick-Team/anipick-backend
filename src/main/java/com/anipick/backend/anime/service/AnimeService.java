@@ -137,7 +137,7 @@ public class AnimeService {
 		if (imgFilterItems.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getPopularId();
+			nextId = imgFilterItems.getLast().getScore();
 		}
 
 		List<ComingSoonItemDto> items = imgFilterItems.stream()
@@ -211,6 +211,7 @@ public class AnimeService {
 
 					return AnimeDetailInfoReviewsResultDto.of(
 							dto.getReviewId(),
+							dto.getUserId(),
 							dto.getNickname(),
 							dto.getProfileImageUrl(),
 							dto.getRating(),
@@ -374,7 +375,9 @@ public class AnimeService {
 	}
   
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
-		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
+		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
+
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE);
 
 		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
 				.map(dto -> {
@@ -442,9 +445,11 @@ public class AnimeService {
 	}
 
 	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
-		long totalCount = mapper.countSeriesAnime(animeId);
+		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size);
+		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
+
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size);
 		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
 				.map(dto -> {
 					LocalDate date = dto.getStartDate();

@@ -1,28 +1,48 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.Image;
+import com.anipick.backend.image.service.ImageService;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
 import com.anipick.backend.mypage.dto.*;
+import com.anipick.backend.image.mapper.ImageMapper;
 import com.anipick.backend.mypage.mapper.MyPageMapper;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.format.DateTimeFormatter;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MyPageService {
+    private final ImageService imageService;
+
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final ImageMapper imageMapper;
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -37,6 +57,35 @@ public class MyPageService {
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
 
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
+    }
+
+    @Transactional
+    public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
+        String originalFilename = profileImageFile.getOriginalFilename();
+        String uploadImageUrl;
+        Image image;
+
+        try {
+            File outputFile = imageService.compressAndSaveImageToServer(user, profileImageFile);
+            uploadImageUrl = outputFile.getPath();
+
+            userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
+
+            image = imageService.insertImage(user, originalFilename, outputFile);
+
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return ImageIdResponse.from(image.getImageId());
+    }
+
+    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
+        if(user == null) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return imageService.getImageResourceOnServer(imageId);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {

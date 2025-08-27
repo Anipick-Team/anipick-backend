@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SortOption {
 	LATEST("latest", "a.anime_id DESC"),
-	POPULARITY("popularity", "pao.popularity_anime_order_id ASC"),
+	POPULARITY("popularity", "pao.score DESC"),
 	START_DATE("startDate", "a.start_date ASC"),
 	RATING_DESC("ratingDesc", "r.rating DESC"),
 	RATING_ASC("ratingAsc", "r.rating ASC"),

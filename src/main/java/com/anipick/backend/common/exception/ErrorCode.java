@@ -36,7 +36,7 @@ public enum ErrorCode {
 	EMAIL_PREPARE_ERROR(125, "메시지 준비 오류", "메시지 준비 중 오류가 발생하였습니다."),
 	EMAIL_SEND_FAILED(126, "메일 전송 실패", "메일 전송이 실패하였습니다."),
 	EMAIL_GENERIC_ERROR(127, "일반적인 메일 오류", "일반적인 메일 오류가 발생하였습니다."),
-  ALREADY_USER_ANIME_OF_STATUS(128, "유저 시청상태 데이터가 이미 존재", null),
+  	ALREADY_USER_ANIME_OF_STATUS(128, "유저 시청상태 데이터가 이미 존재", null),
 	USER_ANIME_OF_STATUS_DATA_NOT_FOUND(129, "유저 시청상태 데이터 찾을 수 없음", null),
 	ALREADY_BLOCKED_USER(130, "이미 차단한 유저", null),
 	SELF_BLOCKED_USER_ERROR(131, "본인 자신은 차단 불가", null),
@@ -48,6 +48,7 @@ public enum ErrorCode {
 	REVIEW_ALREADY_EXISTS(303, "이미 평가가 존재", null),
 	ALREADY_REPORT_REVIEW(304, "이미 신고한 리뷰", null),
 	SELF_REVIEW_REPORT_ERROR(305, "본인 리뷰는 신고 불가", null),
+	REPORT_MESSAGE_EMPTY(306, "신고 메시지 필수", null),
 	/**
 	 * Validation & Request Errors
 	 */
@@ -69,7 +70,12 @@ public enum ErrorCode {
 	 * LIKE
 	 */
 	LIKE_DATA_NOT_FOUND(801, "좋아요 데이터 찾을 수 없음", null),
-	ALREADY_LIKE_DATA(802, "좋아요 데이터가 이미 존재", null);
+	ALREADY_LIKE_DATA(802, "좋아요 데이터가 이미 존재", null),
+	/**
+	 * Image
+	 */
+	INVAILD_IMAGE_EXTENSION(901, "유효한 이미지 확장자가 아님", null),
+	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null);
 
 	private final int code;
 	private final String errorReason;
