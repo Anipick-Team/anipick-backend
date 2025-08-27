@@ -31,14 +31,16 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers("/api/users/**",
-                                                     "/api/auth/**",
-                                                     "/api/oauth/**",
-                                                     "/api/animes/meta-data-group",
-                                                     "/intro.html",
-                                                     "./upload/image/anipick_mascot.png",
-                                                     "/images/profile/**")
-                                auth.requestMatchers("/api/users/**", "/api/auth/**", "/api/oauth/**", "/api/animes/meta-data-group", "/intro.html", "/image/anipick_mascot.png", "/privacy.html", "/terms.html")
+                                auth.requestMatchers(
+                                                "/api/users/**",
+                                                "/api/auth/**",
+                                                "/api/oauth/**",
+                                                "/api/animes/meta-data-group",
+                                                "/intro.html",
+                                                "./upload/image/anipick_mascot.png",
+                                                "/privacy.html",
+                                                "/terms.html",
+                                                "/images/profile/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()
