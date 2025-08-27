@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Stack;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class RecommendService {
                 Long latestHigh = reviewUserMapper.findMostRecentHighRateAnime(userId);
                 // 리뷰가 없을 경우
                 if (latestHigh == null) {
-                    return UserMainRecommendationPageDto.of(CursorDto.of(null), List.of());
+                    return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
                 }
                 if (!latestHigh.equals(userState.getReferenceAnimeId())) {
                     userRecommendStateMapper.updateReferenceAnime(userId, latestHigh);
@@ -58,10 +60,17 @@ public class RecommendService {
 
         List<AnimeItemDto> resultAnimes;
         List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
+        String referenceAnimeTitle;
 
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
+            Anime anime = animeMapper.selectAnimeByAnimeId(referenceAnimeId);
+            referenceAnimeTitle = anime.getTitleKor();
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
+
+            if (tagIds.isEmpty()) {
+                return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+            }
 
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, lastValue, lastId, size);
@@ -77,8 +86,15 @@ public class RecommendService {
                     ))
                     .toList();
         } else {
+            referenceAnimeTitle = null;
+
             List<Long> topRatedAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
 
+            // 리뷰 데이터가 없는 경우
+            if (topRatedAnimeIds.isEmpty()) {
+                return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+            }
+            
             List<Long> filteredIds = topRatedAnimeIds.stream()
                     .filter(topRatedAnimeIds::contains)
                     .toList();
@@ -116,7 +132,7 @@ public class RecommendService {
             cursor = CursorDto.of(null, nextId, nextValue.toString());
         }
 
-        return UserMainRecommendationPageDto.of(cursor, resultAnimes);
+        return UserMainRecommendationPageDto.of(referenceAnimeTitle, cursor, resultAnimes);
     }
 
     public UserLastDetailAnimeRecommendationPageDto getLastDetailAnimeRecommendations(

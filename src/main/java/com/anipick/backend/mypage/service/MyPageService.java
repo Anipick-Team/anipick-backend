@@ -1,28 +1,48 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.Image;
+import com.anipick.backend.image.service.ImageService;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
 import com.anipick.backend.mypage.dto.*;
+import com.anipick.backend.image.mapper.ImageMapper;
 import com.anipick.backend.mypage.mapper.MyPageMapper;
 import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.format.DateTimeFormatter;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MyPageService {
+    private final ImageService imageService;
+
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final ImageMapper imageMapper;
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -39,11 +59,46 @@ public class MyPageService {
         return MyPageResponse.from(user.getNickname(), user.getProfileImageUrl(), watchCountDto, likedAnimesDto, likedPersonsDto);
     }
 
+    @Transactional
+    public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
+        String originalFilename = profileImageFile.getOriginalFilename();
+        String uploadImageUrl;
+        Image image;
+
+        try {
+            File outputFile = imageService.compressAndSaveImageToServer(user, profileImageFile);
+            uploadImageUrl = outputFile.getPath();
+
+            userMapper.updateUserProfileImage(user.getUserId(), uploadImageUrl);
+
+            image = imageService.insertImage(user, originalFilename, outputFile);
+
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return ImageIdResponse.from(image.getImageId());
+    }
+
+    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
+        if(user == null) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return imageService.getImageResourceOnServer(imageId);
+    }
+
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = watchListAnimes.getLast().getUserAnimeStatusId();
+        if(watchListAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = watchListAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchListAnimesResponse.from(count, cursorDto, watchListAnimes);
@@ -52,8 +107,14 @@ public class MyPageService {
     public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = watchingAnimes.getLast().getUserAnimeStatusId();
+        if (watchingAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = watchingAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
@@ -62,8 +123,14 @@ public class MyPageService {
     public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
         List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size);
+        Long newLastId;
 
-        Long newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+        if(finishedAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
@@ -84,9 +151,15 @@ public class MyPageService {
             animesReviews = myPageMapper.getMyAnimesReviewsAll(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
         }
 
-        newLastId = animesReviews.getLast().getReviewId();
-        newLastLikeCount = animesReviews.getLast().getLikeCount();
-        newLastRating = animesReviews.getLast().getRating();
+        if(animesReviews.isEmpty()) {
+            newLastId = null;
+            newLastLikeCount = 0L;
+            newLastRating = 0.0;
+        } else {
+            newLastId = animesReviews.getLast().getReviewId();
+            newLastLikeCount = animesReviews.getLast().getLikeCount();
+            newLastRating = animesReviews.getLast().getRating();
+        }
 
         CursorDto cursorDto = getCursorBySortOption(newLastId, newLastLikeCount, newLastRating, sort, sortOption);
 
@@ -96,8 +169,14 @@ public class MyPageService {
     public LikedAnimesResponse getMyAnimesLiked(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyAnimesLikeCount(userId);
         List<LikedAnimesDto> likedAnimes = myPageMapper.getMyLikedAnimes(userId, lastId, size);
+        Long newLastId;
 
-        Long newLastId = likedAnimes.getLast().getAnimeLikeId();
+        if(likedAnimes.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = likedAnimes.getLast().getAnimeLikeId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return LikedAnimesResponse.from(count, cursorDto, likedAnimes);
@@ -106,8 +185,14 @@ public class MyPageService {
     public LikedPersonsResponse getMyPersonsLiked(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyPersonsLikeCount(userId);
         List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size);
+        Long newLastId;
 
-        Long newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        if(likedPersons.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = likedPersons.getLast().getUserLikedVoiceActorId();
+        }
+
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return LikedPersonsResponse.from(count, cursorDto, likedPersons);

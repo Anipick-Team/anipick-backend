@@ -193,12 +193,12 @@ public class AnimeService {
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
   
-	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Boolean isSpoiler, Long lastId, String lastValue, int size) {
+	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Long lastId, String lastValue, int size) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
 
 		AnimeDetailInfoReviewsRequestDto reviewsRequestDto =
-				AnimeDetailInfoReviewsRequestDto.of(animeId, userId, sort, orderByQuery, isSpoiler, lastId, lastValue, size);
+				AnimeDetailInfoReviewsRequestDto.of(animeId, userId, sort, orderByQuery, lastId, lastValue, size);
 
 		long totalCount = mapper.selectAnimeReviewCount(animeId);
 
@@ -211,6 +211,7 @@ public class AnimeService {
 
 					return AnimeDetailInfoReviewsResultDto.of(
 							dto.getReviewId(),
+							dto.getUserId(),
 							dto.getNickname(),
 							dto.getProfileImageUrl(),
 							dto.getRating(),
@@ -374,7 +375,9 @@ public class AnimeService {
 	}
   
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
-		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE);
+		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
+
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE);
 
 		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
 				.map(dto -> {
@@ -442,9 +445,11 @@ public class AnimeService {
 	}
 
 	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
-		long totalCount = mapper.countSeriesAnime(animeId);
+		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size);
+		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
+
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size);
 		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
 				.map(dto -> {
 					LocalDate date = dto.getStartDate();
@@ -472,5 +477,17 @@ public class AnimeService {
 		CursorDto cursor = CursorDto.of(nextId);
 
 		return AnimeSeriesPageDto.of(totalCount, cursor, airDateConvertItems);
+	}
+
+	public AnimeMyReviewResultDto getAnimeMyReview(Long animeId, Long userId) {
+		AnimeMyReviewResultDto result = mapper.selectAnimeMyReview(animeId, userId);
+		if (result == null) {
+			return AnimeMyReviewResultDto.empty();
+		}
+		String reviewCreatedAt = result.getCreatedAt();
+		LocalDateTime dateTime = LocalDateTime.parse(reviewCreatedAt, parser);
+
+		String formattedDate = dateTime.format(formatter);
+		return AnimeMyReviewResultDto.createdAtFormatted(result, formattedDate);
 	}
 }

@@ -47,7 +47,6 @@ public class AnimeController {
 	public ApiResponse<AnimeDetailInfoReviewsPageDto> getAnimeInfoReviews(
 			@PathVariable(value = "animeId") Long animeId,
 			@RequestParam(value = "sort", defaultValue = "latest") String sort,
-			@RequestParam(value = "isSpoiler", defaultValue = "false") Boolean isSpoiler,
 			@RequestParam(value = "lastId", required = false) Long lastId,
 			@RequestParam(value = "lastValue", required = false) String lastValue,
 			@RequestParam(value = "size", defaultValue = "20") int size,
@@ -55,7 +54,7 @@ public class AnimeController {
 	) {
 		Long userId = user.getUserId();
 		AnimeDetailInfoReviewsPageDto result = animeService.getAnimeInfoReviews(
-				animeId, userId, sort, isSpoiler, lastId, lastValue, size
+				animeId, userId, sort, lastId, lastValue, size
 		);
 		return ApiResponse.success(result);
 	}
@@ -128,6 +127,16 @@ public class AnimeController {
 			@RequestParam(value = "size", defaultValue = "18") int size
 	) {
 		AnimeSeriesPageDto result = animeService.getSeriesByAnime(animeId, lastId, size);
+		return ApiResponse.success(result);
+	}
+
+	@GetMapping("/{animeId}/my-review")
+	public ApiResponse<AnimeMyReviewResultDto> getAnimeMyReview(
+		@PathVariable(value = "animeId") Long animeId,
+		@AuthenticationPrincipal CustomUserDetails user
+	) {
+		Long userId = user.getUserId();
+		AnimeMyReviewResultDto result = animeService.getAnimeMyReview(animeId, userId);
 		return ApiResponse.success(result);
 	}
 }

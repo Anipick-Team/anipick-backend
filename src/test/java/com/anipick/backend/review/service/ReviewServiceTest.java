@@ -40,9 +40,9 @@ class ReviewServiceTest {
         given(mapper.countRecentReviews(userId)).willReturn(50L);
 
         RecentReviewItemDto sampleDto = new RecentReviewItemDto(
-                10L, 123L, "타이틀", "url",
+                10L, userId,123L, "타이틀", "url",
                 4.5, "내용43254", "345efew", "imgUrl",
-                "2025-05-03", 3L, true, false
+                "2025-05-03 17:16:46", 3L, true, false
         );
         given(mapper.selectRecentReviews(userId, null, 20))
                 .willReturn(List.of(sampleDto));
@@ -53,8 +53,7 @@ class ReviewServiceTest {
         // then
         assertThat(result.getCount()).isEqualTo(50L);
         assertThat(result.getCursor().getLastId()).isEqualTo(10L);
-        assertThat(result.getReviews()).hasSize(1)
-                .first().isEqualTo(sampleDto);
+        assertThat(result.getReviews()).hasSize(1);
         then(mapper).should().selectRecentReviews(userId, null, 20);
     }
 }

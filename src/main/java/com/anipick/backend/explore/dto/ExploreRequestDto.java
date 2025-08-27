@@ -24,7 +24,7 @@ public class ExploreRequestDto {
     private String sort;
     private String orderByQuery;
     private Long lastId;
-    private Integer lastValue;
+    private Double lastValue;
     private int size;
 
     public static ExploreRequestDto of(
@@ -38,7 +38,7 @@ public class ExploreRequestDto {
         String sort,
         String orderByQuery,
         Long lastId,
-        Integer lastValue,
+        Double lastValue,
         int size
     ) {
         return new ExploreRequestDto(
@@ -60,7 +60,7 @@ public class ExploreRequestDto {
         String sort,
         String orderByQuery,
         Long lastId,
-        Integer lastValue,
+        Double lastValue,
         int size
     ) {
         return new ExploreRequestDto(

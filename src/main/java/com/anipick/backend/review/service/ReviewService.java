@@ -1,29 +1,24 @@
 package com.anipick.backend.review.service;
 
-import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.review.domain.Review;
-import com.anipick.backend.review.dto.RecentReviewItemDto;
-import com.anipick.backend.review.dto.RecentReviewPageDto;
-import com.anipick.backend.review.dto.ReviewRequest;
-import com.anipick.backend.review.dto.SignupRatingRequest;
+import com.anipick.backend.review.dto.*;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.RecentReviewMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
-import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +52,7 @@ public class ReviewService {
 
                     return RecentReviewItemDto.builder()
                             .reviewId(dto.getReviewId())
+                            .userId(dto.getUserId())
                             .animeId(dto.getAnimeId())
                             .animeTitle(dto.getAnimeTitle())
                             .animeCoverImageUrl(dto.getAnimeCoverImageUrl())
@@ -83,7 +79,7 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateReview(Long animeId, ReviewRequest request, Long userId) {
-        Review review = reviewMapper.findByReviewId(animeId, userId)
+        Review review = reviewMapper.findByAnimeId(animeId, userId)
             .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         if (request.getContent() == null || request.getContent().isBlank()) {
@@ -128,5 +124,47 @@ public class ReviewService {
                 .collect(Collectors.averagingDouble(Review::getRating));
 
         animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
+    }
+
+    @Transactional
+    public void reportReview(Long userId, Long reviewId, ReviewReportMessageRequest reportMessageRequest) {
+        reportMessageRequest.validate();
+
+        Review reviewById = reviewMapper.selectReviewByReviewId(reviewId);
+        ReportReviewDto reportReview = reviewMapper.selectReportReviewByReviewId(userId, reviewId);
+
+        if (reviewById == null) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+
+        Long reportedUserId = reviewById.getUserId();
+        if (reportedUserId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REVIEW_REPORT_ERROR);
+        }
+
+        if (reportReview != null) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        }
+
+        String requestMessage = reportMessageRequest.getMessage();
+
+        try {
+            reviewMapper.createReviewReport(userId, reviewId, requestMessage);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.ALREADY_REPORT_REVIEW);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public MyReviewProviderResultDto getAnimeMyReview(Long animeId, Long userId) {
+        MyReviewProviderResultDto result = reviewMapper.selectAnimeByMyReview(animeId, userId);
+        if (result == null) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+        if (result.getContent() == null) {
+            return MyReviewProviderResultDto.nonContent(result);
+        }
+        return MyReviewProviderResultDto.of(result);
     }
 }

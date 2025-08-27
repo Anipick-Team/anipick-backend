@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class RecentReviewItemDto {
     private Long reviewId;
+    private Long userId;
     private Long animeId;
     private String animeTitle;
     private String animeCoverImageUrl;

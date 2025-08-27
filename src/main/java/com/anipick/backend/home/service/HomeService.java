@@ -56,6 +56,7 @@ public class HomeService {
 
                     return HomeRecentReviewItemDto.of(
                             dto.getReviewId(),
+                            dto.getUserId(),
                             dto.getAnimeId(),
                             dto.getAnimeTitle(),
                             dto.getReviewContent(),
