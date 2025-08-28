@@ -42,23 +42,23 @@ public class MyPageController {
         return ApiResponse.success(response);
     }
 
-    @GetMapping("/profile-image/{imageId}")
-    public ResponseEntity<Resource> getProfileImage(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("imageId") Long imageId
-    ) {
-        try {
-            Resource resource = myPageService.getProfileImage(user, imageId);
-            String contentType = Files.probeContentType(resource.getFile().toPath());
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-        } catch (IOException e) {
-            log.error("IO error : ", e);
-        }
-
-        return ResponseEntity.notFound().build();
-    }
+//    @GetMapping("/profile-image/{imageId}")
+//    public ResponseEntity<Resource> getProfileImage(
+//            @AuthenticationPrincipal CustomUserDetails user,
+//            @PathVariable("imageId") Long imageId
+//    ) {
+//        try {
+//            Resource resource = myPageService.getProfileImage(user, imageId);
+//            String contentType = Files.probeContentType(resource.getFile().toPath());
+//            return ResponseEntity.ok()
+//                    .contentType(MediaType.parseMediaType(contentType))
+//                    .body(resource);
+//        } catch (IOException e) {
+//            log.error("IO error : ", e);
+//        }
+//
+//        return ResponseEntity.notFound().build();
+//    }
 
     @GetMapping("/animes/watchlist")
     public ApiResponse<WatchListAnimesResponse> getMyAnimesWatchList(

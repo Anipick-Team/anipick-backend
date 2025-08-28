@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +44,16 @@ public class MyPageService {
         WatchCountDto watchCountDto = WatchCountDto.from(watchListCount, watchingCount, finishedCount);
         List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
-        Image image = imageService.getImageByAuthId(userId);
+        Optional<Image> image = imageService.getImageByAuthId(userId);
+        String imageUrl;
 
-        return MyPageResponse.from(user.getNickname(), image.getImagePath(), watchCountDto, likedAnimesDto, likedPersonsDto);
+        if(image.isPresent()) {
+            imageUrl = image.get().getImagePath();
+        } else {
+            imageUrl = imageService.getImageUrlEndpoint(-1L);
+        }
+
+        return MyPageResponse.from(user.getNickname(), imageUrl, watchCountDto, likedAnimesDto, likedPersonsDto);
     }
 
     @Transactional
@@ -64,13 +72,13 @@ public class MyPageService {
         return ImageIdResponse.from(image.getImageId());
     }
 
-    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
-        if(user == null) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        return imageService.getImageResourceOnServer(imageId);
-    }
+//    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
+//        if(user == null) {
+//            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+//        }
+//
+//        return imageService.getImageResourceOnServer(imageId);
+//    }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
