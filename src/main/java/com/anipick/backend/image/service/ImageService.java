@@ -3,6 +3,7 @@ package com.anipick.backend.image.service;
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.DefaultImage;
 import com.anipick.backend.image.domain.Image;
 import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.image.dto.ImageIdResponse;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -36,14 +36,12 @@ public class ImageService {
 
     private final ImageMapper imageMapper;
 
-    private static final long DEFAULT_IMAGE_ID = -1L;
-
     public File compressAndSaveImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
         String originalFilename = imageFile.getOriginalFilename();
         String uploadImageUrl;
 
         BufferedImage bufferedImage = ImageIO.read(imageFile.getInputStream());
-        if(bufferedImage == null) {
+        if (bufferedImage == null) {
             throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
         }
 
@@ -51,12 +49,12 @@ public class ImageService {
         uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
 
         File directory = new File(uploadDir);
-        if(!directory.exists()) {
+        if (!directory.exists()) {
             directory.mkdirs();
         }
 
         File outputFile = new File(directory, uploadImageUrl);
-        try(FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
             fileOutputStream.write(compressedBytes);
         }
 
@@ -75,14 +73,14 @@ public class ImageService {
     }
 
     public Resource getImageResourceOnServer(Long imageId) {
-        String imagePath = resolveImagePath(imageId);
-        Path filePath = Paths.get(imagePath);
-
-        if(imageId == DEFAULT_IMAGE_ID) {
-            return new ClassPathResource(filePath.toString());
-        }
-
-        return new FileSystemResource(filePath);
+        Optional<Resource> defaultImage = DefaultImage.getImagePath(imageId);
+        return defaultImage.orElseGet(() -> {
+            final String imagePath = imageMapper.findByImageId(imageId)
+                    .map(Image::getImagePath)
+                    .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
+            final Path filePath = Paths.get(imagePath);
+            return new FileSystemResource(filePath);
+        });
     }
 
     public String getImageUrlEndpoint(Long imageId) {
@@ -134,13 +132,4 @@ public class ImageService {
         return outputStream.toByteArray();
     }
 
-    private String resolveImagePath(Long imageId) {
-        if (imageId == null || imageId == DEFAULT_IMAGE_ID) {
-            return ImageDefaults.DEFAULT_PROFILE_IMAGE_PATH;
-        }
-
-        return imageMapper.findByImageId(imageId)
-                .map(Image::getImagePath)
-                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
-    }
 }
