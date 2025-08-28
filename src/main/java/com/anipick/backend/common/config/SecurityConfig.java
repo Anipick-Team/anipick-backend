@@ -38,6 +38,7 @@ public class SecurityConfig {
                                                 "/api/animes/meta-data-group",
                                                 "/intro.html",
                                                 "./upload/image/anipick_mascot.png",
+                                                "./upload/image/default.jpg",
                                                 "/privacy.html",
                                                 "/terms.html",
                                                 "/images/profile/**")
