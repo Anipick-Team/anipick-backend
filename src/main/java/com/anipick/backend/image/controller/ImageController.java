@@ -1,6 +1,8 @@
 package com.anipick.backend.image.controller;
 
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
+import com.anipick.backend.common.dto.ApiResponse;
+import com.anipick.backend.image.dto.ImageIdResponse;
 import com.anipick.backend.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +10,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ import java.nio.file.Files;
 public class ImageController {
     private final ImageService imageService;
 
-    @GetMapping("{imageId}")
+    @GetMapping("/{imageId}")
     public ResponseEntity<Resource> getProfileImage(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("imageId") Long imageId
@@ -39,5 +39,14 @@ public class ImageController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/profile-image")
+    public ApiResponse<ImageIdResponse> updateProfileImage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestPart("profileImageFile") MultipartFile profileImageFile
+    ) {
+        ImageIdResponse response = imageService.updateProfileImage(user, profileImageFile);
+        return ApiResponse.success(response);
     }
 }
