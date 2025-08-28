@@ -40,6 +40,8 @@ public class AnimeService {
 
 	private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+	private static final String IMAGE_URL = "https://anipick.p-e.kr/api/image/";
+
 
 	public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
 		LocalDate now = LocalDate.now();
@@ -209,11 +211,19 @@ public class AnimeService {
 					LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
 					String formattedDate = dateTime.format(formatter);
 
+					String combinationUserImageUrl;
+					String imageId = dto.getProfileImageUrl();
+					if (imageId == null) {
+						combinationUserImageUrl = IMAGE_URL + "-1";
+					} else {
+						combinationUserImageUrl = IMAGE_URL + imageId;
+					}
+
 					return AnimeDetailInfoReviewsResultDto.of(
 							dto.getReviewId(),
 							dto.getUserId(),
 							dto.getNickname(),
-							dto.getProfileImageUrl(),
+							combinationUserImageUrl,
 							dto.getRating(),
 							dto.getContent(),
 							formattedDate,
