@@ -39,6 +39,7 @@ public class ReviewService {
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+    private static final String IMAGE_URL = "https://anipick.p-e.kr/api/image/";
 
     @Transactional(readOnly = true)
     public RecentReviewPageDto getRecentReviews(Long userId, Long lastId, Integer size) {
@@ -53,6 +54,14 @@ public class ReviewService {
                     LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
                     String formattedDate = dateTime.format(formatter);
 
+                    String combinationUserImageUrl;
+                    String imageId = dto.getProfileImageUrl();
+                    if (imageId == null) {
+                        combinationUserImageUrl = IMAGE_URL + "-1";
+                    } else {
+                        combinationUserImageUrl = IMAGE_URL + imageId;
+                    }
+
                     return RecentReviewItemDto.builder()
                             .reviewId(dto.getReviewId())
                             .userId(dto.getUserId())
@@ -62,7 +71,7 @@ public class ReviewService {
                             .rating(dto.getRating())
                             .reviewContent(dto.getReviewContent())
                             .nickname(dto.getNickname())
-                            .profileImageUrl(dto.getProfileImageUrl())
+                            .profileImageUrl(combinationUserImageUrl)
                             .createdAt(formattedDate)
                             .likeCount(dto.getLikeCount())
                             .likedByCurrentUser(dto.getLikedByCurrentUser())
