@@ -40,7 +40,7 @@ public class AnimeService {
 
 	private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-	private static final String IMAGE_URL = "https://anipick.p-e.kr/api/image/";
+	private static final String IMAGE_URL = "/api/image/";
 
 
 	public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
