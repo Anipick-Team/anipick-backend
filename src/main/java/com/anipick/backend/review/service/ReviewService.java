@@ -4,6 +4,7 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.*;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,6 +55,14 @@ public class ReviewService {
                     LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
                     String formattedDate = dateTime.format(formatter);
 
+                    String imageIdStr = dto.getProfileImageUrl();
+                    if (imageIdStr == null) {
+                        imageIdStr = "-1";
+                    }
+                    Long imageId = Long.parseLong(imageIdStr);
+
+                    String imageUrlEndpoint = getImageUrlEndpoint(imageId);
+
                     return RecentReviewItemDto.builder()
                             .reviewId(dto.getReviewId())
                             .userId(dto.getUserId())
@@ -62,7 +72,7 @@ public class ReviewService {
                             .rating(dto.getRating())
                             .reviewContent(dto.getReviewContent())
                             .nickname(dto.getNickname())
-                            .profileImageUrl(dto.getProfileImageUrl())
+                            .profileImageUrl(imageUrlEndpoint)
                             .createdAt(formattedDate)
                             .likeCount(dto.getLikeCount())
                             .likedByCurrentUser(dto.getLikedByCurrentUser())
@@ -186,5 +196,9 @@ public class ReviewService {
             return MyReviewProviderResultDto.nonContent(result);
         }
         return MyReviewProviderResultDto.of(result);
+    }
+
+    public String getImageUrlEndpoint(Long imageId) {
+        return ImageDefaults.IMAGE_ENDPOINT + imageId;
     }
 }
