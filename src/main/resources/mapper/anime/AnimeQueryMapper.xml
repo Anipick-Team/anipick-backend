@@ -148,7 +148,8 @@
         SELECT r.review_id AS reviewId,
                u.user_id AS userId,
                u.nickname AS nickname,
-               u.profile_image_url AS profileImageUrl,
+        -- profiler_image_url -> image.image_id 로 변경
+               i.image_id AS profileImageUrl,
                r.rating AS rating,
                r.content AS content,
                r.created_at AS createdAt,
@@ -162,6 +163,8 @@
             LEFT JOIN reviewlike rl
                 ON rl.review_id = r.review_id
                     AND rl.user_id = #{userId}
+            LEFT JOIN Image i
+                ON i.auth_id = u.user_id
         WHERE r.anime_id = #{animeId}
           AND r.content IS NOT NULL
         <!-- 커서 정렬 -->
