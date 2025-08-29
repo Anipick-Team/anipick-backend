@@ -13,7 +13,7 @@ public class AnimeDetailInfoItemDto {
     private String coverImageUrl;
     private String bannerImageUrl;
     private String description;
-    private String averageRating;
+    private Double averageRating;
     private Boolean isLiked;
     private UserAnimeOfStatus watchStatus;
     private String type;
@@ -22,4 +22,11 @@ public class AnimeDetailInfoItemDto {
     private LocalDate startDate;
     private AnimeStatus status;
     private String age;
+
+    public String getAverageRatingAsString() {
+        if (averageRating == null) {
+            return null;
+        }
+        return String.format("%.1f", averageRating);
+    }
 }

@@ -355,7 +355,7 @@ public class AnimeService {
 				.coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
 				.bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
 				.description(animeDetailInfoItemDto.getDescription())
-				.averageRating(animeDetailInfoItemDto.getAverageRating())
+				.averageRating(animeDetailInfoItemDto.getAverageRatingAsString())
 				.isLiked(animeDetailInfoItemDto.getIsLiked())
 				.watchStatus(animeDetailInfoItemDto.getWatchStatus())
 				.type(type)
