@@ -1,6 +1,5 @@
 package com.anipick.backend.mypage.service;
 
-import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
@@ -14,15 +13,11 @@ import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,33 +38,16 @@ public class MyPageService {
         WatchCountDto watchCountDto = WatchCountDto.from(watchListCount, watchingCount, finishedCount);
         List<LikedAnimesDto> likedAnimesDto = myPageMapper.getMyLikedAnimes(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
         List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
-        Image image = imageService.getImageByAuthId(userId);
+        Optional<Image> image = imageService.getImageByAuthId(userId);
+        String imageUrl;
 
-        return MyPageResponse.from(user.getNickname(), image.getImagePath(), watchCountDto, likedAnimesDto, likedPersonsDto);
-    }
-
-    @Transactional
-    public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
-        String originalFilename = profileImageFile.getOriginalFilename();
-        Image image;
-
-        try {
-            File outputFile = imageService.compressAndSaveImageToServer(user, profileImageFile);
-            image = imageService.insertImage(user, originalFilename, outputFile);
-
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        if(image.isPresent()) {
+            imageUrl = imageService.getImageUrlEndpoint(image.get().getImageId());
+        } else {
+            imageUrl = imageService.getImageUrlEndpoint(-1L);
         }
 
-        return ImageIdResponse.from(image.getImageId());
-    }
-
-    public Resource getProfileImage(CustomUserDetails user, Long imageId) {
-        if(user == null) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        return imageService.getImageResourceOnServer(imageId);
+        return MyPageResponse.from(user.getNickname(), imageUrl, watchCountDto, likedAnimesDto, likedPersonsDto);
     }
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
