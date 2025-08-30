@@ -1,5 +1,6 @@
 package com.anipick.backend.review.dto;
 
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,4 +22,28 @@ public class RecentReviewItemDto {
     private Long likeCount;
     private Boolean likedByCurrentUser;
     private Boolean isMine;
+
+    public static RecentReviewItemDto animeTitleTranslationPick(RecentReviewItemAnimeAllTitleDto dto) {
+        String title = LocalizationUtil.pickTitle(
+				dto.getTitleKor(),
+				dto.getTitleEng(),
+				dto.getTitleRom(),
+				dto.getTitleNat()
+		);
+        return new RecentReviewItemDto(
+                dto.getReviewId(),
+                dto.getUserId(),
+                dto.getAnimeId(),
+                title,
+                dto.getAnimeCoverImageUrl(),
+                dto.getRating(),
+                dto.getReviewContent(),
+                dto.getNickname(),
+                dto.getProfileImageUrl(),
+                dto.getCreatedAt(),
+                dto.getLikeCount(),
+                dto.getLikedByCurrentUser(),
+                dto.getIsMine()
+        );
+    }
 }
