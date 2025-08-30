@@ -1,9 +1,8 @@
 package com.anipick.backend.person.service;
 
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.person.dto.PersonAnimeWorkDto;
-import com.anipick.backend.person.dto.PersonDetailPageDto;
-import com.anipick.backend.person.dto.PersonInfoDto;
+import com.anipick.backend.common.util.LocalizationUtil;
+import com.anipick.backend.person.dto.*;
 import com.anipick.backend.person.mapper.PersonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,11 +16,19 @@ public class PersonService {
     private final PersonMapper personMapper;
 
     public PersonDetailPageDto getAnimeAndCharacter(Long personId, Long lastId, int size, Long userId) {
-        PersonInfoDto personInfoDto = personMapper.selectActorInfo(personId, userId);
+        PersonInfoAllNameDto personInfoDto = personMapper.selectActorInfo(personId, userId);
+
+        String name = LocalizationUtil.pickVoiceActorName(
+                personInfoDto.getNameKor(),
+                personInfoDto.getNameEng()
+        );
 
         long totalCount = personMapper.countAnimesByActor(personId);
 
-        List<PersonAnimeWorkDto> items = personMapper.selectWorksByActor(personId, lastId, size);
+        List<PersonAnimeWorkDto> items = personMapper.selectWorksByActor(personId, lastId, size)
+                .stream()
+                .map(PersonAnimeWorkDto::animeTitleAndCharacterNameTranslationPick)
+                .toList();
 
         Long nextId;
         if (items.isEmpty()) {
@@ -33,7 +40,7 @@ public class PersonService {
 
         return PersonDetailPageDto.of(
                 personInfoDto.getPersonId(),
-                personInfoDto.getName(),
+                name,
                 personInfoDto.getProfileImageUrl(),
                 personInfoDto.getIsLiked(),
                 totalCount,
