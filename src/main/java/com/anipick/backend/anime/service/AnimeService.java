@@ -454,15 +454,31 @@ public class AnimeService {
 	public AnimeCharacterActorPageDto getAnimeCharacterActor(Long animeId, Long lastId, AnimeCharacterRole lastValue, int size) {
         List<AnimeCharacterActorResultDto> items = mapper.selectAnimeCharacterActors(animeId, lastId, lastValue, size);
 
+        List<AnimeCharacterActorItemWithRoleDto> pickNameCharacterAndActors = items.stream()
+                .map(dto -> AnimeCharacterActorItemWithRoleDto.of(
+                        CharacterPickNameDto.from(
+                                dto.getCharacter().getId(),
+                                LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(), dto.getCharacter().getNameEng()),
+                                dto.getCharacter().getImageUrl()
+                        ),
+                        VoiceActorPickNameDto.from(
+                                dto.getVoiceActor().getId(),
+                                LocalizationUtil.pickVoiceActorName(dto.getVoiceActor().getNameKor(), dto.getVoiceActor().getNameEng()),
+                                dto.getVoiceActor().getImageUrl()
+                        ),
+                        dto.getRole()
+                ))
+                .toList();
+
         Long nextId;
         AnimeCharacterRole nextValue;
 
-        if (items.isEmpty()) {
+        if (pickNameCharacterAndActors.isEmpty()) {
             nextId = null;
             nextValue = null;
         } else {
-            nextId = items.getLast().getCharacter().getId();
-            nextValue = items.getLast().getRole();
+            nextId = pickNameCharacterAndActors.getLast().getCharacter().getId();
+            nextValue = pickNameCharacterAndActors.getLast().getRole();
         }
 
         String nextValueStr;
@@ -473,7 +489,7 @@ public class AnimeService {
         }
 
         CursorDto cursor = CursorDto.of(null, nextId, nextValueStr);
-        return AnimeCharacterActorPageDto.of(cursor, items);
+        return AnimeCharacterActorPageDto.of(cursor, pickNameCharacterAndActors);
     }
 
 	public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {

@@ -301,7 +301,7 @@
 
         <association property="character"
                      javaType="com.anipick.backend.anime.dto.CharacterDto">
-            <id column="character_id" property="id"/>
+            <result column="character_id" property="id"/>
             <result column="character_name_kor" property="nameKor"/>
             <result column="character_name_eng" property="nameEng"/>
             <result column="character_image_url" property="imageUrl"/>
@@ -309,7 +309,7 @@
 
         <association property="voiceActor"
                      javaType="com.anipick.backend.anime.dto.VoiceActorDto">
-            <id column="voiceactor_id" property="id"/>
+            <result column="voiceactor_id" property="id"/>
             <result column="voiceactor_name_kor" property="nameKor"/>
             <result column="voiceactor_name_eng" property="nameEng"/>
             <result column="voiceactor_image_url" property="imageUrl"/>
@@ -347,18 +347,38 @@
     </select>
 
     <resultMap id="AnimeCharacterActorResultMap"
-               type="com.anipick.backend.anime.dto.AnimeCharacterActorResultDto"
-               extends="AnimeCharacterActorItemMap">
-        <result column="role" property="role" jdbcType="VARCHAR"/>
+               type="com.anipick.backend.anime.dto.AnimeCharacterActorResultDto">
+    <association property="character"
+                 javaType="com.anipick.backend.anime.dto.CharacterDto">
+        <result column="character_id" property="id"/>
+        <result column="character_name_kor" property="nameKor"/>
+        <result column="character_name_eng" property="nameEng"/>
+        <result column="character_image_url" property="imageUrl"/>
+    </association>
+
+    <association property="voiceActor"
+                 javaType="com.anipick.backend.anime.dto.VoiceActorDto">
+        <result column="voiceactor_id" property="id"/>
+        <result column="voiceactor_name_kor" property="nameKor"/>
+        <result column="voiceactor_name_eng" property="nameEng"/>
+        <result column="voiceactor_image_url" property="imageUrl"/>
+    </association>
+
+    <association property="role"
+                 javaType="com.anipick.backend.anime.domain.AnimeCharacterRole">
+        <result column="role"/>
+    </association>
     </resultMap>
 
     <select id="selectAnimeCharacterActors"
             resultMap="AnimeCharacterActorResultMap">
         SELECT c.character_id AS character_id,
-               c.name_kor AS character_name,
+               c.name_kor AS character_name_kor,
+               c.name_eng AS character_name_eng,
                c.profile_image AS character_image_url,
                v.voiceactor_id AS voiceactor_id,
-               v.name_kor AS voiceactor_name,
+               v.name_kor AS voiceactor_name_kor,
+               v.name_eng AS voiceactor_name_eng,
                v.profile_image AS voiceactor_image_url,
                ca.role AS role
         FROM `Character` c
