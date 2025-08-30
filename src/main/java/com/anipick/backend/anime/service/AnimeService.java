@@ -59,13 +59,15 @@ public class AnimeService {
 			.endDate(endDate)
 			.build();
 
-		List<AnimeIdTitleImgItemDto> nextSeasonAnimes =
-			mapper.selectUpcomingSeasonAnimes(rangeDateRequestDto);
+		List<AnimeItemDto> nextSeasonAnimes = mapper.selectUpcomingSeasonAnimes(rangeDateRequestDto)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.collect(Collectors.toList());
 
 		Collections.shuffle(nextSeasonAnimes);
 
 		if (nextSeasonAnimes.size() > 10) {
-			List<AnimeIdTitleImgItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
+			List<AnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
 			return UpcomingSeasonResultDto.of(season, seasonYear, animes10SubList);
 		}
 		return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);

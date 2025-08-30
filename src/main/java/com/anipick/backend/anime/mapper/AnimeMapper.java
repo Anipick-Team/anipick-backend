@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface AnimeMapper {
-	List<AnimeIdTitleImgItemDto> selectUpcomingSeasonAnimes(RangeDateRequestDto rangeDateRequestDto);
+	List<AnimeAllTitleImgDto> selectUpcomingSeasonAnimes(RangeDateRequestDto rangeDateRequestDto);
 
 	long countComingSoon(ComingSoonRequestDto comingSoonRequestDto);
 
