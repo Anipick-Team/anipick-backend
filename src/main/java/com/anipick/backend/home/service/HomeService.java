@@ -128,7 +128,10 @@ public class HomeService {
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, null, null, 10L);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -155,7 +158,10 @@ public class HomeService {
             TagBasedCountOnlyRequest request =
                     TagBasedCountOnlyRequest.of(userId, tagIds, null, null, 10L);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -179,7 +185,10 @@ public class HomeService {
         RecentHighCountOnlyRequest request =
                 RecentHighCountOnlyRequest.of(userId, animeId, tagIds, null, null, 10L);
 
-        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                .stream()
+                .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                .toList();
 
         resultAnimes = recommendAnimes.stream()
                 .map(rec -> new AnimeItemDto(

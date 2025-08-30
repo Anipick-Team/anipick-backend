@@ -5,9 +5,12 @@
 <mapper namespace="com.anipick.backend.recommendation.mapper.RecommendMapper">
     <select id="selectUserRecentHighAnimes"
             parameterType="com.anipick.backend.recommendation.dto.RecentHighCountOnlyRequest"
-            resultType="com.anipick.backend.recommendation.dto.AnimeItemRecommendTagCountDto">
+            resultType="com.anipick.backend.recommendation.dto.AnimeAllTitleItemRecommendTagCountDto">
         SELECT a.anime_id AS animeId,
-               an.title_kor AS title,
+               an.title_kor AS titleKor,
+               an.title_english AS titleEng,
+               an.title_romaj AS titleRom,
+               an.title_native AS titleNat,
                an.cover_image_url AS coverImageUrl,
                a.tag_count AS tagCount
         FROM (
@@ -56,9 +59,12 @@
 
     <select id="selectTagBasedAnimes"
             parameterType="com.anipick.backend.recommendation.dto.TagBasedCountOnlyRequest"
-            resultType="com.anipick.backend.recommendation.dto.AnimeItemRecommendTagCountDto">
+            resultType="com.anipick.backend.recommendation.dto.AnimeAllTitleItemRecommendTagCountDto">
         SELECT a.anime_id AS animeId,
-               an.title_kor AS title,
+               an.title_kor AS titleKor,
+               an.title_english AS titleEng,
+               an.title_romaj AS titleRom,
+               an.title_native AS titleNat,
                an.cover_image_url AS coverImageUrl,
                a.tag_count AS tagCount
         FROM (
