@@ -18,7 +18,7 @@ public interface SearchMapper {
 
 	long countSearchAnime(@Param(value = "query") String query);
 
-	List<AnimeItemDto> selectSearchAnimes(
+	List<AnimeAllTitleImgDto> selectSearchAnimes(
 		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size

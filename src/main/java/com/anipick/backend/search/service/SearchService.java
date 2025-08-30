@@ -33,7 +33,10 @@ public class SearchService {
 		long personCount = mapper.countSearchPerson(query);
 		long studioCount = mapper.countSearchStudio(query);
 
-		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size);
+		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 
 		int positionNumber = (int) ((page - 1) * size);
 
