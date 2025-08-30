@@ -78,7 +78,7 @@ public interface AnimeMapper {
 			@Param(value = "refAnimeId") Long animeId
 	);
 
-	List<AnimeDateItemDto> selectSeriesByAnimeId(
+	List<AnimeAlltitleDateDto> selectSeriesByAnimeId(
 			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "refAnimeId") Long animeId,
 			@Param(value = "lastId") Long lastId,

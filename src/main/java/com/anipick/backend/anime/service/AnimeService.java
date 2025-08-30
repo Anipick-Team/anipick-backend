@@ -473,7 +473,10 @@ public class AnimeService {
 
 		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
 
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size);
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size)
+				.stream()
+				.map(AnimeDateItemDto::animeTitleTranslationPick)
+				.toList();
 		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
 				.map(dto -> {
 					LocalDate date = dto.getStartDate();
