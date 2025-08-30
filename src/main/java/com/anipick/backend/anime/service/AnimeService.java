@@ -384,8 +384,11 @@ public class AnimeService {
   }
   
 	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
-		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE);		
-    return items;
+		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
+    	return items;
 	}
   
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
