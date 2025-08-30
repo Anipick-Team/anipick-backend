@@ -35,9 +35,12 @@
         LIMIT #{size}
     </select>
 
-    <select id="selectHomeComingSoonAnimes" resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+    <select id="selectHomeComingSoonAnimes" resultType="com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate,
                a.format AS format,
