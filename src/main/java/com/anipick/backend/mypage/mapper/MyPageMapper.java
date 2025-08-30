@@ -17,7 +17,7 @@ public interface MyPageMapper {
             @Param("size") Integer size
     );
 
-    List<LikedPersonsDto> getMyLikedPersons(
+    List<LikedPersonsAllNameDto> getMyLikedPersons(
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size

@@ -45,7 +45,10 @@ public class MyPageService {
                 .stream()
                 .map(LikedAnimesDto::animeTitleTranslationPick)
                 .toList();
-        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE);
+        List<LikedPersonsDto> likedPersonsDto = myPageMapper.getMyLikedPersons(userId, null, MyPageDefaults.DEFAULT_PAGE_SIZE)
+                .stream()
+                .map(LikedPersonsDto::personNameTranslationPick)
+                .toList();
         Image image = imageService.getImageByAuthId(userId);
 
         return MyPageResponse.from(user.getNickname(), image.getImagePath(), watchCountDto, likedAnimesDto, likedPersonsDto);
@@ -192,7 +195,10 @@ public class MyPageService {
 
     public LikedPersonsResponse getMyPersonsLiked(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyPersonsLikeCount(userId);
-        List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size);
+        List<LikedPersonsDto> likedPersons = myPageMapper.getMyLikedPersons(userId, lastId, size)
+                .stream()
+                .map(LikedPersonsDto::personNameTranslationPick)
+                .toList();
         Long newLastId;
 
         if(likedPersons.isEmpty()) {

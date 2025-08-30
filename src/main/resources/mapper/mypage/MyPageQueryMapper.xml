@@ -30,11 +30,12 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyLikedPersons" resultType="com.anipick.backend.mypage.dto.LikedPersonsDto">
+    <select id="getMyLikedPersons" resultType="com.anipick.backend.mypage.dto.LikedPersonsAllNameDto">
         SELECT
             ulva.voiceactor_id AS personId,
             ulva.user_liked_voiceactor_id AS userLikedVoiceActorId,
-            va.name_kor AS name,
+            va.name_kor AS nameKor,
+            va.name_eng AS nameEng,
             va.profile_image AS profileImageUrl
         FROM UserLikedVoiceActor AS ulva
         JOIN VoiceActor AS va ON ulva.voiceactor_id = va.voiceactor_id
