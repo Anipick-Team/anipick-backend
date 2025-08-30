@@ -450,9 +450,13 @@ public class AnimeService {
 
 	public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {
 		Anime anime = mapper.selectAnimeByAnimeId(animeId);
-		String animeTitle = anime.getTitleKor();
 
-		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size);
+		String animeTitle = anime.getTitlePick();
+
+		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 
 		Long nextId;
 		if (items.isEmpty()) {
