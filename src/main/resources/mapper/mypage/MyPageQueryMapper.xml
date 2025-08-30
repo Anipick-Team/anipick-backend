@@ -46,11 +46,14 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyWatchListAnimes" resultType="com.anipick.backend.mypage.dto.WatchListAnimesDto">
+    <select id="getMyWatchListAnimes" resultType="com.anipick.backend.mypage.dto.WatchListAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM anime AS a
         JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
@@ -65,11 +68,14 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyWatchingAnimes" resultType="com.anipick.backend.mypage.dto.WatchingAnimesDto">
+    <select id="getMyWatchingAnimes" resultType="com.anipick.backend.mypage.dto.WatchingAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM anime AS a
         JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
@@ -84,11 +90,14 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyFinishedAnimes" resultType="com.anipick.backend.mypage.dto.FinishedAnimesDto">
+    <select id="getMyFinishedAnimes" resultType="com.anipick.backend.mypage.dto.FinishedAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             r.rating AS myRating
         FROM anime AS a
@@ -111,10 +120,13 @@
         WHERE r.user_id = #{userId}
     </select>
 
-    <select id="getMyAnimesReviewsAll" resultType="com.anipick.backend.mypage.dto.AnimesReviewDto">
+    <select id="getMyAnimesReviewsAll" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
         SELECT
             a.anime_id AS animeId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             r.rating AS rating,
             r.review_id AS reviewId,
@@ -180,10 +192,13 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyAnimesReviewsOnly" resultType="com.anipick.backend.mypage.dto.AnimesReviewDto">
+    <select id="getMyAnimesReviewsOnly" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
         SELECT
             a.anime_id AS animeId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             r.rating AS rating,
             r.review_id AS reviewId,

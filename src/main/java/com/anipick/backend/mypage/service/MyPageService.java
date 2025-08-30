@@ -77,7 +77,11 @@ public class MyPageService {
 
     public WatchListAnimesResponse getMyAnimesWatchList(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size);
+        List<WatchListAnimesDto> watchListAnimes = myPageMapper.getMyWatchListAnimes(userId, status, lastId, size)
+                .stream()
+                .map(WatchListAnimesDto::animeTitleTranslationPick)
+                .toList();
+
         Long newLastId;
 
         if(watchListAnimes.isEmpty()) {
@@ -93,7 +97,11 @@ public class MyPageService {
 
     public WatchingAnimesResponse getMyAnimesWatching(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size);
+        List<WatchingAnimesDto> watchingAnimes = myPageMapper.getMyWatchingAnimes(userId, status, lastId, size)
+                .stream()
+                .map(WatchingAnimesDto::animeTitleTranslationPick)
+                .toList();
+
         Long newLastId;
 
         if (watchingAnimes.isEmpty()) {
@@ -109,7 +117,11 @@ public class MyPageService {
 
     public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size) {
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size);
+        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size)
+                .stream()
+                .map(FinishedAnimesDto::animeTitleTranslationPick)
+                .toList();
+
         Long newLastId;
 
         if(finishedAnimes.isEmpty()) {
@@ -133,9 +145,15 @@ public class MyPageService {
         Double newLastRating;
 
         if(reviewOnly) {
-            animesReviews = myPageMapper.getMyAnimesReviewsOnly(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
+            animesReviews = myPageMapper.getMyAnimesReviewsOnly(userId, lastId, size, sortOption.getCode(), lastCount, lastRating)
+                    .stream()
+                    .map(AnimesReviewDto::animeTitleTranslationPick)
+                    .toList();
         } else {
-            animesReviews = myPageMapper.getMyAnimesReviewsAll(userId, lastId, size, sortOption.getCode(), lastCount, lastRating);
+            animesReviews = myPageMapper.getMyAnimesReviewsAll(userId, lastId, size, sortOption.getCode(), lastCount, lastRating)
+                    .stream()
+                    .map(AnimesReviewDto::animeTitleTranslationPick)
+                    .toList();
         }
 
         if(animesReviews.isEmpty()) {

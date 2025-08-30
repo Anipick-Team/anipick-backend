@@ -23,21 +23,21 @@ public interface MyPageMapper {
             @Param("size") Integer size
     );
 
-    List<WatchListAnimesDto> getMyWatchListAnimes(
+    List<WatchListAnimesAllTitleDto> getMyWatchListAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
     );
 
-    List<WatchingAnimesDto> getMyWatchingAnimes(
+    List<WatchingAnimesAllTitleDto> getMyWatchingAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
     );
 
-    List<FinishedAnimesDto> getMyFinishedAnimes(
+    List<FinishedAnimesAllTitleDto> getMyFinishedAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
@@ -46,7 +46,7 @@ public interface MyPageMapper {
 
     Long getMyReviewCount(@Param("userId") Long userId);
 
-    List<AnimesReviewDto> getMyAnimesReviewsAll( // 리뷰만 보기 off
+    List<AnimesAllTitleReviewDto> getMyAnimesReviewsAll( // 리뷰만 보기 off
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size,
@@ -55,7 +55,7 @@ public interface MyPageMapper {
             @Param("lastRating") Double lastRating
     );
 
-    List<AnimesReviewDto> getMyAnimesReviewsOnly( // 리뷰만 보기 on
+    List<AnimesAllTitleReviewDto> getMyAnimesReviewsOnly( // 리뷰만 보기 on
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size,
