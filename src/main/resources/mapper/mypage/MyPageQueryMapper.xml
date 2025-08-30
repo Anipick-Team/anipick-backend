@@ -11,11 +11,14 @@
               uas.user_id = #{userId}
     </select>
 
-    <select id="getMyLikedAnimes" resultType="com.anipick.backend.mypage.dto.LikedAnimesDto">
+    <select id="getMyLikedAnimes" resultType="com.anipick.backend.mypage.dto.LikedAnimesAllTitleDto">
         SELECT
             ual.anime_id AS animeId,
             ual.anime_like_id AS animeLikeId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM UserAnimeLike AS ual
         JOIN Anime AS a ON ual.anime_id = a.anime_id

@@ -11,7 +11,7 @@ import java.util.List;
 public interface MyPageMapper {
     Long getMyWatchCount(@Param("userId") Long userId, @Param("animeStatus") String animeStatus);
 
-    List<LikedAnimesDto> getMyLikedAnimes(
+    List<LikedAnimesAllTitleDto> getMyLikedAnimes(
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
