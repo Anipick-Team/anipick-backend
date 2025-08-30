@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class AnimeAlltitleDateDto {
+public class AnimeAllTitleDateDto {
     private Long animeId;
     private String titleKor;
 	private String titleEng;

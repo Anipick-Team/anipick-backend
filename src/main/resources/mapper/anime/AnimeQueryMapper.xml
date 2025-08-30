@@ -278,7 +278,7 @@
         WHERE ra.anime_id = #{animeId}
     </select>
 
-    <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAlltitleDateDto">
+    <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
@@ -442,7 +442,7 @@
                            AND ra.anime_id != #{refAnimeId})
     </select>
 
-    <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAlltitleDateDto">
+    <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,

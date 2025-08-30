@@ -14,7 +14,7 @@ public class AnimeDateItemDto {
     private String coverImageUrl;
     private LocalDate startDate;
 
-    public static AnimeDateItemDto animeTitleTranslationPick(AnimeAlltitleDateDto dto) {
+    public static AnimeDateItemDto animeTitleTranslationPick(AnimeAllTitleDateDto dto) {
         String title = LocalizationUtil.pickTitle(
 				dto.getTitleKor(),
 				dto.getTitleEng(),
