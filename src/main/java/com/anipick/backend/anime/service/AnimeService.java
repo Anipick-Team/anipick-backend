@@ -394,7 +394,10 @@ public class AnimeService {
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
 		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
-		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE);
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE)
+				.stream()
+				.map(AnimeDateItemDto::animeTitleTranslationPick)
+				.toList();
 
 		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
 				.map(dto -> {
