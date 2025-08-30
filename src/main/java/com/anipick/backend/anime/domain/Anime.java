@@ -3,7 +3,7 @@ package com.anipick.backend.anime.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.anipick.backend.anime.util.LocalizationUtil;
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

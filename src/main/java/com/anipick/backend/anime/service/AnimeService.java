@@ -7,7 +7,7 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.anime.mapper.StudioMapper;
 import com.anipick.backend.anime.util.FormatConvert;
-import com.anipick.backend.anime.util.LocalizationUtil;
+import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
@@ -26,7 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -192,7 +191,7 @@ public class AnimeService {
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
-  
+
 	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Long lastId, String lastValue, int size) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
@@ -329,7 +328,7 @@ public class AnimeService {
 
 		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
   }
-  
+
 	@Transactional(readOnly = true)
 	public AnimeDetailInfoResultDto getAnimeInfoDetail(Long animeId, Long userId) {
 		AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
@@ -382,7 +381,7 @@ public class AnimeService {
 				.studios(studios)
 				.build();
   }
-  
+
 	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
 		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE)
 				.stream()
@@ -390,7 +389,7 @@ public class AnimeService {
 				.toList();
     	return items;
 	}
-  
+
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
 		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
@@ -417,7 +416,7 @@ public class AnimeService {
 				.toList();
 		return airDateConvertItems;
   }
-  
+
 	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
 		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
 		return items;

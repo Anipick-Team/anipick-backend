@@ -1,4 +1,4 @@
-package com.anipick.backend.anime.util;
+package com.anipick.backend.common.util;
 
 public class LocalizationUtil {
     /**

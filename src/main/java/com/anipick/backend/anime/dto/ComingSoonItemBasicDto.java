@@ -2,7 +2,7 @@ package com.anipick.backend.anime.dto;
 
 import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.anime.domain.Season;
-import com.anipick.backend.anime.util.LocalizationUtil;
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
