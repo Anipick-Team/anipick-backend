@@ -49,9 +49,10 @@
         WHERE v.name_search LIKE CONCAT('%', #{query}, '%')
     </select>
 
-    <select id="selectSearchPersons" parameterType="map" resultType="com.anipick.backend.search.dto.PersonItemDto">
+    <select id="selectSearchPersons" parameterType="map" resultType="com.anipick.backend.search.dto.PersonAllNameItemDto">
         SELECT v.voiceactor_id AS personId,
-               v.name_kor AS name,
+               v.name_kor AS nameKor,
+               v.name_eng AS nameEng,
                v.profile_image AS profileImage
         FROM VoiceActor v
         WHERE (

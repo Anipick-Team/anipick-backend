@@ -1,16 +1,13 @@
 package com.anipick.backend.search.mapper;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.anipick.backend.anime.dto.AnimeAllTitleImgDto;
 import com.anipick.backend.anime.dto.StudioAllNameItemDto;
+import com.anipick.backend.search.dto.PersonAllNameItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.anipick.backend.anime.dto.AnimeItemDto;
-import com.anipick.backend.search.dto.PersonItemDto;
-import com.anipick.backend.search.dto.StudioItemDto;
+import java.time.LocalDate;
+import java.util.List;
 
 @Mapper
 public interface SearchMapper {
@@ -27,7 +24,7 @@ public interface SearchMapper {
 
 	long countSearchPerson(@Param(value = "query") String query);
 
-	List<PersonItemDto> selectSearchPersons(
+	List<PersonAllNameItemDto> selectSearchPersons(
 		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size
