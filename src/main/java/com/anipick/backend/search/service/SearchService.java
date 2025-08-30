@@ -19,7 +19,10 @@ public class SearchService {
 
 	public SearchInitPageDto findWeekBestAnimes() {
 		LocalDate now = LocalDate.now();
-		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now);
+		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 		return new SearchInitPageDto(items);
 	}
 
