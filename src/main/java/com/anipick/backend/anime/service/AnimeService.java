@@ -100,12 +100,11 @@ public class AnimeService {
 
 	private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
 		List<ComingSoonItemBasicDto> latestSortAnimes =
-				mapper.selectComingSoonLatestAnimes(comingSoonRequestDto);
-		List<ComingSoonItemBasicDto> imgFilterItems = latestSortAnimes.stream()
-				.map(ComingSoonItemBasicDto::typeToReleaseDate)
-				.collect(Collectors.toList());
+				mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
+						.map(ComingSoonItemBasicDto::animeTitleTranslationPick)
+						.toList();
 
-		List<ComingSoonItemDto> items = imgFilterItems.stream()
+		List<ComingSoonItemDto> items = latestSortAnimes.stream()
 				.map(b -> new ComingSoonItemDto(
 						b.getAnimeId(),
 						b.getTitle(),
@@ -129,20 +128,20 @@ public class AnimeService {
 
 	private ComingSoonPageDto getSortPopularityComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
 		List<ComingSoonItemPopularityDto> popularitySortAnimes =
-				mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto);
-		List<ComingSoonItemPopularityDto> imgFilterItems = popularitySortAnimes.stream()
-				.map(ComingSoonItemPopularityDto::typeToReleaseDate)
-				.collect(Collectors.toList());
+				mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto)
+						.stream()
+						.map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
+						.toList();
 
 		Long nextId;
 
-		if (imgFilterItems.isEmpty()) {
+		if (popularitySortAnimes.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getScore();
+			nextId = popularitySortAnimes.getLast().getScore();
 		}
 
-		List<ComingSoonItemDto> items = imgFilterItems.stream()
+		List<ComingSoonItemDto> items = popularitySortAnimes.stream()
 				.map(b -> new ComingSoonItemDto(
 						b.getAnimeId(),
 						b.getTitle(),
@@ -157,21 +156,19 @@ public class AnimeService {
 	}
 
 	private ComingSoonPageDto getSortStartDateComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
-		List<ComingSoonItemBasicDto> starDateSortAnimes =
+		List<ComingSoonItemAllTitleDto> starDateSortAnimes =
 				mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
-		List<ComingSoonItemBasicDto> imgFilterItems = starDateSortAnimes.stream()
-				.collect(Collectors.toList());
 
 		String nextValue;
 
-		if (imgFilterItems.isEmpty()) {
+		if (starDateSortAnimes.isEmpty()) {
 			nextValue = null;
 		} else {
-			nextValue = imgFilterItems.getLast().getStartDate();
+			nextValue = starDateSortAnimes.getLast().getStartDate();
 		}
 
-		List<ComingSoonItemBasicDto> typeCovertAnimes = imgFilterItems.stream()
-				.map(ComingSoonItemBasicDto::typeToReleaseDate)
+		List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
+				.map(ComingSoonItemBasicDto::animeTitleTranslationPick)
 				.collect(Collectors.toList());
 
 		List<ComingSoonItemDto> items = typeCovertAnimes.stream()
@@ -189,7 +186,7 @@ public class AnimeService {
 		if (starDateSortAnimes.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getAnimeId();
+			nextId = starDateSortAnimes.getLast().getAnimeId();
 		}
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);

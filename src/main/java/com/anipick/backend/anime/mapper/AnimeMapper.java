@@ -14,11 +14,11 @@ public interface AnimeMapper {
 
 	long countComingSoon(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemBasicDto> selectComingSoonLatestAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemAllTitleDto> selectComingSoonLatestAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemPopularityDto> selectComingSoonPopularityAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemPopularityAlltitleDto> selectComingSoonPopularityAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemBasicDto> selectComingSoonStartDateAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemAllTitleDto> selectComingSoonStartDateAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
 	Anime selectAnimeByAnimeId(@Param("animeId") Long animeId);
 
