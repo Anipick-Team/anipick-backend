@@ -48,7 +48,10 @@ public class HomeService {
 
     @Transactional(readOnly = true)
     public List<HomeRecentReviewItemDto> getRecentReviews(Long userId) {
-        List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10);
+        List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10)
+                .stream()
+                .map(HomeRecentReviewItemDto::animeTitleTranslationPick)
+                .toList();
 
         List<HomeRecentReviewItemDto> items = raws.stream()
                 .map(dto -> {
