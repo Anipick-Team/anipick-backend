@@ -420,8 +420,34 @@ public class AnimeService {
 		return airDateConvertItems;
   }
 
-	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
-		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
+	public List<AnimeCharacterActorItemPickNameDto> getAnimeInfoCharacterActor(Long animeId) {
+		List<AnimeCharacterActorItemPickNameDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE)
+                .stream()
+                .map(item -> {
+                    String localizedCharacterName = LocalizationUtil.pickCharacterName(
+                            item.getCharacter().getNameKor(),
+                            item.getCharacter().getNameEng()
+                    );
+
+                    String localizedVoiceActorName = LocalizationUtil.pickVoiceActorName(
+                            item.getVoiceActor().getNameKor(),
+                            item.getVoiceActor().getNameEng()
+                    );
+
+                    return AnimeCharacterActorItemPickNameDto.of(
+                            CharacterPickNameDto.from(
+                                    item.getCharacter().getId(),
+                                    localizedCharacterName,
+                                    item.getCharacter().getImageUrl()
+                            ),
+                            VoiceActorPickNameDto.from(
+                                    item.getVoiceActor().getId(),
+                                    localizedVoiceActorName,
+                                    item.getVoiceActor().getImageUrl()
+                            )
+                    );
+                })
+                .toList();
 		return items;
 	}
 

@@ -88,11 +88,11 @@ public class AnimeController {
 	}
   
 	@GetMapping("/{animeId}/detail/actor")
-	public ApiResponse<List<AnimeCharacterActorItemDto>> getAnimeInfoCharacterActor(
+	public ApiResponse<List<AnimeCharacterActorItemPickNameDto>> getAnimeInfoCharacterActor(
 			@PathVariable(value = "animeId") Long animeId,
 			@AuthenticationPrincipal CustomUserDetails user
 	) {
-		List<AnimeCharacterActorItemDto> result = animeService.getAnimeInfoCharacterActor(animeId);
+		List<AnimeCharacterActorItemPickNameDto> result = animeService.getAnimeInfoCharacterActor(animeId);
 		return ApiResponse.success(result);
 	}
 
