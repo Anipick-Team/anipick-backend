@@ -3,9 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.anipick.backend.anime.mapper.StudioMapper">
-    <select id="selectStudiosByAnimeId" resultType="com.anipick.backend.search.dto.StudioItemDto">
+    <select id="selectStudiosByAnimeId" resultType="com.anipick.backend.anime.dto.StudioAllNameItemDto">
         SELECT s.studio_id AS studioId,
-               s.name_kor AS name
+               s.name_kor AS nameKor,
+               s.name_eng AS nameEng
         FROM studio s
                  JOIN animestudio a
                       ON s.studio_id = a.studio_id

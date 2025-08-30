@@ -70,9 +70,10 @@
         WHERE s.name_search LIKE CONCAT('%', #{query}, '%')
     </select>
 
-    <select id="selectSearchStudios" parameterType="map" resultType="com.anipick.backend.search.dto.StudioItemDto">
+    <select id="selectSearchStudios" parameterType="map" resultType="com.anipick.backend.anime.dto.StudioAllNameItemDto">
         SELECT s.studio_id AS studioId,
-        s.name_kor AS name
+               s.name_kor AS nameKor,
+               s.name_eng AS nameEng
         FROM Studio s
         WHERE (
         s.name_search LIKE CONCAT('%', #{query}, '%')

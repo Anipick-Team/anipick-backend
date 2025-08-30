@@ -353,7 +353,10 @@ public class AnimeService {
 
 		List<GenreDto> genres = genreMapper.selectGenresByAnimeId(animeId);
 
-		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId);
+		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId)
+                .stream()
+                .map(StudioItemDto::studioNameTranslationPick)
+                .toList();
 
 		String pickTitle = LocalizationUtil.pickTitle(
 				animeDetailInfoItemDto.getTitleKor(),

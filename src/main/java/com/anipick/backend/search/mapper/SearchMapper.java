@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.anipick.backend.anime.dto.AnimeAllTitleImgDto;
+import com.anipick.backend.anime.dto.StudioAllNameItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -34,7 +35,7 @@ public interface SearchMapper {
 
 	long countSearchStudio(@Param(value = "query") String query);
 
-	List<StudioItemDto> selectSearchStudios(
+	List<StudioAllNameItemDto> selectSearchStudios(
 		@Param(value = "query") String query,
 		@Param(value = "lastId") Long lastId,
 		@Param(value = "size") Long size

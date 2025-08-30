@@ -87,7 +87,10 @@ public class SearchService {
 		long animeCount = mapper.countSearchAnime(query);
 		long personCount = mapper.countSearchPerson(query);
 
-		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size);
+		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size)
+				.stream()
+				.map(StudioItemDto::studioNameTranslationPick)
+				.toList();
 
 		Long nextId;
 
