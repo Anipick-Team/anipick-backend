@@ -23,4 +23,19 @@ public class LocalizationUtil {
         }
         return "제목 정보 없음";
     }
+
+    /**
+     * @param korName 번역
+     * @param engName 영어
+     * @return 우선순위 번역-영어 (전부 null일 경우, "제작사 이름 정보 없음" 리턴)
+     */
+    public static String pickStudioName(String korName, String engName) {
+        if (korName != null && !korName.isBlank()) {
+            return korName;
+        }
+        if (engName != null && !engName.isBlank()) {
+            return engName;
+        }
+        return "제작사 이름 정보 없음";
+    }
 }
