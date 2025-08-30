@@ -7,6 +7,7 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.anime.mapper.StudioMapper;
 import com.anipick.backend.anime.util.FormatConvert;
+import com.anipick.backend.anime.util.LocalizationUtil;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
@@ -342,15 +343,29 @@ public class AnimeService {
 			airDate = animeDetailInfoItemDto.getStartDate().getYear() + "년 " + season.getName();
 		}
 
+		Long episodeCount;
+		if (animeDetailInfoItemDto.getEpisode() == null) {
+			episodeCount = 0L;
+		} else {
+			episodeCount = animeDetailInfoItemDto.getEpisode();
+		}
+
 		String type = FormatConvert.toClientType(animeDetailInfoItemDto.getType());
 
 		List<GenreDto> genres = genreMapper.selectGenresByAnimeId(animeId);
 
 		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId);
 
+		String pickTitle = LocalizationUtil.pickTitle(
+				animeDetailInfoItemDto.getTitleKor(),
+				animeDetailInfoItemDto.getTitleEng(),
+				animeDetailInfoItemDto.getTitleRom(),
+				animeDetailInfoItemDto.getTitleNat()
+		);
+
 		return AnimeDetailInfoResultDto.builder()
 				.animeId(animeDetailInfoItemDto.getAnimeId())
-				.title(animeDetailInfoItemDto.getTitle())
+				.title(pickTitle)
 				.coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
 				.bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
 				.description(animeDetailInfoItemDto.getDescription())
@@ -360,7 +375,7 @@ public class AnimeService {
 				.type(type)
 				.reviewCount(animeDetailInfoItemDto.getReviewCount())
 				.genres(genres)
-				.episode(animeDetailInfoItemDto.getEpisode())
+				.episode(episodeCount)
 				.airDate(airDate)
 				.status(animeDetailInfoItemDto.getStatus().getStatusName())
 				.age(animeDetailInfoItemDto.getAge())
