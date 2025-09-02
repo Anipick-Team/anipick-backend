@@ -39,7 +39,7 @@ public class SecurityConfig {
                                                 "/intro.html",
                                                 "/intro.css",
                                                 "/intro.js",
-                                                "/static/image/**",
+                                                "/image/**",
                                                 "./upload/image/anipick_mascot.png",
                                                 "./upload/image/default.jpg",
                                                 "/privacy.html",
