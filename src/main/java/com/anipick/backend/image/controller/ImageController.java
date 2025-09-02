@@ -7,7 +7,9 @@ import com.anipick.backend.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,17 +31,14 @@ public class ImageController {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("imageId") Long imageId
     ) {
-        try {
-            Resource resource = imageService.getImageResourceOnServer(imageId);
-            String contentType = Files.probeContentType(resource.getFile().toPath());
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-        } catch (IOException e) {
-            log.error("IO error : ", e);
-        }
-
-        return ResponseEntity.notFound().build();
+        Resource resource = imageService.getImageResourceOnServer(imageId);
+        MediaType mediaType = MediaTypeFactory
+                .getMediaType(Optional.ofNullable(resource.getFilename()).orElse(""))
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .cacheControl(CacheControl.noCache())
+                .body(resource);
     }
 
     @PostMapping("/profile-image")
