@@ -58,6 +58,7 @@ public enum ErrorCode {
 	 * Server Errors
 	 */
 	INTERNAL_SERVER_ERROR(500, "서버 오류", "서버에 문제가 발생했습니다."),
+	GET_LOCK_FAILED(501, "서버 오류 락 획득 실패", null),
 	/**
 	 * Anime Explore
 	 */
