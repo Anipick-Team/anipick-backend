@@ -1,4 +1,4 @@
-package com.anipick.backend.mypage.dto;
+package com.anipick.backend.image.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

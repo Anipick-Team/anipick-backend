@@ -33,7 +33,8 @@
             r.rating,
             r.content AS reviewContent,
             u.nickname,
-            u.profile_image_url AS profileImageUrl,
+        -- profiler_image_url -> image.image_id 로 변경
+            i.image_id AS profileImageUrl,
             r.created_at AS createdAt,
             r.like_count AS likeCount,
         -- 내가 좋아요 눌렀는지
@@ -48,7 +49,8 @@
         LEFT JOIN ReviewLike rl
             ON rl.review_id = r.review_id
         AND rl.user_id = #{currentUserId}
-
+        LEFT JOIN Image i
+        ON i.auth_id = u.user_id
         WHERE r.is_spoiler = FALSE
         AND r.content IS NOT NULL
         -- 신고된 리뷰는 제외

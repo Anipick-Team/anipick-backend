@@ -12,6 +12,7 @@ import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
 import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsRequestDto;
+import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.search.dto.StudioItemDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -208,11 +209,19 @@ public class AnimeService {
 					LocalDateTime dateTime = LocalDateTime.parse(dto.getCreatedAt(), parser);
 					String formattedDate = dateTime.format(formatter);
 
+					String imageIdStr = dto.getProfileImageUrl();
+					if (imageIdStr == null) {
+						imageIdStr = "-1";
+					}
+					Long imageId = Long.parseLong(imageIdStr);
+
+					String imageUrlEndpoint = getImageUrlEndpoint(imageId);
+
 					return AnimeDetailInfoReviewsResultDto.of(
 							dto.getReviewId(),
 							dto.getUserId(),
 							dto.getNickname(),
-							dto.getProfileImageUrl(),
+							imageUrlEndpoint,
 							dto.getRating(),
 							dto.getContent(),
 							formattedDate,
@@ -371,7 +380,7 @@ public class AnimeService {
 				.coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
 				.bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
 				.description(animeDetailInfoItemDto.getDescription())
-				.averageRating(animeDetailInfoItemDto.getAverageRating())
+				.averageRating(animeDetailInfoItemDto.getAverageRatingAsString())
 				.isLiked(animeDetailInfoItemDto.getIsLiked())
 				.watchStatus(animeDetailInfoItemDto.getWatchStatus())
 				.type(type)
@@ -599,5 +608,9 @@ public class AnimeService {
 
 		String formattedDate = dateTime.format(formatter);
 		return AnimeMyReviewResultDto.createdAtFormatted(result, formattedDate);
+	}
+
+	public String getImageUrlEndpoint(Long imageId) {
+		return ImageDefaults.IMAGE_ENDPOINT + imageId;
 	}
 }

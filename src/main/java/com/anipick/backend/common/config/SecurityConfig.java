@@ -37,7 +37,11 @@ public class SecurityConfig {
                                                 "/api/oauth/**",
                                                 "/api/animes/meta-data-group",
                                                 "/intro.html",
+                                                "/intro.css",
+                                                "/intro.js",
+                                                "/image/**",
                                                 "./upload/image/anipick_mascot.png",
+                                                "./upload/image/default.jpg",
                                                 "/privacy.html",
                                                 "/terms.html",
                                                 "/images/profile/**")
