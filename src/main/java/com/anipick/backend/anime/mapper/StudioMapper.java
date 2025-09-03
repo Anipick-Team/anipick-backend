@@ -1,7 +1,8 @@
 package com.anipick.backend.anime.mapper;
 
-import com.anipick.backend.search.dto.StudioItemDto;
-import com.anipick.backend.studio.dto.StudioAnimeItemDto;
+import com.anipick.backend.anime.dto.StudioAllNameItemDto;
+import com.anipick.backend.studio.dto.StudioAnimeAllTitleItemDto;
+import com.anipick.backend.studio.dto.StudioName;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,11 +10,11 @@ import java.util.List;
 
 @Mapper
 public interface StudioMapper {
-    List<StudioItemDto> selectStudiosByAnimeId(@Param(value = "animeId") Long animeId);
+    List<StudioAllNameItemDto> selectStudiosByAnimeId(@Param(value = "animeId") Long animeId);
 
-    String selectStudioNameByStudioId(@Param(value = "studioId") Long studioId);
+    StudioName selectStudioNameByStudioId(@Param(value = "studioId") Long studioId);
 
-    List<StudioAnimeItemDto> selectAnimesOfStudio(
+    List<StudioAnimeAllTitleItemDto> selectAnimesOfStudio(
             @Param(value = "studioId") Long studioId,
             @Param(value = "lastId") Long lastId,
             @Param(value = "lastValue") Long lastValue,

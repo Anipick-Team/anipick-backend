@@ -2,9 +2,11 @@ package com.anipick.backend.studio.service;
 
 import com.anipick.backend.anime.mapper.StudioMapper;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.studio.dto.StudioAnimeItemDto;
 import com.anipick.backend.studio.dto.StudioAnimeItemStringYearDto;
 import com.anipick.backend.studio.dto.StudioDetailPageDto;
+import com.anipick.backend.studio.dto.StudioName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +20,14 @@ public class StudioService {
 
 
     public StudioDetailPageDto getStudioAnimes(Long studioId, Long lastId, Long lastValue, int size) {
-        String studioName = studioMapper.selectStudioNameByStudioId(studioId);
+        StudioName studioNameKorAndEng = studioMapper.selectStudioNameByStudioId(studioId);
 
-        List<StudioAnimeItemDto> items = studioMapper.selectAnimesOfStudio(studioId, lastId, lastValue, size);
+        String studioName = LocalizationUtil.pickStudioName(studioNameKorAndEng.getNameKor(), studioNameKorAndEng.getNameEng());
+
+        List<StudioAnimeItemDto> items = studioMapper.selectAnimesOfStudio(studioId, lastId, lastValue, size)
+                .stream()
+                .map(StudioAnimeItemDto::animeTitleTranslationPick)
+                .toList();
 
         Long nextId;
         Long nextValue;

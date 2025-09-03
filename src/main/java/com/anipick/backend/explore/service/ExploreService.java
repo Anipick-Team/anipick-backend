@@ -55,7 +55,10 @@ public class ExploreService {
 
         long total = mapper.countExplored(exploreRequestDto);
 
-        List<ExploreItemDto> internal = mapper.selectExplored(exploreRequestDto);
+        List<ExploreItemDto> internal = mapper.selectExplored(exploreRequestDto)
+				.stream()
+				.map(ExploreItemDto::animeTitleTranslationPick)
+				.toList();
 
 		int lastIndex = internal.size() - 1;
 

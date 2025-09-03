@@ -11,5 +11,5 @@ import lombok.Getter;
 @AllArgsConstructor(staticName = "of")
 public class AnimeCharacterActorPageDto {
     private CursorDto cursor;
-    private List<AnimeCharacterActorResultDto> characters;
+    private List<AnimeCharacterActorItemWithRoleDto> characters;
 }

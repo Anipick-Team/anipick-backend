@@ -11,33 +11,33 @@ import java.util.List;
 public interface MyPageMapper {
     Long getMyWatchCount(@Param("userId") Long userId, @Param("animeStatus") String animeStatus);
 
-    List<LikedAnimesDto> getMyLikedAnimes(
+    List<LikedAnimesAllTitleDto> getMyLikedAnimes(
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
     );
 
-    List<LikedPersonsDto> getMyLikedPersons(
+    List<LikedPersonsAllNameDto> getMyLikedPersons(
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
     );
 
-    List<WatchListAnimesDto> getMyWatchListAnimes(
-            @Param("userId") Long userId,
-            @Param("status") String status,
-            @Param("lastId") Long lastId,
-            @Param("size") Integer size
-    );
-
-    List<WatchingAnimesDto> getMyWatchingAnimes(
+    List<WatchListAnimesAllTitleDto> getMyWatchListAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
     );
 
-    List<FinishedAnimesDto> getMyFinishedAnimes(
+    List<WatchingAnimesAllTitleDto> getMyWatchingAnimes(
+            @Param("userId") Long userId,
+            @Param("status") String status,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
+    );
+
+    List<FinishedAnimesAllTitleDto> getMyFinishedAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
             @Param("lastId") Long lastId,
@@ -46,7 +46,7 @@ public interface MyPageMapper {
 
     Long getMyReviewCount(@Param("userId") Long userId);
 
-    List<AnimesReviewDto> getMyAnimesReviewsAll( // 리뷰만 보기 off
+    List<AnimesAllTitleReviewDto> getMyAnimesReviewsAll( // 리뷰만 보기 off
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size,
@@ -55,7 +55,7 @@ public interface MyPageMapper {
             @Param("lastRating") Double lastRating
     );
 
-    List<AnimesReviewDto> getMyAnimesReviewsOnly( // 리뷰만 보기 on
+    List<AnimesAllTitleReviewDto> getMyAnimesReviewsOnly( // 리뷰만 보기 on
             @Param("userId") Long userId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size,

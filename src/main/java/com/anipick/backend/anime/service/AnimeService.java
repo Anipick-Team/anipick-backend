@@ -7,6 +7,7 @@ import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.anime.mapper.StudioMapper;
 import com.anipick.backend.anime.util.FormatConvert;
+import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.anime.dto.AnimeDetailInfoReviewsPageDto;
@@ -26,7 +27,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -60,13 +60,15 @@ public class AnimeService {
 			.endDate(endDate)
 			.build();
 
-		List<AnimeIdTitleImgItemDto> nextSeasonAnimes =
-			mapper.selectUpcomingSeasonAnimes(rangeDateRequestDto);
+		List<AnimeItemDto> nextSeasonAnimes = mapper.selectUpcomingSeasonAnimes(rangeDateRequestDto)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.collect(Collectors.toList());
 
 		Collections.shuffle(nextSeasonAnimes);
 
 		if (nextSeasonAnimes.size() > 10) {
-			List<AnimeIdTitleImgItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
+			List<AnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
 			return UpcomingSeasonResultDto.of(season, seasonYear, animes10SubList);
 		}
 		return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);
@@ -99,12 +101,11 @@ public class AnimeService {
 
 	private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
 		List<ComingSoonItemBasicDto> latestSortAnimes =
-				mapper.selectComingSoonLatestAnimes(comingSoonRequestDto);
-		List<ComingSoonItemBasicDto> imgFilterItems = latestSortAnimes.stream()
-				.map(ComingSoonItemBasicDto::typeToReleaseDate)
-				.collect(Collectors.toList());
+				mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
+						.map(ComingSoonItemBasicDto::animeTitleTranslationPick)
+						.toList();
 
-		List<ComingSoonItemDto> items = imgFilterItems.stream()
+		List<ComingSoonItemDto> items = latestSortAnimes.stream()
 				.map(b -> new ComingSoonItemDto(
 						b.getAnimeId(),
 						b.getTitle(),
@@ -128,20 +129,20 @@ public class AnimeService {
 
 	private ComingSoonPageDto getSortPopularityComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
 		List<ComingSoonItemPopularityDto> popularitySortAnimes =
-				mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto);
-		List<ComingSoonItemPopularityDto> imgFilterItems = popularitySortAnimes.stream()
-				.map(ComingSoonItemPopularityDto::typeToReleaseDate)
-				.collect(Collectors.toList());
+				mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto)
+						.stream()
+						.map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
+						.toList();
 
 		Long nextId;
 
-		if (imgFilterItems.isEmpty()) {
+		if (popularitySortAnimes.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getScore();
+			nextId = popularitySortAnimes.getLast().getScore();
 		}
 
-		List<ComingSoonItemDto> items = imgFilterItems.stream()
+		List<ComingSoonItemDto> items = popularitySortAnimes.stream()
 				.map(b -> new ComingSoonItemDto(
 						b.getAnimeId(),
 						b.getTitle(),
@@ -156,21 +157,19 @@ public class AnimeService {
 	}
 
 	private ComingSoonPageDto getSortStartDateComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
-		List<ComingSoonItemBasicDto> starDateSortAnimes =
+		List<ComingSoonItemAllTitleDto> starDateSortAnimes =
 				mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
-		List<ComingSoonItemBasicDto> imgFilterItems = starDateSortAnimes.stream()
-				.collect(Collectors.toList());
 
 		String nextValue;
 
-		if (imgFilterItems.isEmpty()) {
+		if (starDateSortAnimes.isEmpty()) {
 			nextValue = null;
 		} else {
-			nextValue = imgFilterItems.getLast().getStartDate();
+			nextValue = starDateSortAnimes.getLast().getStartDate();
 		}
 
-		List<ComingSoonItemBasicDto> typeCovertAnimes = imgFilterItems.stream()
-				.map(ComingSoonItemBasicDto::typeToReleaseDate)
+		List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
+				.map(ComingSoonItemBasicDto::animeTitleTranslationPick)
 				.collect(Collectors.toList());
 
 		List<ComingSoonItemDto> items = typeCovertAnimes.stream()
@@ -188,12 +187,12 @@ public class AnimeService {
 		if (starDateSortAnimes.isEmpty()) {
 			nextId = null;
 		} else {
-			nextId = imgFilterItems.getLast().getAnimeId();
+			nextId = starDateSortAnimes.getLast().getAnimeId();
 		}
 		CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
 		return ComingSoonPageDto.of(totalCount, cursor, items);
 	}
-  
+
 	public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Long lastId, String lastValue, int size) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
@@ -338,7 +337,7 @@ public class AnimeService {
 
 		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
   }
-  
+
 	@Transactional(readOnly = true)
 	public AnimeDetailInfoResultDto getAnimeInfoDetail(Long animeId, Long userId) {
 		AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
@@ -352,15 +351,32 @@ public class AnimeService {
 			airDate = animeDetailInfoItemDto.getStartDate().getYear() + "년 " + season.getName();
 		}
 
+		Long episodeCount;
+		if (animeDetailInfoItemDto.getEpisode() == null) {
+			episodeCount = 0L;
+		} else {
+			episodeCount = animeDetailInfoItemDto.getEpisode();
+		}
+
 		String type = FormatConvert.toClientType(animeDetailInfoItemDto.getType());
 
 		List<GenreDto> genres = genreMapper.selectGenresByAnimeId(animeId);
 
-		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId);
+		List<StudioItemDto> studios = studioMapper.selectStudiosByAnimeId(animeId)
+                .stream()
+                .map(StudioItemDto::studioNameTranslationPick)
+                .toList();
+
+		String pickTitle = LocalizationUtil.pickTitle(
+				animeDetailInfoItemDto.getTitleKor(),
+				animeDetailInfoItemDto.getTitleEng(),
+				animeDetailInfoItemDto.getTitleRom(),
+				animeDetailInfoItemDto.getTitleNat()
+		);
 
 		return AnimeDetailInfoResultDto.builder()
 				.animeId(animeDetailInfoItemDto.getAnimeId())
-				.title(animeDetailInfoItemDto.getTitle())
+				.title(pickTitle)
 				.coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
 				.bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
 				.description(animeDetailInfoItemDto.getDescription())
@@ -370,23 +386,29 @@ public class AnimeService {
 				.type(type)
 				.reviewCount(animeDetailInfoItemDto.getReviewCount())
 				.genres(genres)
-				.episode(animeDetailInfoItemDto.getEpisode())
+				.episode(episodeCount)
 				.airDate(airDate)
 				.status(animeDetailInfoItemDto.getStatus().getStatusName())
 				.age(animeDetailInfoItemDto.getAge())
 				.studios(studios)
 				.build();
   }
-  
+
 	public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
-		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE);		
-    return items;
+		List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
+    	return items;
 	}
-  
+
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
 		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
 
-		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE);
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE)
+				.stream()
+				.map(AnimeDateItemDto::animeTitleTranslationPick)
+				.toList();
 
 		List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
 				.map(dto -> {
@@ -406,24 +428,105 @@ public class AnimeService {
 				.toList();
 		return airDateConvertItems;
   }
-  
-	public List<AnimeCharacterActorItemDto> getAnimeInfoCharacterActor(Long animeId) {
-		List<AnimeCharacterActorItemDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE);
+
+	public List<AnimeCharacterActorItemPickNameDto> getAnimeInfoCharacterActor(Long animeId) {
+		List<AnimeCharacterActorItemPickNameDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE)
+                .stream()
+                .map(item -> {
+                    String localizedCharacterName = LocalizationUtil.pickCharacterName(
+                            item.getCharacter().getNameKor(),
+                            item.getCharacter().getNameEng()
+                    );
+
+					VoiceActorDto voiceActor = item.getVoiceActor();
+					// 캐릭터만 있고, 성우만 존재하는 경우
+					if (voiceActor == null) {
+						return AnimeCharacterActorItemPickNameDto.of(
+							CharacterPickNameDto.from(
+								item.getCharacter().getId(),
+								localizedCharacterName,
+								item.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								null,
+								null,
+								null
+							)
+						);
+					}
+
+					String localizedVoiceActorName = LocalizationUtil.pickVoiceActorName(
+                            voiceActor.getNameKor(),
+							voiceActor.getNameEng()
+                    );
+
+                    return AnimeCharacterActorItemPickNameDto.of(
+                            CharacterPickNameDto.from(
+                                    item.getCharacter().getId(),
+                                    localizedCharacterName,
+                                    item.getCharacter().getImageUrl()
+                            ),
+                            VoiceActorPickNameDto.from(
+                                    item.getVoiceActor().getId(),
+                                    localizedVoiceActorName,
+                                    item.getVoiceActor().getImageUrl()
+                            )
+                    );
+                })
+                .toList();
 		return items;
 	}
 
 	public AnimeCharacterActorPageDto getAnimeCharacterActor(Long animeId, Long lastId, AnimeCharacterRole lastValue, int size) {
         List<AnimeCharacterActorResultDto> items = mapper.selectAnimeCharacterActors(animeId, lastId, lastValue, size);
 
+        List<AnimeCharacterActorItemWithRoleDto> pickNameCharacterAndActors = items.stream()
+                .map(dto -> {
+					// 캐릭터만 있고, 성우만 존재하는 경우
+					if (dto.getVoiceActor() == null) {
+						return AnimeCharacterActorItemWithRoleDto.of(
+							CharacterPickNameDto.from(
+								dto.getCharacter().getId(),
+								LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(),
+									dto.getCharacter().getNameEng()),
+								dto.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								null,
+								null,
+								null
+							),
+							dto.getRole()
+						);
+					}
+						return AnimeCharacterActorItemWithRoleDto.of(
+							CharacterPickNameDto.from(
+								dto.getCharacter().getId(),
+								LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(),
+									dto.getCharacter().getNameEng()),
+								dto.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								dto.getVoiceActor().getId(),
+								LocalizationUtil.pickVoiceActorName(dto.getVoiceActor().getNameKor(),
+									dto.getVoiceActor().getNameEng()),
+								dto.getVoiceActor().getImageUrl()
+							),
+							dto.getRole()
+						);
+					}
+				)
+                .toList();
+
         Long nextId;
         AnimeCharacterRole nextValue;
 
-        if (items.isEmpty()) {
+        if (pickNameCharacterAndActors.isEmpty()) {
             nextId = null;
             nextValue = null;
         } else {
-            nextId = items.getLast().getCharacter().getId();
-            nextValue = items.getLast().getRole();
+            nextId = pickNameCharacterAndActors.getLast().getCharacter().getId();
+            nextValue = pickNameCharacterAndActors.getLast().getRole();
         }
 
         String nextValueStr;
@@ -434,14 +537,18 @@ public class AnimeService {
         }
 
         CursorDto cursor = CursorDto.of(null, nextId, nextValueStr);
-        return AnimeCharacterActorPageDto.of(cursor, items);
+        return AnimeCharacterActorPageDto.of(cursor, pickNameCharacterAndActors);
     }
 
 	public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {
 		Anime anime = mapper.selectAnimeByAnimeId(animeId);
-		String animeTitle = anime.getTitleKor();
 
-		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size);
+		String animeTitle = anime.getTitlePick();
+
+		List<AnimeItemDto> items = mapper.selectRecommendationsByAnimeId(animeId, lastId, size)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 
 		Long nextId;
 		if (items.isEmpty()) {
@@ -458,7 +565,10 @@ public class AnimeService {
 
 		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
 
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size);
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size)
+				.stream()
+				.map(AnimeDateItemDto::animeTitleTranslationPick)
+				.toList();
 		List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
 				.map(dto -> {
 					LocalDate date = dto.getStartDate();

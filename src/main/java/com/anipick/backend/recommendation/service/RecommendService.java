@@ -75,7 +75,11 @@ public class RecommendService {
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, lastValue, lastId, size);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
+
             recommendTagCountDtoAnimes = recommendAnimes;
 
             resultAnimes = recommendAnimes.stream()
@@ -110,7 +114,11 @@ public class RecommendService {
             TagBasedCountOnlyRequest request =
                     TagBasedCountOnlyRequest.of(userId, tagIds, lastValue, lastId, size);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
+
             recommendTagCountDtoAnimes = recommendAnimes;
 
             resultAnimes = recommendAnimes.stream()
@@ -153,7 +161,11 @@ public class RecommendService {
         RecentHighCountOnlyRequest request =
                 RecentHighCountOnlyRequest.of(userId, animeId, tagIds, lastValue, lastId, size);
 
-        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                .stream()
+                .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                .toList();
+
         recommendTagCountDtoAnimes = recommendAnimes;
 
         resultAnimes = recommendAnimes.stream()

@@ -51,8 +51,10 @@ public class UserSignUpAnimeService {
         long totalCount = userSignUpAnimeMapper.countExploredAndSearch(requestDto);
 
 
-        List<SignUpPopularAnimeItemDto> items = userSignUpAnimeMapper.
-                selectAnimeExploredAndSearch(requestDto);
+        List<SignUpPopularAnimeItemDto> items = userSignUpAnimeMapper.selectAnimeExploredAndSearch(requestDto)
+                .stream()
+                .map(SignUpPopularAnimeItemDto::animeTitleTranslationPick)
+                .toList();
 
         List<SignUpAnimeItemDto> result = new ArrayList<>();
 

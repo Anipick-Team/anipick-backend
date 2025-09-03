@@ -2,6 +2,7 @@ package com.anipick.backend.anime.dto;
 
 import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.anime.domain.Season;
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,6 +21,23 @@ public class ComingSoonItemBasicDto {
     private Boolean isAdult;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+
+    public static ComingSoonItemBasicDto animeTitleTranslationPick(ComingSoonItemAllTitleDto dto) {
+        String title = LocalizationUtil.pickTitle(
+                dto.getTitleKor(),
+                dto.getTitleEng(),
+                dto.getTitleRom(),
+                dto.getTitleNat()
+        );
+        return new ComingSoonItemBasicDto(
+                dto.getAnimeId(),
+                title,
+                dto.getCoverImageUrl(),
+                dto.getStartDate(),
+                dto.getFormat(),
+                dto.getIsAdult()
+        ).typeToReleaseDate();
+    }
 
     public ComingSoonItemBasicDto typeToReleaseDate() {
         if (this.startDate == null || this.startDate.isBlank()) {

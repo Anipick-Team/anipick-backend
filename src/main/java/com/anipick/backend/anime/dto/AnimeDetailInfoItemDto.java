@@ -9,7 +9,10 @@ import java.time.LocalDate;
 @Getter
 public class AnimeDetailInfoItemDto {
     private Long animeId;
-    private String title;
+    private String titleKor;
+    private String titleEng;
+    private String titleRom;
+    private String titleNat;
     private String coverImageUrl;
     private String bannerImageUrl;
     private String description;

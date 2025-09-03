@@ -1,7 +1,7 @@
 package com.anipick.backend.home.mapper;
 
-import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
-import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
+import com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto;
+import com.anipick.backend.home.dto.HomeRecentReviewAnimeAllTitleItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,12 +9,12 @@ import java.util.List;
 
 @Mapper
 public interface HomeMapper {
-    List<HomeRecentReviewItemDto> selectHomeRecentReviews(
+    List<HomeRecentReviewAnimeAllTitleItemDto> selectHomeRecentReviews(
             @Param(value = "currentUserId") Long userId,
             @Param(value = "size") int size
     );
 
-    List<ComingSoonItemBasicDto> selectHomeComingSoonAnimes(
+    List<ComingSoonItemAllTitleDto> selectHomeComingSoonAnimes(
             @Param(value = "defaultCoverUrl") String defaultCoverUrl,
             @Param(value = "orderByQuery") String orderByQuery,
             @Param(value = "size") int size

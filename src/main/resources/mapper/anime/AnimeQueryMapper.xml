@@ -6,9 +6,12 @@
 <mapper namespace="com.anipick.backend.anime.mapper.AnimeMapper">
     <select id="selectUpcomingSeasonAnimes"
             parameterType="com.anipick.backend.anime.dto.RangeDateRequestDto"
-            resultType="com.anipick.backend.anime.dto.AnimeIdTitleImgItemDto">
+            resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl
         FROM Anime a
         JOIN PopularityAnimeOrder pao
@@ -35,9 +38,12 @@
 
     <select id="selectComingSoonLatestAnimes"
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate,
                a.format AS format,
@@ -59,9 +65,12 @@
 
     <select id="selectComingSoonPopularityAnimes"
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.dto.ComingSoonItemPopularityDto">
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemPopularityAlltitleDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate,
                a.format AS format,
@@ -86,9 +95,12 @@
 
     <select id="selectComingSoonStartDateAnimes"
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
-            resultType="com.anipick.backend.anime.dto.ComingSoonItemBasicDto">
+            resultType="com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate,
                a.format AS format,
@@ -121,6 +133,9 @@
     <select id="selectAnimeByAnimeId" resultType="com.anipick.backend.anime.domain.Anime">
         SELECT a.anime_id AS animeId,
                a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.banner_image_url AS bannerImageUrl,
                a.description_kor AS descriptionKor,
@@ -219,7 +234,10 @@
 
     <select id="selectAnimeInfoDetail" resultType="com.anipick.backend.anime.dto.AnimeDetailInfoItemDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.banner_image_url AS bannerImageUrl,
                a.description_kor AS description,
@@ -242,9 +260,12 @@
         WHERE a.anime_id = #{animeId}
     </select>
 
-    <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+    <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl
         FROM anime a
         WHERE a.anime_id IN (SELECT ara.anime_id
@@ -260,9 +281,12 @@
         WHERE ra.anime_id = #{animeId}
     </select>
 
-    <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
+    <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate
         FROM anime a
@@ -280,15 +304,17 @@
 
         <association property="character"
                      javaType="com.anipick.backend.anime.dto.CharacterDto">
-            <id column="character_id" property="id"/>
-            <result column="character_name" property="name"/>
+            <result column="character_id" property="id"/>
+            <result column="character_name_kor" property="nameKor"/>
+            <result column="character_name_eng" property="nameEng"/>
             <result column="character_image_url" property="imageUrl"/>
         </association>
 
         <association property="voiceActor"
                      javaType="com.anipick.backend.anime.dto.VoiceActorDto">
-            <id column="voiceactor_id" property="id"/>
-            <result column="voiceactor_name" property="name"/>
+            <result column="voiceactor_id" property="id"/>
+            <result column="voiceactor_name_kor" property="nameKor"/>
+            <result column="voiceactor_name_eng" property="nameEng"/>
             <result column="voiceactor_image_url" property="imageUrl"/>
         </association>
 
@@ -297,20 +323,21 @@
 
     <select id="selectAnimeInfoCharacterActors" resultMap="AnimeCharacterActorItemMap">
         SELECT c.character_id  AS character_id,
-               c.name_kor AS character_name,
+               c.name_kor AS character_name_kor,
+               c.name_eng AS character_name_eng,
                c.profile_image AS character_image_url,
                v.voiceactor_id AS voiceactor_id,
-               v.name_kor AS voiceactor_name,
+               v.name_kor AS voiceactor_name_kor,
+               v.name_eng AS voiceactor_name_eng,
                v.profile_image AS voiceactor_image_url
-        FROM `Character` c
-                 JOIN Characteranime ca
-                      ON c.character_id = ca.character_id
-                 JOIN Voiceactorcharacter vc
+        FROM  Characteranime ca
+                LEFT JOIN `Character` c
+                      ON ca.character_id =  c.character_id
+                LEFT JOIN Voiceactorcharacter vc
                       ON c.character_id = vc.character_id
-                 JOIN Voiceactor v
+                LEFT JOIN Voiceactor v
                       ON vc.voiceactor_id = v.voiceactor_id
         WHERE ca.anime_id = #{animeId}
-        AND v.language = 'Japanese'
         ORDER BY CASE ca.role
                      WHEN 'MAIN' THEN 0
                      WHEN 'SUPPORTING' THEN 1
@@ -322,30 +349,49 @@
     </select>
 
     <resultMap id="AnimeCharacterActorResultMap"
-               type="com.anipick.backend.anime.dto.AnimeCharacterActorResultDto"
-               extends="AnimeCharacterActorItemMap">
-        <result column="role" property="role" jdbcType="VARCHAR"/>
+               type="com.anipick.backend.anime.dto.AnimeCharacterActorResultDto">
+    <association property="character"
+                 javaType="com.anipick.backend.anime.dto.CharacterDto">
+        <result column="character_id" property="id"/>
+        <result column="character_name_kor" property="nameKor"/>
+        <result column="character_name_eng" property="nameEng"/>
+        <result column="character_image_url" property="imageUrl"/>
+    </association>
+
+    <association property="voiceActor"
+                 javaType="com.anipick.backend.anime.dto.VoiceActorDto">
+        <result column="voiceactor_id" property="id"/>
+        <result column="voiceactor_name_kor" property="nameKor"/>
+        <result column="voiceactor_name_eng" property="nameEng"/>
+        <result column="voiceactor_image_url" property="imageUrl"/>
+    </association>
+
+    <association property="role"
+                 javaType="com.anipick.backend.anime.domain.AnimeCharacterRole">
+        <result column="role"/>
+    </association>
     </resultMap>
 
     <select id="selectAnimeCharacterActors"
             resultMap="AnimeCharacterActorResultMap">
         SELECT c.character_id AS character_id,
-               c.name_kor AS character_name,
+               c.name_kor AS character_name_kor,
+               c.name_eng AS character_name_eng,
                c.profile_image AS character_image_url,
                v.voiceactor_id AS voiceactor_id,
-               v.name_kor AS voiceactor_name,
+               v.name_kor AS voiceactor_name_kor,
+               v.name_eng AS voiceactor_name_eng,
                v.profile_image AS voiceactor_image_url,
                ca.role AS role
-        FROM `Character` c
-            JOIN characteranime ca
-                ON c.character_id = ca.character_id
-            JOIN voiceactorcharacter vc
+        FROM  Characteranime ca
+            LEFT JOIN `Character` c
+                ON ca.character_id =  c.character_id
+            LEFT JOIN Voiceactorcharacter vc
                 ON c.character_id = vc.character_id
-            JOIN voiceactor v
+            LEFT JOIN Voiceactor v
                 ON vc.voiceactor_id = v.voiceactor_id
         <where>
             ca.anime_id = #{animeId}
-            AND v.language = 'Japanese'
             <if test="lastId != null and lastValue != null">
                 AND (
                 (CASE ca.role
@@ -394,9 +440,12 @@
         LIMIT #{size}
     </select>
 
-    <select id="selectRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeItemDto">
+    <select id="selectRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl
         FROM anime a
         WHERE a.anime_id IN (SELECT ara.anime_id
@@ -418,9 +467,12 @@
                            AND ra.anime_id != #{refAnimeId})
     </select>
 
-    <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeDateItemDto">
+    <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
-               a.title_kor AS title,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate
         FROM anime a

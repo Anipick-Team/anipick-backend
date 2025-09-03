@@ -52,7 +52,10 @@ public class ReviewService {
         long total = recentReviewMapper.countRecentReviews(userId);
 
         List<RecentReviewItemDto> raws =
-                recentReviewMapper.selectRecentReviews(userId, lastId, size);
+                recentReviewMapper.selectRecentReviews(userId, lastId, size)
+                        .stream()
+                        .map(RecentReviewItemDto::animeTitleTranslationPick)
+                        .toList();
 
         List<RecentReviewItemDto> items = raws.stream()
                 .map(dto -> {

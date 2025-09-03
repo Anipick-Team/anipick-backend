@@ -19,7 +19,10 @@ public class SearchService {
 
 	public SearchInitPageDto findWeekBestAnimes() {
 		LocalDate now = LocalDate.now();
-		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now);
+		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 		return new SearchInitPageDto(items);
 	}
 
@@ -30,7 +33,10 @@ public class SearchService {
 		long personCount = mapper.countSearchPerson(query);
 		long studioCount = mapper.countSearchStudio(query);
 
-		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size);
+		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
 
 		int positionNumber = (int) ((page - 1) * size);
 
@@ -61,7 +67,10 @@ public class SearchService {
 		long animeCount = mapper.countSearchAnime(query);
 		long studioCount = mapper.countSearchStudio(query);
 
-		List<PersonItemDto> items = mapper.selectSearchPersons(query, lastId, size);
+		List<PersonItemDto> items = mapper.selectSearchPersons(query, lastId, size)
+				.stream()
+				.map(PersonItemDto::personNameTranslationPick)
+				.toList();
 
 		Long nextId;
 
@@ -81,7 +90,10 @@ public class SearchService {
 		long animeCount = mapper.countSearchAnime(query);
 		long personCount = mapper.countSearchPerson(query);
 
-		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size);
+		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size)
+				.stream()
+				.map(StudioItemDto::studioNameTranslationPick)
+				.toList();
 
 		Long nextId;
 

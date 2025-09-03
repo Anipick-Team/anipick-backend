@@ -10,15 +10,15 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface AnimeMapper {
-	List<AnimeIdTitleImgItemDto> selectUpcomingSeasonAnimes(RangeDateRequestDto rangeDateRequestDto);
+	List<AnimeAllTitleImgDto> selectUpcomingSeasonAnimes(RangeDateRequestDto rangeDateRequestDto);
 
 	long countComingSoon(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemBasicDto> selectComingSoonLatestAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemAllTitleDto> selectComingSoonLatestAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemPopularityDto> selectComingSoonPopularityAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemPopularityAlltitleDto> selectComingSoonPopularityAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
-	List<ComingSoonItemBasicDto> selectComingSoonStartDateAnimes(ComingSoonRequestDto comingSoonRequestDto);
+	List<ComingSoonItemAllTitleDto> selectComingSoonStartDateAnimes(ComingSoonRequestDto comingSoonRequestDto);
 
 	Anime selectAnimeByAnimeId(@Param("animeId") Long animeId);
 
@@ -35,14 +35,14 @@ public interface AnimeMapper {
 			@Param(value = "userId") Long userId
   );
   
-	List<AnimeItemDto> selectAnimeInfoRecommendationsByAnimeId(
+	List<AnimeAllTitleImgDto> selectAnimeInfoRecommendationsByAnimeId(
 			@Param("animeId") Long animeId,
 			@Param("size") int size
   );
 
 	Long selectSeriesGroupIdByAnimeId(@Param(value = "animeId") Long animeId);
   
-  List<AnimeDateItemDto> selectAnimeInfoSeriesByAnimeId(
+  List<AnimeAllTitleDateDto> selectAnimeInfoSeriesByAnimeId(
 			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "refAnimeId") Long animeId,
 			@Param(value = "size") int size
@@ -67,7 +67,7 @@ public interface AnimeMapper {
         @Param(value = "size") int size
     );
 
-	List<AnimeItemDto> selectRecommendationsByAnimeId(
+	List<AnimeAllTitleImgDto> selectRecommendationsByAnimeId(
 			@Param(value = "animeId") Long animeId,
 			@Param(value = "lastId") Long lastId,
 			@Param(value = "size") int size
@@ -78,7 +78,7 @@ public interface AnimeMapper {
 			@Param(value = "refAnimeId") Long animeId
 	);
 
-	List<AnimeDateItemDto> selectSeriesByAnimeId(
+	List<AnimeAllTitleDateDto> selectSeriesByAnimeId(
 			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "refAnimeId") Long animeId,
 			@Param(value = "lastId") Long lastId,

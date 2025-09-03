@@ -2,6 +2,7 @@ package com.anipick.backend.home.service;
 
 import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
+import com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto;
 import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.domain.SortOption;
@@ -47,7 +48,10 @@ public class HomeService {
 
     @Transactional(readOnly = true)
     public List<HomeRecentReviewItemDto> getRecentReviews(Long userId) {
-        List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10);
+        List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10)
+                .stream()
+                .map(HomeRecentReviewItemDto::animeTitleTranslationPick)
+                .toList();
 
         List<HomeRecentReviewItemDto> items = raws.stream()
                 .map(dto -> {
@@ -72,13 +76,12 @@ public class HomeService {
     public List<HomeComingSoonItemDto> getComingSoonAnimes() {
         SortOption sortOption = SortOption.LATEST;
         String orderByQuery = sortOption.getOrderByQuery();
-        List<ComingSoonItemBasicDto> comingSoonItemBasicDtos = homeMapper.selectHomeComingSoonAnimes(defaultCoverUrl, orderByQuery, 10);
-
-        List<ComingSoonItemBasicDto> typeToReleaseDateList = comingSoonItemBasicDtos.stream()
-                .map(ComingSoonItemBasicDto::typeToReleaseDate)
+        List<ComingSoonItemBasicDto> comingSoonItemBasicDtos = homeMapper.selectHomeComingSoonAnimes(defaultCoverUrl, orderByQuery, 10)
+                .stream()
+                .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                 .toList();
 
-        List<HomeComingSoonItemDto> items = typeToReleaseDateList.stream()
+        List<HomeComingSoonItemDto> items = comingSoonItemBasicDtos.stream()
                 .map(dto -> HomeComingSoonItemDto.of(
                         dto.getAnimeId(),
                         dto.getTitle(),
@@ -125,7 +128,10 @@ public class HomeService {
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, null, null, 10L);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -152,7 +158,10 @@ public class HomeService {
             TagBasedCountOnlyRequest request =
                     TagBasedCountOnlyRequest.of(userId, tagIds, null, null, 10L);
 
-            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request);
+            List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectTagBasedAnimes(request)
+                    .stream()
+                    .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                    .toList();
 
             resultAnimes = recommendAnimes.stream()
                     .map(rec -> new AnimeItemDto(
@@ -176,7 +185,10 @@ public class HomeService {
         RecentHighCountOnlyRequest request =
                 RecentHighCountOnlyRequest.of(userId, animeId, tagIds, null, null, 10L);
 
-        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request);
+        List<AnimeItemRecommendTagCountDto> recommendAnimes = recommendMapper.selectUserRecentHighAnimes(request)
+                .stream()
+                .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
+                .toList();
 
         resultAnimes = recommendAnimes.stream()
                 .map(rec -> new AnimeItemDto(
