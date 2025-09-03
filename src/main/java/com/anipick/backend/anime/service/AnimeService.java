@@ -429,9 +429,26 @@ public class AnimeService {
                             item.getCharacter().getNameEng()
                     );
 
-                    String localizedVoiceActorName = LocalizationUtil.pickVoiceActorName(
-                            item.getVoiceActor().getNameKor(),
-                            item.getVoiceActor().getNameEng()
+					VoiceActorDto voiceActor = item.getVoiceActor();
+					// 캐릭터만 있고, 성우만 존재하는 경우
+					if (voiceActor == null) {
+						return AnimeCharacterActorItemPickNameDto.of(
+							CharacterPickNameDto.from(
+								item.getCharacter().getId(),
+								localizedCharacterName,
+								item.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								null,
+								null,
+								null
+							)
+						);
+					}
+
+					String localizedVoiceActorName = LocalizationUtil.pickVoiceActorName(
+                            voiceActor.getNameKor(),
+							voiceActor.getNameEng()
                     );
 
                     return AnimeCharacterActorItemPickNameDto.of(
@@ -455,19 +472,41 @@ public class AnimeService {
         List<AnimeCharacterActorResultDto> items = mapper.selectAnimeCharacterActors(animeId, lastId, lastValue, size);
 
         List<AnimeCharacterActorItemWithRoleDto> pickNameCharacterAndActors = items.stream()
-                .map(dto -> AnimeCharacterActorItemWithRoleDto.of(
-                        CharacterPickNameDto.from(
-                                dto.getCharacter().getId(),
-                                LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(), dto.getCharacter().getNameEng()),
-                                dto.getCharacter().getImageUrl()
-                        ),
-                        VoiceActorPickNameDto.from(
-                                dto.getVoiceActor().getId(),
-                                LocalizationUtil.pickVoiceActorName(dto.getVoiceActor().getNameKor(), dto.getVoiceActor().getNameEng()),
-                                dto.getVoiceActor().getImageUrl()
-                        ),
-                        dto.getRole()
-                ))
+                .map(dto -> {
+					// 캐릭터만 있고, 성우만 존재하는 경우
+					if (dto.getVoiceActor() == null) {
+						return AnimeCharacterActorItemWithRoleDto.of(
+							CharacterPickNameDto.from(
+								dto.getCharacter().getId(),
+								LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(),
+									dto.getCharacter().getNameEng()),
+								dto.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								null,
+								null,
+								null
+							),
+							dto.getRole()
+						);
+					}
+						return AnimeCharacterActorItemWithRoleDto.of(
+							CharacterPickNameDto.from(
+								dto.getCharacter().getId(),
+								LocalizationUtil.pickCharacterName(dto.getCharacter().getNameKor(),
+									dto.getCharacter().getNameEng()),
+								dto.getCharacter().getImageUrl()
+							),
+							VoiceActorPickNameDto.from(
+								dto.getVoiceActor().getId(),
+								LocalizationUtil.pickVoiceActorName(dto.getVoiceActor().getNameKor(),
+									dto.getVoiceActor().getNameEng()),
+								dto.getVoiceActor().getImageUrl()
+							),
+							dto.getRole()
+						);
+					}
+				)
                 .toList();
 
         Long nextId;

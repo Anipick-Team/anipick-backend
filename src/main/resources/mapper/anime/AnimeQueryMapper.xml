@@ -327,15 +327,14 @@
                v.name_kor AS voiceactor_name_kor,
                v.name_eng AS voiceactor_name_eng,
                v.profile_image AS voiceactor_image_url
-        FROM `Character` c
-                 JOIN Characteranime ca
-                      ON c.character_id = ca.character_id
-                 JOIN Voiceactorcharacter vc
+        FROM  Characteranime ca
+                LEFT JOIN `Character` c
+                      ON ca.character_id =  c.character_id
+                LEFT JOIN Voiceactorcharacter vc
                       ON c.character_id = vc.character_id
-                 JOIN Voiceactor v
+                LEFT JOIN Voiceactor v
                       ON vc.voiceactor_id = v.voiceactor_id
         WHERE ca.anime_id = #{animeId}
-        AND v.language = 'Japanese'
         ORDER BY CASE ca.role
                      WHEN 'MAIN' THEN 0
                      WHEN 'SUPPORTING' THEN 1
@@ -381,16 +380,15 @@
                v.name_eng AS voiceactor_name_eng,
                v.profile_image AS voiceactor_image_url,
                ca.role AS role
-        FROM `Character` c
-            JOIN characteranime ca
-                ON c.character_id = ca.character_id
-            JOIN voiceactorcharacter vc
+        FROM  Characteranime ca
+            LEFT JOIN `Character` c
+                ON ca.character_id =  c.character_id
+            LEFT JOIN Voiceactorcharacter vc
                 ON c.character_id = vc.character_id
-            JOIN voiceactor v
+            LEFT JOIN Voiceactor v
                 ON vc.voiceactor_id = v.voiceactor_id
         <where>
             ca.anime_id = #{animeId}
-            AND v.language = 'Japanese'
             <if test="lastId != null and lastValue != null">
                 AND (
                 (CASE ca.role
