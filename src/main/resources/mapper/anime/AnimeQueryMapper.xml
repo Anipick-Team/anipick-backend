@@ -74,11 +74,9 @@
                a.cover_image_url AS coverImageUrl,
                a.start_date AS startDate,
                a.format AS format,
-               pao.score AS score,
+               a.popularity AS score,
                a.is_adult AS isAdult
         FROM Anime a
-        JOIN PopularityAnimeOrder pao
-        ON pao.anime_id = a.anime_id
         WHERE
          <if test="includeAdult != true">
             a.is_adult = #{includeAdult}
@@ -87,7 +85,7 @@
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <if test="lastId != null">
-            AND pao.score &lt; #{lastId}
+            AND a.popularity &lt; #{lastId}
         </if>
         ORDER BY ${orderByQuery}
         LIMIT #{size}
