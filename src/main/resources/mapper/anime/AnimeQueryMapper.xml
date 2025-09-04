@@ -14,11 +14,9 @@
                a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl
         FROM Anime a
-        JOIN PopularityAnimeOrder pao
-            ON a.anime_id = pao.anime_id
         WHERE a.start_date BETWEEN #{startDate} AND #{endDate}
         AND a.status = 'NOT_YET_RELEASED'
-        ORDER BY pao.score DESC
+        ORDER BY a.popularity DESC
             LIMIT 30
     </select>
 
