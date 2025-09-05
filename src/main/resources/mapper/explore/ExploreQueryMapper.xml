@@ -23,19 +23,23 @@
             resultType="long">
         SELECT COUNT(DISTINCT a.anime_id)
         FROM Anime a
+        <where>
+            <include refid="commonFilters"/>
             <if test="genresSize > 0">
-            <choose>
-            <!-- 옵션 OR 일 경우 -->
-                <when test="genreOp == 'OR'">
-                    JOIN AnimeGenres ag ON ag.anime_id = a.anime_id
-                    AND ag.genre_id IN
-                    <foreach item="g" collection="genres" open="(" separator="," close=")">
-                        #{g}
-                    </foreach>
-                </when>
-            <!-- 옵션 AND 일 경우 -->
-                <otherwise>
-                    JOIN (
+                <choose>
+                    <when test="genreOp == 'OR'">
+                        AND EXISTS (
+                        SELECT 1
+                        FROM AnimeGenres ag
+                        WHERE ag.anime_id = a.anime_id
+                        AND ag.genre_id IN
+                        <foreach item="g" collection="genres" open="(" separator="," close=")">
+                            #{g}
+                        </foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        AND a.anime_id IN (
                         SELECT anime_id
                         FROM AnimeGenres
                         WHERE genre_id IN
@@ -44,12 +48,10 @@
                         </foreach>
                         GROUP BY anime_id
                         HAVING COUNT(DISTINCT genre_id) = #{genresSize}
-                    ) ag2 ON ag2.anime_id = a.anime_id
-                </otherwise>
-            </choose>
-        </if>
-        <where>
-            <include refid="commonFilters"/>
+                        )
+                    </otherwise>
+                </choose>
+            </if>
         </where>
     </select>
 
@@ -64,75 +66,71 @@
         a.title_romaj AS titleRom,
         a.title_native AS titleNat,
         a.cover_image_url AS coverImageUrl,
-        a.review_average_score   AS averageScore,
-        pao.score AS score
+        a.review_average_score AS averageScore,
+        a.popularity AS score
         FROM Anime a
+        <where>
+            <!-- 공통 필터 -->
+            <include refid="commonFilters"/>
 
-        <!-- 장르 필터링 -->
-        <if test="genres != null and genres.size() &gt; 0">
-            <choose>
-                <!-- 옵션 OR 일 경우 -->
-                <when test="genreOp == 'OR'">
-                    JOIN (
-                    SELECT DISTINCT anime_id
-                    FROM AnimeGenres
-                    WHERE genre_id IN
-                    <foreach item="g" collection="genres" open="(" separator="," close=")">
-                        #{g}
-                    </foreach>
-                    ) ag2 ON ag2.anime_id = a.anime_id
-                </when>
-                <!-- 옵션 AND 일 경우 -->
-                <otherwise>
-                    JOIN (
-                    SELECT anime_id
-                    FROM AnimeGenres
-                    WHERE genre_id IN
-                    <foreach item="g" collection="genres" open="(" separator="," close=")">
-                        #{g}
-                    </foreach>
-                    GROUP BY anime_id
-                    HAVING COUNT(DISTINCT genre_id) = #{genresSize}
-                    ) ag2 ON ag2.anime_id = a.anime_id
-                </otherwise>
-            </choose>
-        </if>
+            <!-- 장르 필터 -->
+            <if test="genres != null and genres.size() &gt; 0">
+                <choose>
+                    <!-- 옵션 OR 일 경우 -->
+                    <when test="genreOp == 'OR'">
+                        AND EXISTS (
+                        SELECT 1
+                        FROM AnimeGenres ag
+                        WHERE ag.anime_id = a.anime_id
+                        AND ag.genre_id IN
+                        <foreach item="g" collection="genres" open="(" separator="," close=")">
+                            #{g}
+                        </foreach>
+                        )
+                    </when>
+                    <!-- 옵션 AND 일 경우 -->
+                    <otherwise>
+                        AND a.anime_id IN (
+                        SELECT anime_id
+                        FROM AnimeGenres
+                        WHERE genre_id IN
+                        <foreach item="g" collection="genres" open="(" separator="," close=")">
+                            #{g}
+                        </foreach>
+                        GROUP BY anime_id
+                        HAVING COUNT(DISTINCT genre_id) = #{genresSize}
+                        )
+                    </otherwise>
+                </choose>
+            </if>
 
-        <!-- 커서 / 정렬 조인 / 조건 -->
+            <!-- 커서 조건 -->
+            <if test="sort == 'popularity' and lastId != null">
+                AND a.popularity &lt; #{lastId}
+            </if>
+            <if test="sort != 'popularity' and lastId != null">
+                <choose>
+                    <when test="lastValue != null">
+                        AND (
+                        (a.review_average_score &lt; #{lastValue}) -- 낮은 평점
+                        OR (a.review_average_score = #{lastValue} AND a.anime_id &lt; #{lastId}) -- 동점 낮은 ID
+                        OR (a.review_average_score IS NULL) -- 평점 없는 데이터는 나중에
+                        )
+                    </when>
+                    <otherwise>
+                        AND a.review_average_score IS NULL
+                        AND a.anime_id &lt; #{lastId}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+
+        <!-- 정렬 조건 -->
         <choose>
-            <!-- 인기순 -->
             <when test="sort == 'popularity'">
-                JOIN PopularityAnimeOrder pao
-                ON pao.anime_id = a.anime_id
-                <if test="lastId != null">
-                    AND pao.score &lt; #{lastId}
-                </if>
-                <where>1=1<include refid="commonFilters"/></where>
                 ORDER BY ${orderByQuery}
             </when>
-            <!-- 평점순 -->
             <otherwise>
-                LEFT JOIN PopularityAnimeOrder pao
-                ON pao.anime_id = a.anime_id
-                <where>
-                      <if test="lastId != null">
-                        <choose>
-                          <when test="lastValue != null">
-                            (
-                              a.review_average_score &lt; #{lastValue}
-                              OR
-                              (a.review_average_score = #{lastValue} AND a.anime_id &lt; #{lastId})
-                            )
-                          </when>
-                          <!-- ID만 있을 경우 -->
-                          <otherwise>
-                            a.review_average_score IS NULL
-                            AND a.anime_id &lt; #{lastId}
-                          </otherwise>
-                        </choose>
-                      </if>
-                  <include refid="commonFilters"/>
-                </where>
                 ORDER BY ${orderByQuery}, a.anime_id DESC
             </otherwise>
         </choose>

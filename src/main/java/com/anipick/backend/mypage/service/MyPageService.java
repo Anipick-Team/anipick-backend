@@ -44,7 +44,7 @@ public class MyPageService {
                 .stream()
                 .map(LikedPersonsDto::personNameTranslationPick)
                 .toList();
-      
+
         Optional<Image> image = imageService.getImageByAuthId(userId);
       
         String imageUrl;
