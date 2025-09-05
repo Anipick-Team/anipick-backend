@@ -17,10 +17,10 @@ public class PersonController {
 
     @GetMapping("/{personId}")
     public ApiResponse<PersonDetailPageDto> getAnimeAndCharacterOfPerson(
-            @PathVariable(value = "personId") Long personId,
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(required = false) Long lastId,
-            @RequestParam(defaultValue = "18") int size
+        @PathVariable(value = "personId") Long personId,
+        @RequestParam(value = "lastId", required = false) Long lastId,
+        @RequestParam(value = "size", defaultValue = "18") int size,
+        @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
         PersonDetailPageDto result = personService.getAnimeAndCharacter(personId, lastId, size, userId);
