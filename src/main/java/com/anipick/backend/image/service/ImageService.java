@@ -102,13 +102,30 @@ public class ImageService {
 
         try {
             File outputFile = compressAndSaveImageToServer(user, profileImageFile);
-            image = insertImage(user, originalFilename, outputFile);
+            Optional<Image> existedImage = imageMapper.findByUserId(user.getUserId());
 
+            if(existedImage.isPresent()) {
+                Image updatedImage = Image.builder()
+                        .imageId(existedImage.get().getImageId())
+                        .authId(user.getUserId())
+                        .imageName(originalFilename)
+                        .imagePath(outputFile.getAbsolutePath())
+                        .build();
+                updateImage(updatedImage, user.getUserId());
+
+                return ImageIdResponse.from(updatedImage.getImageId());
+            } else {
+                image = insertImage(user, originalFilename, outputFile);
+
+                return ImageIdResponse.from(image.getImageId());
+            }
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
 
-        return ImageIdResponse.from(image.getImageId());
+    public void updateImage(Image image, Long userId) {
+        imageMapper.updateImageByUserId(image, userId);
     }
 
     public void deleteImage(Long imageId) {

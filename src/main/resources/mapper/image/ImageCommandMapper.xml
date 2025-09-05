@@ -10,6 +10,14 @@
             (#{authId}, #{imageName}, #{imagePath})
     </insert>
 
+    <update id="updateImageByUserId" parameterType="com.anipick.backend.image.domain.Image">
+        UPDATE Image
+        SET
+            image_name = #{image.imageName},
+            image_path = #{image.imagePath}
+        WHERE auth_id = #{userId}
+    </update>
+
     <delete id="deleteImage">
         DELETE FROM Image
         WHERE image_id = #{imageId}
