@@ -4,7 +4,11 @@ import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.search.dto.*;
 import com.anipick.backend.search.mapper.SearchMapper;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,7 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
-	private static final String LOG_BASE_URL = "http://anipick.p-e.kr:8080/api/log/";
+	private final RedisTemplate<String, String> redisTemplate;
+
+	@Value("${log.base-url}")
+	private String LOG_BASE_URL;
+
+	@Value("${anime.week-best-key}")
+	private String ANIME_WEEK_BEST_REDIS_KEY;
 
 	public SearchInitPageDto findWeekBestAnimes() {
 		LocalDate now = LocalDate.now();
