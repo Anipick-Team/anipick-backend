@@ -338,6 +338,7 @@
                 LEFT JOIN Voiceactor v
                       ON vc.voiceactor_id = v.voiceactor_id
         WHERE ca.anime_id = #{animeId}
+        AND v.language = 'Japanese'
         ORDER BY CASE ca.role
                      WHEN 'MAIN' THEN 0
                      WHEN 'SUPPORTING' THEN 1
@@ -392,6 +393,7 @@
                 ON vc.voiceactor_id = v.voiceactor_id
         <where>
             ca.anime_id = #{animeId}
+        AND v.language = 'Japanese'
             <if test="lastId != null and lastValue != null">
                 AND (
                 (CASE ca.role
