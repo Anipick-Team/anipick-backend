@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface SearchMapper {
 
-	List<AnimeAllTitleImgDto> selectSearchWeekBestAnimes(@Param(value = "now") LocalDate now);
+	List<AnimeAllTitleImgDto> selectSearchWeekBestAnimes(@Param(value = "animeIds") List<Long> animeIds);
 
 	long countSearchAnime(@Param(value = "query") String query);
 
