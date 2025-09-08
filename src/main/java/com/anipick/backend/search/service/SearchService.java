@@ -31,11 +31,8 @@ public class SearchService {
 	@Value("${log.base-url}")
 	private String LOG_BASE_URL;
 
-	@Value("${anime.week-best-key}")
-	private String ANIME_WEEK_BEST_REDIS_KEY;
-
 	public SearchInitPageDto findWeekBestAnimes() {
-		String redisWeekBestAnimeIdsJsonStr = redisTemplate.opsForValue().get(ANIME_WEEK_BEST_REDIS_KEY);
+		String redisWeekBestAnimeIdsJsonStr = redisTemplate.opsForValue().get("weekly:searchKeyword:current");
 		try {
 			JsonNode jsonNode = objectMapper.readTree(redisWeekBestAnimeIdsJsonStr);
 			List<Long> searchBestAnimeIds = objectMapper
