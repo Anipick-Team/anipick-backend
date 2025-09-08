@@ -11,4 +11,10 @@
                       ON ag.genre_id = g.genre_id
         WHERE anime_id = #{animeId}
     </select>
+
+    <select id="findGenreIdByGenreName" resultType="long">
+        SELECT g.genre_id AS genreId
+        FROM genres AS g
+        WHERE g.genre_kor = #{genreName}
+    </select>
 </mapper>
