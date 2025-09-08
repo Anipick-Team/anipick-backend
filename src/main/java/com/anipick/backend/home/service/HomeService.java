@@ -23,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,8 @@ public class HomeService {
 
     public List<HomeTrendingRankingDto> getTrendingRanking() {
         try {
-            String redisRankingJson = redisTemplate.opsForValue().get(RankingDefaults.RANKING_ALIAS_KEY);
+            String redisRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+            String redisRankingJson = redisTemplate.opsForValue().get(redisRankingKey);
             List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(redisRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
             List<RedisRealTimeRankingAnimesDto> redisHomeRanking = redisAnimes.stream()
                     .limit(LIMIT_SIZE)
@@ -52,15 +52,14 @@ public class HomeService {
                     .map(RedisRealTimeRankingAnimesDto::getAnimeId)
                     .toList();
             List<TrendingRankingFromQueryDto> trendingRanking = homeMapper.selectHomeTrendingRanking(animeIds);
-
-            Map<Long, RedisRealTimeRankingAnimesDto> redisMap = redisHomeRanking.stream()
-                    .collect(Collectors.toMap(RedisRealTimeRankingAnimesDto::getAnimeId, dto -> dto));
+            AtomicReference<Long> displayRank = new AtomicReference<>(0L);
 
             List<HomeTrendingRankingDto> homeTrendingRanking = trendingRanking.stream()
                     .map(dto -> {
-                        RedisRealTimeRankingAnimesDto redisData = redisMap.get(dto.getAnimeId());
+                        displayRank.set(displayRank.get() + 1);
+                        Long rank = displayRank.get();
 
-                        return HomeTrendingRankingDto.of(dto, redisData.getRank());
+                        return HomeTrendingRankingDto.of(dto, rank);
                     })
                     .toList();
 
