@@ -9,5 +9,5 @@ public class RankingAnimesFromQueryDto {
     private Long animeId;
     private String title;
     private String coverImageUrl;
-    private Long rank;
+    private Long popularity;
 }

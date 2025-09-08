@@ -10,5 +10,6 @@ public class RealTimeRankingAnimesFromQueryDto {
     private Long animeId;
     private String title;
     private String coverImageUrl;
-    private List<GenreDto> genres;
+    private Long trending;
+    private Long popularity;
 }

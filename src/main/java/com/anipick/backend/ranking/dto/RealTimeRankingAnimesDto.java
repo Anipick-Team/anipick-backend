@@ -13,22 +13,25 @@ public class RealTimeRankingAnimesDto {
     private String title;
     private String coverImageUrl;
     private Long rank;
-    private Long change;
+    private String change;
     private String trend;
     private List<String> genres;
+    private Long popularity;
+    private Long trending;
 
-    public static RealTimeRankingAnimesDto from(Long animeId, Long rank, Long change, String trend, RealTimeRankingAnimesFromQueryDto dto) {
+    public static RealTimeRankingAnimesDto from(Long rank, String change, String trend, RealTimeRankingAnimesFromQueryDto dto, List<String> genres) {
         return new RealTimeRankingAnimesDto(
-                animeId,
+                dto.getAnimeId(),
                 dto.getTitle(),
                 dto.getCoverImageUrl(),
                 rank,
                 change,
                 trend,
-                dto.getGenres().stream()
-                        .map(GenreDto::getName)
+                genres.stream()
                         .limit(3)
-                        .toList()
+                        .toList(),
+                dto.getPopularity(),
+                dto.getTrending()
         );
     }
 }

@@ -8,8 +8,11 @@ import java.util.List;
 
 @Mapper
 public interface RealTimeRankingMapper {
-    List<RealTimeRankingAnimesFromQueryDto> getRealTimeRanking(
-            @Param("animeIds") List<Long> animeIds,
-            @Param("genre") String genre
+    List<RealTimeRankingAnimesFromQueryDto> getRealTimeRanking();
+
+    List<RealTimeRankingAnimesFromQueryDto> getRealTimeRankingPaging(
+            @Param("lastValue") Long lastValue,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
     );
 }

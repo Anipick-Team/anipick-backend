@@ -13,21 +13,19 @@ public class RankingAnimesDto {
     private String title;
     private String coverImageUrl;
     private Long rank;
-    private Long change;
-    private String trend;
     private List<String> genres;
+    private Long popularity;
 
-    public static RankingAnimesDto from(Long change, Trend trend, Long displayRank, RankingAnimesFromQueryDto dto, List<String> genres) {
+    public static RankingAnimesDto from(Long displayRank, RankingAnimesFromQueryDto dto, List<String> genres) {
         return new RankingAnimesDto(
                 dto.getAnimeId(),
                 dto.getTitle(),
                 dto.getCoverImageUrl(),
                 displayRank,
-                change,
-                trend.toString().toLowerCase(),
                 genres.stream()
                         .limit(3)
-                        .toList()
+                        .toList(),
+                dto.getPopularity()
         );
     }
 }

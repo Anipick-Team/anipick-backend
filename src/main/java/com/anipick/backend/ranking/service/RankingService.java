@@ -1,6 +1,6 @@
 package com.anipick.backend.ranking.service;
 
-import com.anipick.backend.anime.dto.GenreDto;
+import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
@@ -16,10 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -29,218 +28,204 @@ import java.util.stream.Collectors;
 public class RankingService {
     private final RankingMapper rankingMapper;
     private final RealTimeRankingMapper realTimeRankingMapper;
+    private final GenreMapper genreMapper;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RealTimeRankingResponse getRealTimeRanking(String genre, Long lastId, Integer size) {
+    public RealTimeRankingResponse getRealTimeRanking(String genre, Long lastId, Long lastValue, Integer size) {
         try {
-            String realTimeRankingKey = redisTemplate.opsForValue().get(RankingDefaults.RANKING_ALIAS_KEY + genre);
+            String realTimeRankingKey;
+            if(StringUtils.hasText(genre)) {
+                Long genreId = genreMapper.findGenreIdByGenreName(genre);
+                realTimeRankingKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+            } else {
+                realTimeRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+            }
+
             String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
 
+            log.info("realTimeRankingJson: {}", realTimeRankingJson);
             List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(realTimeRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
-            List<RedisRealTimeRankingAnimesDto> slicedRedisRankingAnimes;
+            List<RedisRealTimeRankingAnimesDto> slicedRedisRankingAnimes = redisAnimes.stream()
+                    .limit(size)
+                    .toList();
 
-            if(lastId == null) {
-                slicedRedisRankingAnimes = redisAnimes.stream()
-                        .limit(size)
-                        .toList();
-            } else {
-                slicedRedisRankingAnimes = redisAnimes.stream()
-                        .filter(rank -> rank.getRank() > lastId)
-                        .limit(size)
-                        .toList();
-            }
+            log.info("slicedRedisRankingAnimes: {}", objectMapper.writeValueAsString(slicedRedisRankingAnimes));
 
             List<Long> animeIds = slicedRedisRankingAnimes.stream()
                     .map(RedisRealTimeRankingAnimesDto::getAnimeId)
                     .toList();
-            Map<Long, RedisRealTimeRankingAnimesDto> redisMap = slicedRedisRankingAnimes.stream()
-                    .collect(Collectors.toMap(RedisRealTimeRankingAnimesDto::getAnimeId, dto -> dto));
+            List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
+            Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
+                    .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
+            Map<Long, Long> rankMapByRedis = new HashMap<>();
+            for(int i = 0; i < redisAnimes.size(); i++) {
+                rankMapByRedis.put(redisAnimes.get(i).getAnimeId(), (long) (i + 1));
+            }
 
-            List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking(animeIds, genre);
-            List<RealTimeRankingAnimesDto> animes = realTimeRanking.stream()
+            List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking();
+            List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(lastValue, lastId, size);
+            Map<Long, Long> rankMapByDb = new HashMap<>();
+            for(int i = 0; i < realTimeRanking.size(); i++) {
+                rankMapByDb.put(realTimeRanking.get(i).getAnimeId(), (long) (i + 1));
+            }
+
+            List<RealTimeRankingAnimesDto> animes = realTimeRankingPaging.stream()
                     .map(dto -> {
-                        RedisRealTimeRankingAnimesDto redisData = redisMap.get(dto.getAnimeId());
+                        Long redisRank = rankMapByRedis.get(dto.getAnimeId());
+                        Long dbRank = rankMapByDb.get(dto.getAnimeId());
+                        String change;
+                        String trend;
+                        List<AnimeGenresDto> genres = Optional.ofNullable(animeGenresMap.get(dto.getAnimeId()))
+                                .orElse(Collections.emptyList());
+                        List<String> genreNames = getGenresByOrdering(genres, genre);
 
-                        return RealTimeRankingAnimesDto.from(dto.getAnimeId(), redisData.getRank(), redisData.getChange(), redisData.getTrend(), dto);
+                        if(redisRank == null && dbRank != null) {
+                            change = "N";
+                            trend = changeToTrend(change);
+                            return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
+                        }
+
+                        Long diff = redisRank - dbRank;
+                        change = String.valueOf(diff);
+                        trend = changeToTrend(change);
+
+                        return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
                     })
                     .toList();
 
-            CursorDto cursor = CursorDto.of(lastId);
+            Long newLastId;
+            Long newLastValue;
 
-            return RealTimeRankingResponse.of(cursor, animes);
+            if(!doesRealTimeRankingExist(animes)) {
+                CursorDto cursor = CursorDto.of(RankingDefaults.SORT, null, "null");
+
+                return RealTimeRankingResponse.of(cursor, animes);
+            } else {
+                newLastId = animes.getLast().getPopularity();
+                newLastValue = animes.getLast().getTrending();
+                CursorDto cursor = CursorDto.of(RankingDefaults.SORT, newLastId, String.valueOf(newLastValue));
+
+                return RealTimeRankingResponse.of(cursor, animes);
+            }
         } catch (JsonProcessingException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public RankingResponse getYearSeasonRanking(Integer year, Integer season, String genre, Long lastId, Integer size) {
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
+    public RankingResponse getYearSeasonRanking(Integer year, Integer season, String genre, Long lastId, Long lastRank, Integer size) throws JsonProcessingException {
+        List<RankingAnimesFromQueryDto> yearSeasonRankingPaging;
+        Long genreId;
 
-        List<RankingAnimesFromQueryDto> yearSeasonRankingToday;
-        List<RankingAnimesFromQueryDto> yearSeasonRankingYesterday;
-
-        if(genre != null) {
-            yearSeasonRankingToday = rankingMapper.getYearSeasonRankingByGenrePaging(year, season, genre, lastId, size, today);
-            yearSeasonRankingYesterday = rankingMapper.getYearSeasonRankingByGenre(year, season, genre, yesterday);
+        if(StringUtils.hasText(genre)) {
+            genreId = genreMapper.findGenreIdByGenreName(genre);
         } else {
-            yearSeasonRankingToday = rankingMapper.getYearSeasonRankingNotFilterPaging(year, season, lastId, size, today);
-            yearSeasonRankingYesterday = rankingMapper.getYearSeasonRankingNotFilter(year, season, yesterday);
+            genreId = null;
         }
 
-        List<Long> animeIds = yearSeasonRankingToday.stream()
+        yearSeasonRankingPaging = rankingMapper.getYearSeasonRankingPaging(year, season, genreId, lastId, size);
+
+        List<Long> animeIds = yearSeasonRankingPaging.stream()
                 .map(RankingAnimesFromQueryDto::getAnimeId)
                 .toList();
-
         List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
         Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
                 .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
-        Map<Long, Long> yesterdayRankMap =  yearSeasonRankingYesterday.stream()
-                .collect(Collectors.toMap(
-                        RankingAnimesFromQueryDto::getAnimeId,
-                        RankingAnimesFromQueryDto::getRank
-                ));
-        List<RankingAnimesDto> animes;
         Long newLastId;
-        AtomicReference<Long> displayRank = new AtomicReference<>(0L);
+        AtomicReference<Long> displayRank = new AtomicReference<>(lastRank);
 
-        if(genre != null) {
-            animes = yearSeasonRankingToday.stream()
-                    .map(dto -> {
-                        Long todayRank = dto.getRank();
-                        Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
-                        displayRank.getAndSet(displayRank.get() + 1);
-                        List<AnimeGenresDto> genres = animeGenresMap.get(dto.getAnimeId());
+        List<RankingAnimesDto> animes = yearSeasonRankingPaging.stream()
+                .map(dto -> {
+                    displayRank.getAndSet(displayRank.get() + 1);
+                    List<AnimeGenresDto> genres = Optional.ofNullable(animeGenresMap.get(dto.getAnimeId()))
+                            .orElse(Collections.emptyList());
+                    List<String> genreNames = getGenresByOrdering(genres, genre);
+                    Long rank = displayRank.get();
 
-                        return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
-                    })
-                    .toList();
-
-            if(!doesRankingExist(animes)) {
-                CursorDto cursor = CursorDto.of(null);
-                return RankingResponse.of(cursor, animes);
-            } else {
-                newLastId = animes.getLast().getRank();
-            }
-
-        } else {
-            animes = yearSeasonRankingToday.stream()
-                    .map(dto -> {
-                        Long todayRank = dto.getRank();
-                        Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
-                        displayRank.set(todayRank);
-                        List<AnimeGenresDto> genres = animeGenresMap.get(dto.getAnimeId());
-
-                        return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
-                    })
-                    .toList();
-
-            if(!doesRankingExist(animes)) {
-                CursorDto cursor = CursorDto.of(null);
-                return RankingResponse.of(cursor, animes);
-            } else {
-                newLastId = animes.getLast().getRank();
-            }
-        }
-
-        CursorDto cursor = CursorDto.of(newLastId);
-
-        return RankingResponse.of(cursor, animes);
-    }
-
-    public RankingResponse getAllTimeRanking(String genre, Long lastId, Integer size) {
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(RankingDefaults.ONE_DAY);
-
-        List<RankingAnimesFromQueryDto> allTimeRankingToday;
-        List<RankingAnimesFromQueryDto> allTimeRankingYesterday;
-
-        if(genre != null) {
-            allTimeRankingToday = rankingMapper.getAllTimeRankingByGenrePaging(genre, lastId, size, today);
-            allTimeRankingYesterday = rankingMapper.getAllTimeRankingByGenre(genre, yesterday);
-        } else {
-            allTimeRankingToday = rankingMapper.getAllTimeRankingNotFilterPaging(lastId, size, today);
-            allTimeRankingYesterday = rankingMapper.getAllTimeRankingNotFilter(yesterday);
-        }
-
-        List<Long> animeIds = allTimeRankingToday.stream()
-                .map(RankingAnimesFromQueryDto::getAnimeId)
+                    return RankingAnimesDto.from(rank, dto, genreNames);
+                })
                 .toList();
 
+        if(!doesRankingExist(animes)) {
+            CursorDto cursor = CursorDto.of(null);
+
+            return RankingResponse.of(cursor, animes);
+        } else {
+            newLastId = yearSeasonRankingPaging.getLast().getPopularity();
+            CursorDto cursor = CursorDto.of(newLastId);
+
+            return RankingResponse.of(cursor, animes);
+        }
+    }
+
+    public RankingResponse getAllTimeRanking(String genre, Long lastId, Long lastRank, Integer size) {
+        List<RankingAnimesFromQueryDto> allTimeRanking;
+        Long genreId;
+
+        if(StringUtils.hasText(genre)) {
+            genreId = genreMapper.findGenreIdByGenreName(genre);
+        } else {
+            genreId = null;
+        }
+
+        allTimeRanking = rankingMapper.getAllTimeRankingPaging(genreId, lastId, size);
+
+        List<Long> animeIds = allTimeRanking.stream()
+                .map(RankingAnimesFromQueryDto::getAnimeId)
+                .toList();
         List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
         Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
                 .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
-        Map<Long, Long> yesterdayRankMap = allTimeRankingYesterday.stream()
-                .collect(Collectors.toMap(RankingAnimesFromQueryDto::getAnimeId, RankingAnimesFromQueryDto::getRank));
-
-        List<RankingAnimesDto> animes;
         Long newLastId;
-        AtomicReference<Long> displayRank = new AtomicReference<>(0L);
+        AtomicReference<Long> displayRank = new AtomicReference<>(lastRank);
 
-        if(genre != null) { // 장르가 있을 때는 순위를 재정렬해서 보여줌
-            animes = allTimeRankingToday.stream()
-                    .map(dto -> {
-                        Long todayRank = dto.getRank();
-                        Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
-                        displayRank.getAndSet(displayRank.get() + 1);
-                        List<AnimeGenresDto> genres = animeGenresMap.get(dto.getAnimeId());
+        List<RankingAnimesDto> animes = allTimeRanking.stream()
+                .map(dto -> {
+                    displayRank.getAndSet(displayRank.get() + 1);
+                    List<AnimeGenresDto> genres = Optional.ofNullable(animeGenresMap.get(dto.getAnimeId()))
+                            .orElse(Collections.emptyList());
+                    List<String> genreNames = getGenresByOrdering(genres, genre);
+                    Long rank = displayRank.get();
 
-                        return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
-                    })
-                    .toList();
+                    return RankingAnimesDto.from(rank, dto, genreNames);
+                })
+                .toList();
 
-            if(!doesRankingExist(animes)) {
-                CursorDto cursor = CursorDto.of(null);
-                return RankingResponse.of(cursor, animes);
-            } else {
-                newLastId = animes.getLast().getRank();
-            }
+        if(!doesRankingExist(animes)) {
+            CursorDto cursor = CursorDto.of(null);
 
-        } else { // 장르가 없을 때는 DB 순위를 그대로 가져와서 보여줌
-            animes = allTimeRankingToday.stream()
-                    .map(dto -> {
-                        Long todayRank = dto.getRank();
-                        Long yesterdayRank = yesterdayRankMap.get(dto.getAnimeId());
-                        displayRank.set(todayRank);
-                        List<AnimeGenresDto> genres = animeGenresMap.get(dto.getAnimeId());
+            return RankingResponse.of(cursor, animes);
+        } else {
+            newLastId = allTimeRanking.getLast().getPopularity();
+            CursorDto cursor = CursorDto.of(newLastId);
 
-                        return calcAndMakeAnimeRanking(todayRank, yesterdayRank, displayRank.get(), dto, genres, genre);
-                    })
-                    .toList();
-
-            if(!doesRankingExist(animes)) {
-                CursorDto cursor = CursorDto.of(null);
-                return RankingResponse.of(cursor, animes);
-            } else {
-                newLastId = animes.getLast().getRank();
-            }
-
+            return RankingResponse.of(cursor, animes);
         }
-
-        CursorDto cursor = CursorDto.of(newLastId);
-
-        return RankingResponse.of(cursor, animes);
     }
 
-    private RankingAnimesDto calcAndMakeAnimeRanking(Long todayRank, Long yesterdayRank, Long displayRank, RankingAnimesFromQueryDto dto, List<AnimeGenresDto> genres, String specificGenre) {
-        long change;
+    private String changeToTrend(String change) {
         Trend trend;
 
-        if(yesterdayRank == null) {
-            change = 0;
+        if(change.equals("N")) {
             trend = Trend.NEW;
         } else {
-            long diff = yesterdayRank - todayRank;
-            change = Math.abs(diff);
+            long changeAsLong = Long.parseLong(change);
 
-            if(diff > 0) {
+            if(changeAsLong > 0) {
                 trend = Trend.UP;
-            } else if(diff < 0) {
+            } else if(changeAsLong < 0) {
                 trend = Trend.DOWN;
             } else {
                 trend = Trend.SAME;
             }
+        }
+
+        return trend.toString().toLowerCase();
+    }
+
+    private List<String> getGenresByOrdering(List<AnimeGenresDto> genres, String specificGenre) {
+        if(genres == null || genres.isEmpty()) {
+            return Collections.emptyList();
         }
 
         List<String> genreNames = genres.stream()
@@ -260,10 +245,14 @@ public class RankingService {
             });
         }
 
-        return RankingAnimesDto.from(change, trend, displayRank, dto, genreNames);
+        return genreNames;
     }
 
     private boolean doesRankingExist(List<RankingAnimesDto> animes) {
+        return animes != null && !animes.isEmpty();
+    }
+
+    private boolean doesRealTimeRankingExist(List<RealTimeRankingAnimesDto> animes) {
         return animes != null && !animes.isEmpty();
     }
 }

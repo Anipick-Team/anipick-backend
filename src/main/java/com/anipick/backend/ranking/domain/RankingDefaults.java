@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RankingDefaults {
-    public static final String RANKING_ALIAS_KEY = "anime_real_rank:";
-    public static final int ONE_DAY = 1;
+    public static final String RANKING_ALIAS_KEY = "rank:genre:";
+    public static final String RANKING_GENRE_ALL_KEY = "rank:genre:all";
+    public static final String SORT = "trending, popularity";
+    public static final String COLON = ":";
+    public static final String CURRENT = "current";
 }

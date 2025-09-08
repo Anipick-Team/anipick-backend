@@ -7,30 +7,8 @@
         <id property="animeId" column="animeId"/>
         <result property="title" column="title"/>
         <result property="coverImageUrl" column="coverImageUrl"/>
-        <result property="rank" column="rankNum"/>
+        <result property="popularity" column="popularity"/>
     </resultMap>
-
-    <select id="getYearSeasonRankingByGenre" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.anime_id = g.anime_id
-        WHERE 1 = 1
-        <if test="year != null">
-            AND ar.year = #{year}
-        </if>
-        <if test="season != null">
-            AND ar.season_int = #{season}
-        </if>
-            AND ar.rank_type = 'year_season'
-            AND g.genre_kor = #{genre}
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
-    </select>
 
     <select id="getGenresByAnimeIds" resultType="com.anipick.backend.ranking.dto.AnimeGenresDto">
         SELECT
@@ -45,144 +23,49 @@
         </foreach>
     </select>
 
-    <select id="getYearSeasonRankingByGenrePaging" resultMap="RankingResultMap">
+    <select id="getYearSeasonRankingPaging" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
             a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
+            a.popularity AS popularity
         FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.anime_id = g.anime_id
+        JOIN AnimeGenres AS ag
+        ON a.anime_id = ag.anime_id
         WHERE 1 = 1
         <if test="year != null">
-            AND ar.year = #{year}
+            AND a.season_year = #{year}
         </if>
         <if test="season != null">
-            AND ar.season_int = #{season}
+            AND a.season_int = #{season}
         </if>
-            AND ar.rank_type = 'year_season'
-            AND g.genre_kor = #{genre}
+        <if test="genreId != null">
+            AND ag.genre_id = #{genreId}
+        </if>
         <if test="lastId != null">
-            AND ar.rank_num &gt; #{lastId}
+            AND a.popularity &lt; #{lastId}
         </if>
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
+        ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
 
-    <select id="getYearSeasonRankingNotFilter" resultMap="RankingResultMap">
+    <select id="getAllTimeRankingPaging" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
             a.title_kor AS title,
             a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
+            a.popularity AS popularity
         FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
+        JOIN AnimeGenres AS ag
+        ON a.anime_id = ag.anime_id
         WHERE 1 = 1
-        <if test="year != null">
-            AND ar.year = #{year}
+        <if>
+            AND ag.genre_id = #{genreId}
         </if>
-        <if test="season != null">
-            AND ar.season_int = #{season}
-        </if>
-            AND ar.rank_type = 'year_season'
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY rank_num
-    </select>
-
-    <select id="getYearSeasonRankingNotFilterPaging" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        WHERE 1 = 1
-        <if test="year != null">
-            AND ar.year = #{year}
-        </if>
-        <if test="season != null">
-            AND ar.season_int = #{season}
-        </if>
-            AND ar.rank_type = 'year_season'
         <if test="lastId != null">
-            AND ar.rank_num &gt; #{lastId}
+            AND a.popularity &lt; #{lastId}
         </if>
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY rank_num
-    </select>
-
-    <select id="getAllTimeRankingByGenre" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
-        WHERE
-                ar.is_all_time = true
-            AND ar.rank_type = 'all_time'
-            AND g.genre_kor = #{genre}
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
-    </select>
-
-    <select id="getAllTimeRankingByGenrePaging" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        JOIN Genres AS g ON ar.genre_id = g.genre_id
-        WHERE
-                ar.is_all_time = true
-            AND ar.rank_type = 'all_time'
-            AND g.genre_kor = #{genre}
-        <if test="lastId != null">
-            AND ar.rank_num &gt; #{lastId}
-        </if>
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
-        LIMIT #{size}
-    </select>
-
-    <select id="getAllTimeRankingNotFilter" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        WHERE
-                ar.is_all_time = true
-            AND ar.rank_type = 'all_time'
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
-    </select>
-
-    <select id="getAllTimeRankingNotFilterPaging" resultMap="RankingResultMap">
-        SELECT
-            a.anime_id AS animeId,
-            a.title_kor AS title,
-            a.cover_image_url AS coverImageUrl,
-            ar.rank_num AS rankNum
-        FROM Anime AS a
-        JOIN AnimeRanking AS ar ON a.anime_id = ar.anime_id
-        WHERE
-                ar.is_all_time = true
-            AND ar.rank_type = 'all_time'
-        <if test="lastId != null">
-            AND ar.rank_num &gt; #{lastId}
-        </if>
-            AND DATE(ar.rank_date) = #{rankDate}
-        ORDER BY ar.rank_num
+        ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
 </mapper>
