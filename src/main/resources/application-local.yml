@@ -48,6 +48,7 @@ jwt:
   
 anime:
   default-cover-url: ${ANIME_DEFAULT_COVER_URL}
+  week-best-key: weekly:searchKeyword:current
 
 app:
   oauth2:
