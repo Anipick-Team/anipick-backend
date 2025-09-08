@@ -6,17 +6,17 @@
 <mapper namespace="com.anipick.backend.search.mapper.SearchMapper">
 
     <select id="selectSearchWeekBestAnimes" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
-        SELECT w.anime_id AS animeId,
+        SELECT a.anime_id AS animeId,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
                a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl
-        FROM Weekbestanime w
-            JOIN Anime a
-                ON a.anime_id = w.anime_id
-        WHERE w.created_at = #{now}
-        LIMIT 18
+        FROM Anime a
+        WHERE a.anime_id IN
+            <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+                #{animeId}
+            </foreach>
     </select>
 
     <select id="countSearchAnime" parameterType="string" resultType="long">

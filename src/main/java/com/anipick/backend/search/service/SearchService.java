@@ -2,9 +2,19 @@ package com.anipick.backend.search.service;
 
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.search.dto.*;
 import com.anipick.backend.search.mapper.SearchMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,15 +25,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
-	private static final String LOG_BASE_URL = "http://anipick.p-e.kr:8080/api/log/";
+	private final RedisTemplate<String, String> redisTemplate;
+	private final ObjectMapper objectMapper;
+
+	@Value("${log.base-url}")
+	private String LOG_BASE_URL;
+
+	@Value("${anime.week-best-key}")
+	private String ANIME_WEEK_BEST_REDIS_KEY;
 
 	public SearchInitPageDto findWeekBestAnimes() {
-		LocalDate now = LocalDate.now();
-		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now)
+		String redisWeekBestAnimeIdsJsonStr = redisTemplate.opsForValue().get(ANIME_WEEK_BEST_REDIS_KEY);
+		try {
+			JsonNode jsonNode = objectMapper.readTree(redisWeekBestAnimeIdsJsonStr);
+			List<Long> searchBestAnimeIds = objectMapper
+				.convertValue(jsonNode.get("search_anime_id"), new TypeReference<>() {});
+
+			List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(searchBestAnimeIds)
 				.stream()
 				.map(AnimeItemDto::animeTitleTranslationPick)
 				.toList();
-		return new SearchInitPageDto(items);
+
+			return new SearchInitPageDto(items);
+
+		} catch (JsonProcessingException e) {
+			throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size, Long page) {
