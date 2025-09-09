@@ -35,5 +35,6 @@
             AND (a.trending , a.popularity) &lt; (#{lastValue}, #{lastId})
         </if>
         ORDER BY a.trending DESC, a.popularity DESC
+        LIMIT #{size}
     </select>
 </mapper>

@@ -10,7 +10,6 @@ import com.anipick.backend.ranking.dto.*;
 import com.anipick.backend.ranking.mapper.RankingMapper;
 import com.anipick.backend.ranking.mapper.RealTimeRankingMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,20 +43,11 @@ public class RankingService {
 
             String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
 
-            log.info("realTimeRankingJson: {}", realTimeRankingJson);
-            List<RedisRealTimeRankingAnimesDto> redisAnimes = objectMapper.readValue(realTimeRankingJson, new TypeReference<List<RedisRealTimeRankingAnimesDto>>() {});
-            List<RedisRealTimeRankingAnimesDto> slicedRedisRankingAnimes = redisAnimes.stream()
-                    .limit(size)
+            RealTimeRankWrapper rankWrapper = objectMapper.readValue(realTimeRankingJson, RealTimeRankWrapper.class);
+            List<RedisRealTimeRankingAnimesDto> redisAnimes = rankWrapper.getRealTimeRank().stream()
+                    .map(RedisRealTimeRankingAnimesDto::of)
                     .toList();
 
-            log.info("slicedRedisRankingAnimes: {}", objectMapper.writeValueAsString(slicedRedisRankingAnimes));
-
-            List<Long> animeIds = slicedRedisRankingAnimes.stream()
-                    .map(RedisRealTimeRankingAnimesDto::getAnimeId)
-                    .toList();
-            List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
-            Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
-                    .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
             Map<Long, Long> rankMapByRedis = new HashMap<>();
             for(int i = 0; i < redisAnimes.size(); i++) {
                 rankMapByRedis.put(redisAnimes.get(i).getAnimeId(), (long) (i + 1));
@@ -65,6 +55,13 @@ public class RankingService {
 
             List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking();
             List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(lastValue, lastId, size);
+            List<Long> animeIds = realTimeRankingPaging.stream()
+                    .map(RealTimeRankingAnimesFromQueryDto::getAnimeId)
+                    .toList();
+            List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
+
+            Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
+                    .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
             Map<Long, Long> rankMapByDb = new HashMap<>();
             for(int i = 0; i < realTimeRanking.size(); i++) {
                 rankMapByDb.put(realTimeRanking.get(i).getAnimeId(), (long) (i + 1));
