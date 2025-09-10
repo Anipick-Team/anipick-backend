@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.user.mapper.BlockUserMapper">
+    <select id="selectBlockUser" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM Blockeduser
+        WHERE user_id = #{userId}
+        AND blocked_user_id = #{targetUserId}
+    </select>
+</mapper>

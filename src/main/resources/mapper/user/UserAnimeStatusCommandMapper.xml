@@ -17,4 +17,20 @@
             (user_id, anime_id, status, created_at, updated_at)
         VALUES (#{userId}, #{animeId}, #{status}, NOW(), NOW())
     </insert>
+
+    <insert id="createUserAnimeStatusBulk">
+        INSERT INTO Useranimestatus (user_id, anime_id, status, created_at, updated_at)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.userId}, #{item.animeId}, #{item.status}, NOW(), NOW())
+        </foreach>
+    </insert>
+
+
+    <delete id="deleteUserAnimeStatus">
+        DELETE
+        FROM Useranimestatus
+        WHERE user_id = #{userId}
+        AND anime_id = #{animeId}
+    </delete>
 </mapper>

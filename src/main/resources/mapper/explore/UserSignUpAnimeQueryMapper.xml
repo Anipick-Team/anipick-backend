@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.explore.mapper.UserSignUpAnimeMapper">
+
+    <select id="selectGenresByAnimeIds"
+            resultType="com.anipick.backend.explore.dto.AnimeIdGenreDto">
+        SELECT ag.anime_id AS animeId,
+               g.genre_kor AS genre
+        FROM animegenres ag
+            JOIN genres g
+                ON ag.genre_id = g.genre_id
+        WHERE ag.anime_id IN
+        <foreach collection="animeIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY ag.anime_id, g.genre_kor
+    </select>
+
+    <select id="countExploredAndSearch"
+            parameterType="com.anipick.backend.explore.dto.SignUpAnimeExploreSearchRequestDto"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM popularityanimeorder pa
+            JOIN anime a
+                ON pa.anime_id = a.anime_id
+        <where>
+            pa.created_at = #{nowString}
+            <!-- 검색 -->
+            <if test="query != null and query.trim() != ''">
+                AND a.title_search LIKE CONCAT('%', #{query}, '%')
+            </if>
+
+            <!-- 연도 분기 -->
+            <if test="startDate != null and endDate != null">
+                 AND a.start_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+
+            <!-- 장르 -->
+            <if test="genres != null">
+                AND EXISTS (
+                    SELECT 1
+                    FROM animegenres ag2
+                    WHERE ag2.anime_id = a.anime_id
+                    AND ag2.genre_id = #{genres}
+                )
+            </if>
+        </where>
+
+    </select>
+
+     <select id="selectAnimeExploredAndSearch"
+          parameterType="com.anipick.backend.explore.dto.SignUpAnimeExploreSearchRequestDto"
+          resultType="com.anipick.backend.explore.dto.SignUpPopularAnimeAllTitleItemDto">
+         SELECT pa.score AS score,
+                a.anime_id AS animeId,
+                a.title_kor AS titleKor,
+                a.title_english AS titleEng,
+                a.title_romaj AS titleRom,
+                a.title_native AS titleNat,
+                a.cover_image_url AS coverImageUrl
+         FROM popularityanimeorder pa
+            JOIN anime a
+                ON pa.anime_id = a.anime_id
+         <where>
+             pa.created_at = #{nowString}
+             <!-- 검색 -->
+             <if test="query != null and query.trim() != ''">
+                 AND a.title_search LIKE CONCAT('%', #{query}, '%')
+             </if>
+
+             <!-- 연도 분기 -->
+             <if test="startDate != null and endDate != null">
+                 AND a.start_date BETWEEN #{startDate} AND #{endDate}
+             </if>
+
+             <!-- 장르 -->
+             <if test="genres != null">
+                 AND EXISTS (
+                     SELECT 1
+                     FROM animegenres ag2
+                     WHERE ag2.anime_id = a.anime_id
+                     AND ag2.genre_id = #{genres}
+                 )
+             </if>
+
+             <!-- 커서 -->
+             <if test="lastId != null">
+                 AND pa.score &lt; #{lastId}
+             </if>
+         </where>
+
+         ORDER BY pa.score DESC
+         LIMIT #{size}
+  </select>
+
+</mapper>

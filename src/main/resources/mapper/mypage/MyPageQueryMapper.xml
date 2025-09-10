@@ -11,35 +11,50 @@
               uas.user_id = #{userId}
     </select>
 
-    <select id="getMyLikedAnimes" resultType="com.anipick.backend.mypage.dto.LikedAnimesDto">
+    <select id="getMyLikedAnimes" resultType="com.anipick.backend.mypage.dto.LikedAnimesAllTitleDto">
         SELECT
             ual.anime_id AS animeId,
-            a.title_kor AS title,
+            ual.anime_like_id AS animeLikeId,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM UserAnimeLike AS ual
         JOIN Anime AS a ON ual.anime_id = a.anime_id
         WHERE ual.user_id = #{userId}
-        ORDER BY ual.created_at DESC
+        <if test="lastId != null">
+            AND ual.anime_like_id &lt; #{lastId}
+        </if>
+        ORDER BY ual.anime_like_id DESC
         LIMIT #{size}
     </select>
 
-    <select id="getMyLikedPersons" resultType="com.anipick.backend.mypage.dto.LikedPersonsDto">
+    <select id="getMyLikedPersons" resultType="com.anipick.backend.mypage.dto.LikedPersonsAllNameDto">
         SELECT
             ulva.voiceactor_id AS personId,
-            va.name_kor AS name,
+            ulva.user_liked_voiceactor_id AS userLikedVoiceActorId,
+            va.name_kor AS nameKor,
+            va.name_eng AS nameEng,
             va.profile_image AS profileImageUrl
         FROM UserLikedVoiceActor AS ulva
         JOIN VoiceActor AS va ON ulva.voiceactor_id = va.voiceactor_id
         WHERE ulva.user_id = #{userId}
-        ORDER BY ulva.created_at DESC
+        <if test="lastId != null">
+            AND ulva.user_liked_voiceactor_id &lt; #{lastId}
+        </if>
+        ORDER BY ulva.user_liked_voiceactor_id DESC
         LIMIT #{size}
     </select>
 
-    <select id="getMyWatchListAnimes" resultType="com.anipick.backend.mypage.dto.WatchListAnimesDto">
+    <select id="getMyWatchListAnimes" resultType="com.anipick.backend.mypage.dto.WatchListAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM anime AS a
         JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
@@ -54,11 +69,14 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyWatchingAnimes" resultType="com.anipick.backend.mypage.dto.WatchingAnimesDto">
+    <select id="getMyWatchingAnimes" resultType="com.anipick.backend.mypage.dto.WatchingAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl
         FROM anime AS a
         JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
@@ -73,11 +91,14 @@
         LIMIT #{size}
     </select>
 
-    <select id="getMyFinishedAnimes" resultType="com.anipick.backend.mypage.dto.FinishedAnimesDto">
+    <select id="getMyFinishedAnimes" resultType="com.anipick.backend.mypage.dto.FinishedAnimesAllTitleDto">
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             r.rating AS myRating
         FROM anime AS a
@@ -92,5 +113,157 @@
         </if>
         ORDER BY uas.user_anime_status_id DESC
         LIMIT #{size}
+    </select>
+
+    <select id="getMyReviewCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM review AS r
+        WHERE r.user_id = #{userId}
+    </select>
+
+    <select id="getMyAnimesReviewsAll" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
+            a.cover_image_url AS coverImageUrl,
+            r.rating AS rating,
+            r.review_id AS reviewId,
+            r.content AS reviewContent,
+            DATE_FORMAT(r.created_at, '%Y. %m. %d') AS createdAt,
+            r.like_count AS likeCount,
+            EXISTS(
+                SELECT 1
+                FROM reviewlike AS rl
+                WHERE
+                        rl.user_id = #{userId}
+                    AND
+                        rl.review_id = r.review_id
+            ) AS isLiked
+        FROM anime AS a
+        JOIN review AS r ON a.anime_id = r.anime_id
+        <where>
+            r.user_id = #{userId}
+
+            <choose>
+                <when test="sortOption == 'latest' and lastId != null">
+                    AND r.review_id &lt; #{lastId}
+                </when>
+                <when test="sortOption == 'likes' and lastId != null and lastLikeCount != null">
+                    AND (
+                        r.like_count &lt; #{lastLikeCount}
+                        OR (r.like_count = #{lastLikeCount}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+                <when test="sortOption == 'ratingAsc' and lastId != null and lastRating != null">
+                    AND (
+                        r.rating &gt; #{lastRating}
+                        OR (r.rating = #{lastRating}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+                <when test="sortOption == 'ratingDesc' and lastId != null and lastRating != null">
+                    AND (
+                        r.rating &lt; #{lastRating}
+                        OR (r.rating = #{lastRating}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+            </choose>
+        </where>
+
+        <choose>
+            <when test="sortOption == 'latest'">
+                ORDER BY r.review_id DESC
+            </when>
+            <when test="sortOption == 'likes'">
+                ORDER BY r.like_count DESC, r.review_id DESC
+            </when>
+            <when test="sortOption == 'ratingAsc'">
+                ORDER BY r.rating ASC, r.review_id DESC
+            </when>
+            <when test="sortOption == 'ratingDesc'">
+                ORDER BY r.rating DESC, r.review_id DESC
+            </when>
+            <otherwise>
+                ORDER BY r.review_id DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{size}
+    </select>
+
+    <select id="getMyAnimesReviewsOnly" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
+            a.cover_image_url AS coverImageUrl,
+            r.rating AS rating,
+            r.review_id AS reviewId,
+            DATE_FORMAT(r.created_at, '%Y. %m. %d') AS createdAt
+        FROM anime AS a
+        JOIN review AS r ON a.anime_id = r.anime_id
+        <where>
+            r.user_id = #{userId}
+
+            <choose>
+                <when test="sortOption == 'latest' and lastId != null">
+                    AND r.review_id &lt; #{lastId}
+                </when>
+                <when test="sortOption == 'likes' and lastId != null and lastLikeCount != null">
+                    AND (
+                        r.like_count &lt; #{lastLikeCount}
+                        OR (r.like_count = #{lastLikeCount}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+                <when test="sortOption == 'ratingAsc' and lastId != null and lastRating != null">
+                    AND (
+                        r.rating &gt; #{lastRating}
+                        OR (r.rating = #{lastRating}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+                <when test="sortOption == 'ratingDesc' and lastId != null and lastRating != null">
+                    AND (
+                        r.rating &lt; #{lastRating}
+                        OR (r.rating = #{lastRating}) AND r.review_id &lt; #{lastId}
+                    )
+                </when>
+            </choose>
+        </where>
+
+        <choose>
+            <when test="sortOption == 'latest'">
+                ORDER BY r.review_id DESC
+            </when>
+            <when test="sortOption == 'likes'">
+                ORDER BY r.like_count DESC, r.review_id DESC
+            </when>
+            <when test="sortOption == 'ratingAsc'">
+                ORDER BY r.rating ASC, r.review_id DESC
+            </when>
+            <when test="sortOption == 'ratingDesc'">
+                ORDER BY r.rating DESC, r.review_id DESC
+            </when>
+            <otherwise>
+                ORDER BY r.review_id DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{size}
+    </select>
+
+    <select id="getMyAnimesLikeCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM useranimelike AS ual
+        WHERE ual.user_id = #{userId}
+    </select>
+
+    <select id="getMyPersonsLikeCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM userlikedvoiceactor AS ulva
+        WHERE ulva.user_id = #{userId}
     </select>
 </mapper>

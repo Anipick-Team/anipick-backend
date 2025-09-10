@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.person.mapper.PersonMapper">
+    <select id="selectActorInfo" resultType="com.anipick.backend.person.dto.PersonInfoAllNameDto">
+        SELECT v.voiceactor_id AS personId,
+               v.name_kor AS nameKor,
+               v.name_eng AS nameEng,
+               v.profile_image AS profileImageUrl,
+               IF(ulv.user_id IS NOT NULL, TRUE, FALSE) AS isLiked
+        FROM voiceactor v
+                 LEFT JOIN userlikedvoiceactor ulv
+                        ON v.voiceactor_id = ulv.voiceactor_id
+                               AND user_id = #{userId}
+        WHERE v.voiceactor_id = #{personId}
+    </select>
+
+    <select id="countAnimesByActor" resultType="long">
+        SELECT count(*)
+        FROM voiceactorcharacter vc
+                 JOIN `character` c on vc.character_id = c.character_id
+                 JOIN characteranime ca on ca.character_id = c.character_id
+        WHERE voiceactor_id = #{personId}
+    </select>
+
+    <select id="selectWorksByActor" resultType="com.anipick.backend.person.dto.PersonAnimeWorkAllTitleAndNameDto">
+        SELECT a.anime_id AS animeId,
+               a.title_kor AS animeTitleKor,
+               a.title_english AS animeTitleEng,
+               a.title_romaj AS animeTitleRom,
+               a.title_native AS animeTitleNat,
+               c.character_id AS characterId,
+               c.name_kor AS characterNameKor,
+               c.name_eng AS characterNameEng,
+               c.profile_image AS characterImageUrl
+        FROM voiceactor v
+                 JOIN voiceactorcharacter vc
+                      ON v.voiceactor_id = vc.voiceactor_id
+                          AND v.voiceactor_id = #{personId}
+                 JOIN `character` c
+                      ON c.character_id = vc.character_id
+                 JOIN CharacterAnime ca
+                      ON ca.character_id = c.character_id
+                 JOIN anime a
+                      ON a.anime_id = ca.anime_id
+        <if test="lastId != null">
+            WHERE a.anime_id &lt; #{lastId}
+        </if>
+        ORDER BY a.anime_id DESC
+        LIMIT #{size}
+    </select>
+</mapper>

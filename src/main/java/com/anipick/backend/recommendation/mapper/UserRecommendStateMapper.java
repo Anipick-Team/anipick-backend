@@ -20,4 +20,11 @@ public interface UserRecommendStateMapper {
             @Param("mode") UserRecommendMode mode,
             @Param("referenceAnimeId") Long referenceAnimeId
     );
+
+    void updateReferenceAnime(
+		@Param("userId") Long userId,
+		@Param("referenceAnimeId") Long referenceAnimeId
+	);
+
+    void insertTagBasedState(@Param("userId") Long userId);
 }

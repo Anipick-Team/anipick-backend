@@ -9,11 +9,14 @@ import java.time.LocalDate;
 @Getter
 public class AnimeDetailInfoItemDto {
     private Long animeId;
-    private String title;
+    private String titleKor;
+    private String titleEng;
+    private String titleRom;
+    private String titleNat;
     private String coverImageUrl;
     private String bannerImageUrl;
     private String description;
-    private String averageRating;
+    private Double averageRating;
     private Boolean isLiked;
     private UserAnimeOfStatus watchStatus;
     private String type;
@@ -22,4 +25,11 @@ public class AnimeDetailInfoItemDto {
     private LocalDate startDate;
     private AnimeStatus status;
     private String age;
+
+    public String getAverageRatingAsString() {
+        if (averageRating == null) {
+            return null;
+        }
+        return String.format("%.1f", averageRating);
+    }
 }

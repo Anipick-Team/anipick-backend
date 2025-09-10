@@ -6,9 +6,9 @@
 <mapper namespace="com.anipick.backend.user.mapper.UserMapper">
     <insert id="insertUser" parameterType="com.anipick.backend.user.domain.User" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO User
-            (email, password, nickname, profile_image_url, login_format, created_at, updated_at, terms_and_conditions, adult_yn, review_completed_yn)
+            (email, password, nickname, login_format, created_at, updated_at, terms_and_conditions, adult_yn, review_completed_yn)
         VALUES
-            (#{email}, #{password}, #{nickname}, #{profileImageUrl}, #{loginFormat},
+            (#{email}, #{password}, #{nickname}, #{loginFormat},
              #{createdAt}, #{updatedAt}, #{termsAndConditions}, #{adultYn}, #{reviewCompletedYn})
     </insert>
 
@@ -23,4 +23,29 @@
         WHERE email = #{email}
     </update>
 
+    <update id="updateUserNickname">
+        UPDATE User
+        SET nickname = #{nickname}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUserEmail">
+        UPDATE User
+        SET email = #{email}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUserByWithdrawal">
+        UPDATE User
+        SET nickname = #{nickname},
+            password = '',
+            login_format = '',
+            deleted_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE FROM User
+        WHERE user_id = #{userId}
+    </delete>
 </mapper>

@@ -20,16 +20,21 @@
           AND r.content IS NOT NULL
     </select>
 
-    <select id="selectRecentReviews" resultType="com.anipick.backend.review.dto.RecentReviewItemDto">
+    <select id="selectRecentReviews" resultType="com.anipick.backend.review.dto.RecentReviewItemAnimeAllTitleDto">
         SELECT
             r.review_id AS reviewId,
+            u.user_id AS userId,
             r.anime_id AS animeId,
-            a.title_kor AS animeTitle,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS animeCoverImageUrl,
             r.rating,
             r.content AS reviewContent,
             u.nickname,
-            u.profile_image_url AS profileImageUrl,
+        -- profiler_image_url -> image.image_id 로 변경
+            i.image_id AS profileImageUrl,
             r.created_at AS createdAt,
             r.like_count AS likeCount,
         -- 내가 좋아요 눌렀는지
@@ -44,7 +49,8 @@
         LEFT JOIN ReviewLike rl
             ON rl.review_id = r.review_id
         AND rl.user_id = #{currentUserId}
-
+        LEFT JOIN Image i
+        ON i.auth_id = u.user_id
         WHERE r.is_spoiler = FALSE
         AND r.content IS NOT NULL
         -- 신고된 리뷰는 제외

@@ -40,11 +40,10 @@ public class RatingController {
     @DeleteMapping("/{reviewId}/animes")
     public ApiResponse<Void> deleteReviewRating(
         @PathVariable(name = "reviewId") Long reviewId,
-        @RequestBody ReviewRatingRequest request,
         @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
-        ratingService.deleteReviewRating(reviewId, request, userId);
+        ratingService.deleteReviewRating(reviewId, userId);
         return ApiResponse.success();
     }
 }

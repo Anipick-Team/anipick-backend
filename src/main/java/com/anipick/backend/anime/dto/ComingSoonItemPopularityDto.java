@@ -1,7 +1,8 @@
 package com.anipick.backend.anime.dto;
 
-import com.anipick.backend.anime.util.FormatConvert;
 import com.anipick.backend.anime.domain.Season;
+import com.anipick.backend.anime.util.FormatConvert;
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,10 +18,29 @@ public class ComingSoonItemPopularityDto {
     private String coverImageUrl;
     private String startDate;
     private String format;
-    private Long popularId;
     private Boolean isAdult;
+    private Long score;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+
+    public static ComingSoonItemPopularityDto animeTitleTranslationPick(ComingSoonItemPopularityAlltitleDto dto) {
+        String finalTitle = LocalizationUtil.pickTitle(
+                dto.getTitleKor(),
+                dto.getTitleEng(),
+                dto.getTitleRom(),
+                dto.getTitleNat()
+        );
+
+        return new ComingSoonItemPopularityDto(
+                dto.getAnimeId(),
+                finalTitle,
+                dto.getCoverImageUrl(),
+                dto.getStartDate(),
+                dto.getFormat(),
+                dto.getIsAdult(),
+                dto.getScore()
+        ).typeToReleaseDate();
+    }
 
     public ComingSoonItemPopularityDto typeToReleaseDate() {
         if (this.startDate == null || this.startDate.isBlank()) {
@@ -30,7 +50,7 @@ public class ComingSoonItemPopularityDto {
 
         List<String> tvFormats = FormatConvert.toConvert("TVA");
 
-        if (tvFormats.stream().anyMatch(f -> f.equalsIgnoreCase(this.format))) {
+        if (tvFormats.contains(this.format)) {
             // YY년 Q분기
             String startDateStr = this.startDate;
             LocalDate date = LocalDate.parse(startDateStr);

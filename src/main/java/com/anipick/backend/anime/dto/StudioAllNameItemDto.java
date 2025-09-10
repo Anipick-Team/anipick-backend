@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AnimeIdTitleImgItemDto {
-	private Long animeId;
-	private String title;
-	private String coverImageUrl;
+public class StudioAllNameItemDto {
+	private Long studioId;
+	private String nameKor;
+	private String nameEng;
 }

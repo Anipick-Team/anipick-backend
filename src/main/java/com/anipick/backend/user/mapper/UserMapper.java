@@ -16,9 +16,11 @@ public interface UserMapper {
 
     void insertUser(User user);
   
-    void updateUser(User user);
     void updateReviewCompletedYn(Long userId);
     void updateUserPassword(@Param("email") String email, @Param("password") String password);
-    
-    void deleteUser(Long userId);
+    void updateUserNickname(@Param("userId") Long userId, @Param("nickname") String nickname);
+    void updateUserEmail(@Param("userId") Long userId, @Param("email") String email);
+    void updateUserByWithdrawal(@Param("userId") Long userId, @Param("nickname") String nickname);
+
+    void deleteUserById(Long userId);
 }

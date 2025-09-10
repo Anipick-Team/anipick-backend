@@ -1,35 +1,80 @@
 package com.anipick.backend.search.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import com.anipick.backend.search.dto.*;
-import org.springframework.stereotype.Service;
-
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.common.exception.CustomException;
+import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.search.dto.*;
 import com.anipick.backend.search.mapper.SearchMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SearchService {
 	private final SearchMapper mapper;
+	private final RedisTemplate<String, String> redisTemplate;
+	private final ObjectMapper objectMapper;
+
+	@Value("${log.base-url}")
+	private String LOG_BASE_URL;
+
+	@Value("${anime.week-best-key}")
+	private String ANIME_WEEK_BEST_REDIS_KEY;
 
 	public SearchInitPageDto findWeekBestAnimes() {
-		LocalDate now = LocalDate.now();
-		List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(now);
-		return new SearchInitPageDto(items);
+		String redisWeekBestAnimeIdsJsonStr = redisTemplate.opsForValue().get(ANIME_WEEK_BEST_REDIS_KEY);
+		try {
+			JsonNode jsonNode = objectMapper.readTree(redisWeekBestAnimeIdsJsonStr);
+			List<Long> searchBestAnimeIds = objectMapper
+				.convertValue(jsonNode.get("search_anime_id"), new TypeReference<>() {});
+
+			List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(searchBestAnimeIds)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
+
+			return new SearchInitPageDto(items);
+
+		} catch (JsonProcessingException e) {
+			throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+		}
 	}
 
-	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size) {
+	public SearchAnimePageDto findSearchAnimes(String query, Long lastId, Long size, Long page) {
 
+		long nextPage = page + 1;
 		long totalCount = mapper.countSearchAnime(query);
 		long personCount = mapper.countSearchPerson(query);
 		long studioCount = mapper.countSearchStudio(query);
 
-		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size);
+		List<AnimeItemDto> items = mapper.selectSearchAnimes(query, lastId, size)
+				.stream()
+				.map(AnimeItemDto::animeTitleTranslationPick)
+				.toList();
+
+		int positionNumber = (int) ((page - 1) * size);
+
+		List<SearchLogAnimeItemDto> animeLogItems = new ArrayList<>(18);
+
+		for (AnimeItemDto item : items) {
+			positionNumber++;
+			animeLogItems.add(
+					SearchLogAnimeItemDto.from(item, positionNumber, LOG_BASE_URL, query)
+			);
+		}
 
 		Long nextId;
 
@@ -41,7 +86,7 @@ public class SearchService {
 
 		CursorDto cursor = CursorDto.of(nextId);
 
-		return new SearchAnimePageDto(totalCount, personCount, studioCount, cursor, items);
+		return new SearchAnimePageDto(totalCount, nextPage, personCount, studioCount, cursor, animeLogItems);
 	}
 
 	public SearchPersonPageDto findSearchPersons(String query, Long lastId, Long size) {
@@ -49,7 +94,10 @@ public class SearchService {
 		long animeCount = mapper.countSearchAnime(query);
 		long studioCount = mapper.countSearchStudio(query);
 
-		List<PersonItemDto> items = mapper.selectSearchPersons(query, lastId, size);
+		List<PersonItemDto> items = mapper.selectSearchPersons(query, lastId, size)
+				.stream()
+				.map(PersonItemDto::personNameTranslationPick)
+				.toList();
 
 		Long nextId;
 
@@ -69,7 +117,10 @@ public class SearchService {
 		long animeCount = mapper.countSearchAnime(query);
 		long personCount = mapper.countSearchPerson(query);
 
-		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size);
+		List<StudioItemDto> items = mapper.selectSearchStudios(query, lastId, size)
+				.stream()
+				.map(StudioItemDto::studioNameTranslationPick)
+				.toList();
 
 		Long nextId;
 

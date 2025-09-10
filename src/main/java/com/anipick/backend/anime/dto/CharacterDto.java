@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class CharacterDto {
     private Long id;
-    private String name;
+    private String nameKor;
+    private String nameEng;
     private String imageUrl;
 }

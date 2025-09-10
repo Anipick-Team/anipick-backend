@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.image.mapper.ImageMapper">
+    <insert id="insertImage" parameterType="com.anipick.backend.image.domain.Image" useGeneratedKeys="true" keyProperty="imageId">
+        INSERT INTO Image
+            (auth_id, image_name, image_path)
+        VALUES
+            (#{authId}, #{imageName}, #{imagePath})
+    </insert>
+
+    <update id="updateImageByUserId" parameterType="com.anipick.backend.image.domain.Image">
+        UPDATE Image
+        SET
+            image_name = #{image.imageName},
+            image_path = #{image.imagePath}
+        WHERE auth_id = #{userId}
+    </update>
+
+    <delete id="deleteImage">
+        DELETE FROM Image
+        WHERE image_id = #{imageId}
+    </delete>
+</mapper>
