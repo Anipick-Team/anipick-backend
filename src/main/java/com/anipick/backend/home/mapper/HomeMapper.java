@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface HomeMapper {
     List<TrendingRankingFromQueryDto> selectHomeTrendingRanking(
-            @Param("animeIds") List<Long> animeIds
+            @Param("size") int size
     );
 
     List<HomeRecentReviewItemDto> selectHomeRecentReviews(
