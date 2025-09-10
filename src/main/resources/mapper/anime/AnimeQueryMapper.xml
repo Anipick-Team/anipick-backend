@@ -329,6 +329,8 @@
                       ON vc.voiceactor_id = v.voiceactor_id
         WHERE ca.anime_id = #{animeId}
         AND v.language = 'Japanese'
+        <!-- 36309 내레이터 -->
+        AND c.character_id != 36309
         ORDER BY CASE ca.role
                      WHEN 'MAIN' THEN 0
                      WHEN 'SUPPORTING' THEN 1
@@ -384,6 +386,8 @@
         <where>
             ca.anime_id = #{animeId}
         AND v.language = 'Japanese'
+        <!-- 36309 내레이터 -->
+        AND c.character_id != 36309
             <if test="lastId != null and lastValue != null">
                 AND (
                 (CASE ca.role
