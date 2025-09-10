@@ -9,6 +9,8 @@ import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.home.dto.HomeComingSoonItemDto;
 import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
+import com.anipick.backend.home.dto.HomeTrendingRankingDto;
+import com.anipick.backend.home.dto.TrendingRankingFromQueryDto;
 import com.anipick.backend.home.dto.HomeRecommendationItemDto;
 import com.anipick.backend.home.mapper.HomeMapper;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +45,26 @@ public class HomeService {
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+    private static final int LIMIT_SIZE = 10;
 
     @Value("${anime.default-cover-url}")
     private String defaultCoverUrl;
+
+    public List<HomeTrendingRankingDto> getTrendingRanking() {
+        List<TrendingRankingFromQueryDto> trendingRanking = homeMapper.selectHomeTrendingRanking(LIMIT_SIZE);
+        AtomicReference<Long> displayRank = new AtomicReference<>(0L);
+
+        List<HomeTrendingRankingDto> homeTrendingRanking = trendingRanking.stream()
+                .map(dto -> {
+                    displayRank.set(displayRank.get() + 1);
+                    Long rank = displayRank.get();
+
+                    return HomeTrendingRankingDto.of(dto, rank);
+                })
+                .toList();
+
+        return homeTrendingRanking;
+    }
 
     @Transactional(readOnly = true)
     public List<HomeRecentReviewItemDto> getRecentReviews(Long userId) {

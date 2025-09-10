@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.ranking.mapper.RankingMapper">
+    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RankingAnimesFromQueryDto">
+        <id property="animeId" column="animeId"/>
+        <result property="title" column="title"/>
+        <result property="coverImageUrl" column="coverImageUrl"/>
+        <result property="popularity" column="popularity"/>
+    </resultMap>
+
+    <select id="getGenresByAnimeIds" resultType="com.anipick.backend.ranking.dto.AnimeGenresDto">
+        SELECT
+            ag.anime_id AS animeId,
+            g.genre_id AS genreId,
+            g.genre_kor AS genreName
+        FROM Genres AS g
+        JOIN AnimeGenres AS ag ON g.genre_id = ag.genre_id
+        WHERE ag.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
+    </select>
+
+    <select id="getYearSeasonRankingPaging" resultMap="RankingResultMap">
+        SELECT
+            DISTINCT(a.anime_id) AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            a.popularity AS popularity
+        FROM Anime AS a
+        JOIN AnimeGenres AS ag
+        ON a.anime_id = ag.anime_id
+        WHERE 1 = 1
+        <if test="year != null">
+            AND a.season_year = #{year}
+        </if>
+        <if test="season != null">
+            AND a.season_int = #{season}
+        </if>
+        <if test="genreId != null">
+            AND ag.genre_id = #{genreId}
+        </if>
+        <if test="lastId != null">
+            AND a.popularity &lt; #{lastId}
+        </if>
+        ORDER BY a.popularity DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="getAllTimeRankingPaging" resultMap="RankingResultMap">
+        SELECT
+            DISTINCT(a.anime_id) AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            a.popularity AS popularity
+        FROM Anime AS a
+        JOIN AnimeGenres AS ag
+        ON a.anime_id = ag.anime_id
+        WHERE 1 = 1
+        <if test="genreId != null">
+            AND ag.genre_id = #{genreId}
+        </if>
+        <if test="lastId != null">
+            AND a.popularity &lt; #{lastId}
+        </if>
+        ORDER BY a.popularity DESC
+        LIMIT #{size}
+    </select>
+</mapper>

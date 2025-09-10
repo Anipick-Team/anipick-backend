@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.ranking.mapper.RealTimeRankingMapper">
+    <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RealTimeRankingAnimesFromQueryDto">
+        <id property="animeId" column="animeId"/>
+        <result property="title" column="title"/>
+        <result property="coverImageUrl" column="coverImageUrl"/>
+        <result property="trending" column="trending"/>
+        <result property="popularity" column="popularity"/>
+    </resultMap>
+
+    <select id="getRealTimeRanking" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            a.trending AS trending,
+            a.popularity AS popularity
+        FROM Anime AS a
+        ORDER BY a.trending DESC, a.popularity DESC
+    </select>
+
+    <select id="getRealTimeRankingPaging" resultMap="RankingResultMap">
+        SELECT
+            a.anime_id AS animeId,
+            a.title_kor AS title,
+            a.cover_image_url AS coverImageUrl,
+            a.trending AS trending,
+            a.popularity AS popularity
+        FROM Anime AS a
+        WHERE 1 = 1
+        <if test="lastId != null and lastValue != null">
+            AND (a.trending , a.popularity) &lt; (#{lastValue}, #{lastId})
+        </if>
+        ORDER BY a.trending DESC, a.popularity DESC
+        LIMIT #{size}
+    </select>
+</mapper>

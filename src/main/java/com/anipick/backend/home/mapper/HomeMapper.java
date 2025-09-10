@@ -1,5 +1,6 @@
 package com.anipick.backend.home.mapper;
 
+import com.anipick.backend.home.dto.TrendingRankingFromQueryDto;
 import com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto;
 import com.anipick.backend.home.dto.HomeRecentReviewAnimeAllTitleItemDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,6 +10,10 @@ import java.util.List;
 
 @Mapper
 public interface HomeMapper {
+    List<TrendingRankingFromQueryDto> selectHomeTrendingRanking(
+            @Param("size") int size
+    );
+
     List<HomeRecentReviewAnimeAllTitleItemDto> selectHomeRecentReviews(
             @Param(value = "currentUserId") Long userId,
             @Param(value = "size") int size
