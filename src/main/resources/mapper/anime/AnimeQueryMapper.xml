@@ -271,12 +271,6 @@
         LIMIT #{size}
     </select>
 
-    <select id="selectSeriesGroupIdByAnimeId" resultType="long">
-        SELECT ra.series_group_id
-        FROM Relatedanime ra
-        WHERE ra.anime_id = #{animeId}
-    </select>
-
     <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
                a.title_kor AS titleKor,
@@ -289,7 +283,7 @@
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
                            WHERE ra.series_group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{refAnimeId}
+                           AND ra.anime_id != #{seriesGroupId}
                            )
         ORDER BY a.anime_id
         LIMIT #{size}
@@ -335,6 +329,8 @@
                       ON vc.voiceactor_id = v.voiceactor_id
         WHERE ca.anime_id = #{animeId}
         AND v.language = 'Japanese'
+        <!-- 36309 내레이터 -->
+        AND c.character_id != 36309
         ORDER BY CASE ca.role
                      WHEN 'MAIN' THEN 0
                      WHEN 'SUPPORTING' THEN 1
@@ -390,6 +386,8 @@
         <where>
             ca.anime_id = #{animeId}
         AND v.language = 'Japanese'
+        <!-- 36309 내레이터 -->
+        AND c.character_id != 36309
             <if test="lastId != null and lastValue != null">
                 AND (
                 (CASE ca.role
@@ -462,7 +460,7 @@
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
                            WHERE ra.series_group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{refAnimeId})
+                           AND ra.anime_id != #{seriesGroupId})
     </select>
 
     <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
@@ -477,7 +475,7 @@
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
                            WHERE ra.series_group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{refAnimeId}
+                           AND ra.anime_id != #{seriesGroupId}
                            )
         <if test="lastId != null">
             AND a.anime_id > #{lastId}

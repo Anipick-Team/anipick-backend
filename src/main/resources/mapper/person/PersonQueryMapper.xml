@@ -22,6 +22,8 @@
                  JOIN `character` c on vc.character_id = c.character_id
                  JOIN characteranime ca on ca.character_id = c.character_id
         WHERE voiceactor_id = #{personId}
+        <!-- 36309 내레이터 -->
+        AND c.character_id != 36309
     </select>
 
     <select id="selectWorksByActor" resultType="com.anipick.backend.person.dto.PersonAnimeWorkAllTitleAndNameDto">
@@ -44,10 +46,14 @@
                       ON ca.character_id = c.character_id
                  JOIN anime a
                       ON a.anime_id = ca.anime_id
-        <if test="lastId != null">
-            WHERE a.anime_id &lt; #{lastId}
-        </if>
-        ORDER BY a.anime_id DESC
+        <where>
+            <!-- 36309 내레이터 -->
+            c.character_id != 36309
+            <if test="lastId != null">
+                AND a.popularity &lt; #{lastId}
+            </if>
+        </where>
+        ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
 </mapper>

@@ -403,9 +403,7 @@ public class AnimeService {
 	}
 
 	public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
-		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
-
-		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(seriesGroupId, animeId, ITEM_DEFAULT_SIZE)
+		List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE)
 				.stream()
 				.map(AnimeDateItemDto::animeTitleTranslationPick)
 				.toList();
@@ -561,11 +559,9 @@ public class AnimeService {
 	}
 
 	public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
-		Long seriesGroupId = mapper.selectSeriesGroupIdByAnimeId(animeId);
+		long totalCount = mapper.countSeriesAnime(animeId);
 
-		long totalCount = mapper.countSeriesAnime(seriesGroupId, animeId);
-
-		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(seriesGroupId, animeId, lastId, size)
+		List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size)
 				.stream()
 				.map(AnimeDateItemDto::animeTitleTranslationPick)
 				.toList();
