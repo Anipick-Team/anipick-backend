@@ -28,6 +28,7 @@
 
     <select id="selectWorksByActor" resultType="com.anipick.backend.person.dto.PersonAnimeWorkAllTitleAndNameDto">
         SELECT a.anime_id AS animeId,
+               a.popularity AS popularity,
                a.title_kor AS animeTitleKor,
                a.title_english AS animeTitleEng,
                a.title_romaj AS animeTitleRom,

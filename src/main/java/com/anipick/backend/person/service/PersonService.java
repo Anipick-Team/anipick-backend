@@ -25,7 +25,9 @@ public class PersonService {
 
         long totalCount = personMapper.countAnimesByActor(personId);
 
-        List<PersonAnimeWorkDto> items = personMapper.selectWorksByActor(personId, lastId, size)
+        List<PersonAnimeWorkAllTitleAndNameDto> items = personMapper.selectWorksByActor(personId, lastId, size);
+
+        List<PersonAnimeWorkDto> animeTitlePickItems = items
                 .stream()
                 .map(PersonAnimeWorkDto::animeTitleAndCharacterNameTranslationPick)
                 .toList();
@@ -34,7 +36,7 @@ public class PersonService {
         if (items.isEmpty()) {
             nextId = null;
         } else {
-            nextId = items.getLast().getAnimeId();
+            nextId = items.getLast().getPopularity();
         }
         CursorDto cursor = CursorDto.of(nextId);
 
@@ -45,7 +47,7 @@ public class PersonService {
                 personInfoDto.getIsLiked(),
                 totalCount,
                 cursor,
-                items
+                animeTitlePickItems
         );
     }
 }
