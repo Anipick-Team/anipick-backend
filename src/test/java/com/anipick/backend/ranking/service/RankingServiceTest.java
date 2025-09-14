@@ -1,14 +1,12 @@
 package com.anipick.backend.ranking.service;
 
-import com.anipick.backend.anime.dto.GenreDto;
 import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.ranking.domain.RankingDefaults;
 import com.anipick.backend.ranking.dto.*;
 import com.anipick.backend.ranking.mapper.RankingMapper;
 import com.anipick.backend.ranking.mapper.RealTimeRankingMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,305 +17,273 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RankingServiceTest {
-//    @Mock
-//    RankingMapper rankingMapper;
-//
-//    @Mock
-//    RealTimeRankingMapper realTimeRankingMapper;
-//
-//    @Mock
-//    GenreMapper genreMapper;
-//    @Mock
-//    ObjectMapper objectMapper;
-//
-//    @Mock
-//    RedisTemplate<String, String> redisTemplate;
-//
-//    @Mock
-//    ValueOperations<String, String> valueOps;
-//
-//    RankingService sut; // System Under Test
-//
-//    @BeforeEach
-//    void setUp() {
-//        sut = new RankingService(rankingMapper, realTimeRankingMapper, genreMapper, objectMapper, redisTemplate);
-//    }
-//
-//    // region -------- getRealTimeRanking --------
-//
-//    @Test
-//    void getRealTimeRanking_정상_변동계산_AND_커서세팅() throws Exception {
-//        // given
-//        when(redisTemplate.opsForValue()).thenReturn(valueOps);
-//        String genre = null;
-//        Long lastId = 0L;
-//        Long lastValue = 0L;
-//        int size = 2;
-//
-//        // Redis JSON → objectMapper.readValue(...) 로 반환될 리스트 (animeId 기준: [2,1,3])
-//        RedisRealTimeRankingAnimesDto r1 = mock(RedisRealTimeRankingAnimesDto.class);
-//        RedisRealTimeRankingAnimesDto r2 = mock(RedisRealTimeRankingAnimesDto.class);
-//        RedisRealTimeRankingAnimesDto r3 = mock(RedisRealTimeRankingAnimesDto.class);
-//        when(r1.getAnimeId()).thenReturn(2L);
-//        when(r2.getAnimeId()).thenReturn(1L);
-//        when(r3.getAnimeId()).thenReturn(3L);
-//        when(valueOps.get(anyString())).thenReturn("[dummy-json]");
-//        when(objectMapper.readValue(anyString(), any(TypeReference.class)))
-//                .thenReturn(List.of(r1, r2, r3));
-//
-//        // DB 전체 랭킹 (id: [1,2,3] → dbRank 1,2,3)
-//        RealTimeRankingAnimesFromQueryDto d1 = mockDbRow(1L);
-//        RealTimeRankingAnimesFromQueryDto d2 = mockDbRow(2L);
-//        RealTimeRankingAnimesFromQueryDto d3 = mockDbRow(3L);
-//        when(realTimeRankingMapper.getRealTimeRanking()).thenReturn(List.of(d1, d2, d3));
-//
-//        // 페이징 결과(상위 2개만)
-//        when(realTimeRankingMapper.getRealTimeRankingPaging(eq(lastValue), eq(lastId), eq(size)))
-//                .thenReturn(List.of(d1, d2));
-//
-//        // 장르 매핑 (첫 페이지의 animeIds = [2,1])
-//        when(rankingMapper.getGenresByAnimeIds(eq(List.of(2L, 1L))))
-//                .thenReturn(List.of(
-//                        genre(2L, 1L, "액션"),
-//                        genre(1L, 6L, "코미디")
-//                ));
-//
-//        // RealTimeRankingAnimesDto.from(...) 정적 모킹
-//        RealTimeRankingAnimesDto a1 = mock(RealTimeRankingAnimesDto.class);
-//        RealTimeRankingAnimesDto a2 = mock(RealTimeRankingAnimesDto.class);
-//        // 마지막 아이템의 pop/trend 커서 읽힘
-//        when(a2.getPopularity()).thenReturn(222L);
-//        when(a2.getTrending()).thenReturn(888L);
-//
-//        try (MockedStatic<RealTimeRankingAnimesDto> mocked = Mockito.mockStatic(RealTimeRankingAnimesDto.class)) {
-//            // diff: d1 → redisRank(2) - dbRank(1) = 1 → trend "up"
-//            // diff: d2 → redisRank(1) - dbRank(2) = -1 → trend "down"
-//            mocked.when(() -> RealTimeRankingAnimesDto.from(eq(1L), eq("1"), eq("up"), same(d1), anyList()))
-//                    .thenReturn(a1);
-//            mocked.when(() -> RealTimeRankingAnimesDto.from(eq(2L), eq("-1"), eq("down"), same(d2), anyList()))
-//                    .thenReturn(a2);
-//
-//            // when
-//            RealTimeRankingResponse res = sut.getRealTimeRanking(genre, lastId, lastValue, size);
-//
-//            // then
-//            assertThat(res).isNotNull();
-//            assertThat(res.getAnimes()).hasSize(2);
-//            // 커서: 마지막 아이템의 pop/trend 사용
-//            assertThat(res.getCursor().getLastId()).isEqualTo(222L);
-//            assertThat(res.getCursor().getLastValue()).isEqualTo("888");
-//
-//            // 정적 from 호출 검증
-//            mocked.verify(() -> RealTimeRankingAnimesDto.from(eq(1L), eq("1"), eq("up"), same(d1), anyList()));
-//            mocked.verify(() -> RealTimeRankingAnimesDto.from(eq(2L), eq("-1"), eq("down"), same(d2), anyList()));
-//        }
-//    }
-//
-//    @Test
-//    void getRealTimeRanking_신규진입_N_분기_동작() throws Exception {
-//        // given
-//        when(redisTemplate.opsForValue()).thenReturn(valueOps);
-//        Long lastId = 0L;
-//        Long lastValue = 0L;
-//        int size = 1;
-//
-//        // Redis(빈 리스트처럼 만들어 특정 id가 없도록)
-//        when(valueOps.get(anyString())).thenReturn("[dummy-json]");
-//        when(objectMapper.readValue(anyString(), any(TypeReference.class)))
-//                .thenReturn(List.of()); // redis에 아무 것도 없음 → redisRank == null
-//
-//        // DB 전체 + 페이징(1개)
-//        RealTimeRankingAnimesFromQueryDto d1 = mockDbRow(10L);
-//        when(realTimeRankingMapper.getRealTimeRanking()).thenReturn(List.of(d1));
-//        when(realTimeRankingMapper.getRealTimeRankingPaging(eq(lastValue), eq(lastId), eq(size)))
-//                .thenReturn(List.of(d1));
-//
-//        // 장르
-//        when(rankingMapper.getGenresByAnimeIds(eq(List.of( /* sliced: redis 기준이 비어도 DB 페이징 animeIds는 따로*/ ))))
-//                .thenReturn(List.of()); // 안전하게 빈 리스트
-//
-//        // from 모킹: redisRank == null && dbRank != null → change="N", trend="new"
-//        RealTimeRankingAnimesDto a1 = mock(RealTimeRankingAnimesDto.class);
-//        when(a1.getPopularity()).thenReturn(500L);
-//        when(a1.getTrending()).thenReturn(600L);
-//
-//        try (MockedStatic<RealTimeRankingAnimesDto> mocked = Mockito.mockStatic(RealTimeRankingAnimesDto.class)) {
-//            mocked.when(() -> RealTimeRankingAnimesDto.from(eq(1L), eq("N"), eq("new"), same(d1), anyList()))
-//                    .thenReturn(a1);
-//
-//            // when
-//            RealTimeRankingResponse res = sut.getRealTimeRanking(null, lastId, lastValue, size);
-//
-//            // then
-//            assertThat(res.getAnimes()).hasSize(1);
-//            assertThat(res.getCursor().getLastId()).isEqualTo(500L);
-//            assertThat(res.getCursor().getLastValue()).isEqualTo("600");
-//
-//            mocked.verify(() -> RealTimeRankingAnimesDto.from(eq(1L), eq("N"), eq("new"), same(d1), anyList()));
-//        }
-//    }
-//
-//    @Test
-//    void getRealTimeRanking_페이지없음이면_cursor_null_처리() throws Exception {
-//        // given
-//        when(redisTemplate.opsForValue()).thenReturn(valueOps);
-//        when(valueOps.get(anyString())).thenReturn("[dummy-json]");
-//        when(objectMapper.readValue(anyString(), any(TypeReference.class)))
-//                .thenReturn(List.of()); // redis 리스트 비어도 무방
-//        when(realTimeRankingMapper.getRealTimeRanking()).thenReturn(List.of());
-//        when(realTimeRankingMapper.getRealTimeRankingPaging(any(), any(), anyInt()))
-//                .thenReturn(List.of()); // 페이징 결과 없음
-//
-//        // when
-//        RealTimeRankingResponse res = sut.getRealTimeRanking(null, null, null, 20);
-//
-//        // then
-//        assertThat(res.getAnimes()).isEmpty();
-//        // 구현 상 "null" 문자열을 넣고 있음
-//        assertThat(res.getCursor().getLastId()).isNull();
-//        assertThat(res.getCursor().getLastValue()).isEqualTo("null");
-//    }
-//
-//    // endregion
-//
-//    // region -------- getYearSeasonRanking --------
-//
-//    @Test
-//    void getYearSeasonRanking_displayRank_증가_AND_커서세팅() throws Exception {
-//        // given
-//        Integer year = 2024;
-//        Integer season = 1;
-//        String genre = "액션";
-//        Long lastId = 0L;
-//        Long lastRank = 20L;
-//        int size = 2;
-//
-//        when(genreMapper.findGenreIdByGenreName(eq(genre))).thenReturn(1L);
-//
-//        RankingAnimesFromQueryDto q1 = rowIdOnly(100L);
-//        RankingAnimesFromQueryDto q2 = rowWithPopularity(200L, 800L);
-//        when(rankingMapper.getYearSeasonRankingPaging(eq(year), eq(season), eq(1L), eq(lastId), eq(size)))
-//                .thenReturn(List.of(q1, q2));
-//
-//        when(rankingMapper.getGenresByAnimeIds(eq(List.of(100L, 200L))))
-//                .thenReturn(List.of(
-//                        genre(100L, 1L,"액션"),
-//                        genre(200L, 6L,"코미디")
-//                ));
-//
-//        try (MockedStatic<RankingAnimesDto> mocked = Mockito.mockStatic(RankingAnimesDto.class)) {
-//            // displayRank: lastRank(20) → 21, 22 순서로 들어가야 함
-//            RankingAnimesDto a1 = mock(RankingAnimesDto.class);
-//            RankingAnimesDto a2 = mock(RankingAnimesDto.class);
-//
-//            mocked.when(() -> RankingAnimesDto.from(eq(21L), same(q1), anyList())).thenReturn(a1);
-//            mocked.when(() -> RankingAnimesDto.from(eq(22L), same(q2), anyList())).thenReturn(a2);
-//
-//            // when
-//            RankingResponse res = sut.getYearSeasonRanking(year, season, genre, lastId, lastRank, size);
-//
-//            // then
-//            assertThat(res.getAnimes()).hasSize(2);
-//            // 커서: 마지막 아이템의 popularity 사용
-//            assertThat(res.getCursor().getLastId()).isEqualTo(800L);
-//
-//            mocked.verify(() -> RankingAnimesDto.from(eq(21L), same(q1), anyList()));
-//            mocked.verify(() -> RankingAnimesDto.from(eq(22L), same(q2), anyList()));
-//        }
-//    }
-//
-//    @Test
-//    void getYearSeasonRanking_페이지없음이면_cursor_null() throws Exception {
-//        when(rankingMapper.getYearSeasonRankingPaging(any(), any(), any(), any(), any()))
-//                .thenReturn(List.of());
-//        RankingResponse res = sut.getYearSeasonRanking(2024, 1, null, null, 0L, 20);
-//        assertThat(res.getAnimes()).isEmpty();
-//        assertThat(res.getCursor().getLastId()).isNull();
-//    }
-//
-//    // endregion
-//
-//    // region -------- getAllTimeRanking --------
-//
-//    @Test
-//    void getAllTimeRanking_displayRank_증가_AND_커서세팅() {
-//        // given
-//        String genre = null;
-//        Long lastId = 0L;
-//        Long lastRank = 40L;
-//        int size = 2;
-//
-//        RankingAnimesFromQueryDto q1 = rowIdOnly(1000L);
-//        RankingAnimesFromQueryDto q2 = rowWithPopularity(2000L, 950L);
-//        when(rankingMapper.getAllTimeRankingPaging(isNull(), eq(lastId), eq(size)))
-//                .thenReturn(List.of(q1, q2));
-//
-//        when(rankingMapper.getGenresByAnimeIds(eq(List.of(1000L, 2000L))))
-//                .thenReturn(List.of());
-//
-//        try (MockedStatic<RankingAnimesDto> mocked = Mockito.mockStatic(RankingAnimesDto.class)) {
-//            RankingAnimesDto a1 = mock(RankingAnimesDto.class);
-//            RankingAnimesDto a2 = mock(RankingAnimesDto.class);
-//
-//            mocked.when(() -> RankingAnimesDto.from(eq(41L), same(q1), anyList())).thenReturn(a1);
-//            mocked.when(() -> RankingAnimesDto.from(eq(42L), same(q2), anyList())).thenReturn(a2);
-//
-//            // when
-//            RankingResponse res = sut.getAllTimeRanking(genre, lastId, lastRank, size);
-//
-//            // then
-//            assertThat(res.getAnimes()).hasSize(2);
-//            assertThat(res.getCursor().getLastId()).isEqualTo(950L);
-//
-//            mocked.verify(() -> RankingAnimesDto.from(eq(41L), same(q1), anyList()));
-//            mocked.verify(() -> RankingAnimesDto.from(eq(42L), same(q2), anyList()));
-//        }
-//    }
-//
-//    @Test
-//    void getAllTimeRanking_페이지없음이면_cursor_null() {
-//        when(rankingMapper.getAllTimeRankingPaging(any(), any(), anyInt()))
-//                .thenReturn(List.of());
-//        RankingResponse res = sut.getAllTimeRanking(null, null, 0L, 20);
-//        assertThat(res.getAnimes()).isEmpty();
-//        assertThat(res.getCursor().getLastId()).isNull();
-//    }
-//
-//    // endregion
-//
-//    // region -------- helpers (mocks) --------
-//
-//    private RealTimeRankingAnimesFromQueryDto mockDbRow(Long id) {
-//        RealTimeRankingAnimesFromQueryDto dto = mock(RealTimeRankingAnimesFromQueryDto.class);
-//        when(dto.getAnimeId()).thenReturn(id);
-//        return dto;
-//    }
-//
-//    private RankingAnimesFromQueryDto rowIdOnly(Long id) {
-//        RankingAnimesFromQueryDto dto = mock(RankingAnimesFromQueryDto.class);
-//        when(dto.getAnimeId()).thenReturn(id);
-//        return dto;
-//    }
-//
-//    private RankingAnimesFromQueryDto rowWithPopularity(Long id, Long popularity) {
-//        RankingAnimesFromQueryDto dto = mock(RankingAnimesFromQueryDto.class);
-//        when(dto.getAnimeId()).thenReturn(id);
-//        when(dto.getPopularity()).thenReturn(popularity);
-//        return dto;
-//    }
-//
-//    private AnimeGenresDto genre(Long animeId, Long genreId, String name) {
-//        return new AnimeGenresDto(animeId, genreId, name);
-//    }
+    @Mock RankingMapper rankingMapper;
+    @Mock RealTimeRankingMapper realTimeRankingMapper;
+    @Mock GenreMapper genreMapper;
+    @Mock RedisTemplate<String, String> redisTemplate;
+    @Mock ValueOperations<String, String> valueOps;
+
+    ObjectMapper objectMapper; // real
+    RankingService sut;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        sut = new RankingService(rankingMapper, realTimeRankingMapper, genreMapper, objectMapper, redisTemplate);
+    }
+
+    // =========================
+    // getRealTimeRanking tests
+    // =========================
+
+    @Test
+    @DisplayName("실시간 랭킹: 장르지정 + 정상 플로우 (diff 계산, trend, cursor 계산)")
+    void getRealTimeRanking_withGenre_success() {
+        // given
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        String genre = "액션";
+        Long genreId = 1L;
+        when(genreMapper.findGenreIdByGenreName(genre)).thenReturn(genreId);
+
+        // Redis 키
+        String expectedKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+
+        // Redis JSON: real_time_rank 순서가 Redis상 랭크(1-base)
+        // ex) [20, 10, 30] 이면 20이 1위, 10이 2위, 30이 3위
+        String redisJson = """
+        { "real_time_rank": [ 20, 10, 30 ] }
+        """;
+        when(valueOps.get(expectedKey)).thenReturn(redisJson);
+
+        // DB 전체 순위(랭크 계산용): 10,20,30 → DB rank: 10->1, 20->2, 30->3
+        RealTimeRankingAnimesFromQueryDto all1 = rtRow(10L, "T10", "U10",  900L, 1000L);
+        RealTimeRankingAnimesFromQueryDto all2 = rtRow(20L, "T20", "U20",  800L,  900L);
+        RealTimeRankingAnimesFromQueryDto all3 = rtRow(30L, "T30", "U30",  700L,  800L);
+        when(realTimeRankingMapper.getRealTimeRanking())
+                .thenReturn(List.of(all1, all2, all3));
+
+        // 페이징 결과(커서 계산에 사용): 10, 30
+        RealTimeRankingAnimesFromQueryDto p1 = rtRow(10L, "T10", "U10", 800L, 900L);
+        RealTimeRankingAnimesFromQueryDto p2 = rtRow(30L, "T30", "U30", 700L, 800L);
+        when(realTimeRankingMapper.getRealTimeRankingPaging(eq(0L), eq(0L), eq(2)))
+                .thenReturn(List.of(p1, p2));
+
+        // 장르 매핑
+        when(rankingMapper.getGenresByAnimeIds(List.of(10L, 30L)))
+                .thenReturn(List.of(
+                        genreOf(10L, 1L, "액션"),
+                        genreOf(30L, 2L, "코미디"),
+                        genreOf(30L, 6L, "판타지")
+                ));
+
+        // when
+        RealTimeRankingResponse resp = sut.getRealTimeRanking(genre, 0L, 0L, 2);
+
+        // then
+        // Redis get key 검증
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+        verify(valueOps).get(keyCaptor.capture());
+        assertThat(keyCaptor.getValue()).isEqualTo(expectedKey);
+
+        // 응답 검증
+        assertThat(resp).isNotNull();
+        assertThat(resp.getAnimes()).hasSize(2);
+
+        // Redis rank: {20:1, 10:2, 30:3}
+        // DB   rank: {10:1, 20:2, 30:3}
+        // p1=10 → diff = 2-1 = 1 → trend up
+        // p2=30 → diff = 3-3 = 0 → trend same
+        RealTimeRankingAnimesDto a1 = resp.getAnimes().get(0);
+        RealTimeRankingAnimesDto a2 = resp.getAnimes().get(1);
+
+        assertThat(a1.getAnimeId()).isEqualTo(10L);
+        assertThat(a1.getRank()).isEqualTo(1L); // DB rank
+        assertThat(a1.getChange()).isEqualTo("1");
+        assertThat(a1.getTrend()).isEqualTo("up");
+        assertThat(a1.getGenres()).containsExactly("액션"); // specificGenre 우선
+
+        assertThat(a2.getAnimeId()).isEqualTo(30L);
+        assertThat(a2.getRank()).isEqualTo(3L);
+        assertThat(a2.getChange()).isEqualTo("0");
+        assertThat(a2.getTrend()).isEqualTo("same");
+        assertThat(a2.getGenres()).containsExactlyInAnyOrder("코미디", "판타지");
+
+        // 커서: 마지막 요소의 popularity, trending
+        assertThat(resp.getCursor()).isNotNull();
+        assertThat(resp.getCursor().getSort()).isEqualTo(RankingDefaults.SORT);
+        assertThat(resp.getCursor().getLastId()).isEqualTo(p2.getPopularity());
+        assertThat(resp.getCursor().getLastValue()).isEqualTo(String.valueOf(p2.getTrending()));
+    }
+
+    @Test
+    @DisplayName("실시간 랭킹: 장르 미지정 + 결과 비어있음 → cursor(sort, null, \"null\") & 빈 리스트")
+    void getRealTimeRanking_noGenre_emptyResult() {
+        // given
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        String expectedKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+        String redisJson = """
+        { "real_time_rank": [ ] }
+        """;
+        when(valueOps.get(expectedKey)).thenReturn(redisJson);
+
+        when(realTimeRankingMapper.getRealTimeRanking()).thenReturn(List.of());
+        when(realTimeRankingMapper.getRealTimeRankingPaging(any(), any(), any())).thenReturn(List.of());
+        when(rankingMapper.getGenresByAnimeIds(anyList())).thenReturn(List.of());
+
+        // when
+        RealTimeRankingResponse resp = sut.getRealTimeRanking(null, 0L, 0L, 20);
+
+        // then
+        verify(valueOps).get(expectedKey);
+
+        assertThat(resp).isNotNull();
+        assertThat(resp.getAnimes()).isEmpty();
+        assertThat(resp.getCursor()).isNotNull();
+        assertThat(resp.getCursor().getSort()).isEqualTo(RankingDefaults.SORT);
+        assertThat(resp.getCursor().getLastId()).isNull();
+        assertThat(resp.getCursor().getLastValue()).isEqualTo("null");
+    }
+
+    @Test
+    @DisplayName("실시간 랭킹: Redis JSON 불량 → JsonProcessingException 발생 → CustomException(INTERNAL_SERVER_ERROR)")
+    void getRealTimeRanking_badJson_throwsCustom() {
+        // given
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        String key = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+        String badJson = "{ not-a-valid-json ";
+        when(valueOps.get(key)).thenReturn(badJson);
+
+        // when / then
+        assertThatThrownBy(() -> sut.getRealTimeRanking(null, 0L, 0L, 10))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.INTERNAL_SERVER_ERROR.getErrorReason());
+    }
+
+    // =========================
+    // getYearSeasonRanking tests
+    // =========================
+
+    @Test
+    @DisplayName("시즌 랭킹: 장르 지정 + 표시랭크 증가 + 커서(popularity)")
+    void getYearSeasonRanking_success() throws Exception {
+        // given
+        String genre = "액션";
+        when(genreMapper.findGenreIdByGenreName(genre)).thenReturn(1L);
+
+        RankingAnimesFromQueryDto r1 = seasonRow(100L, "A100", "C100", 700L);
+        RankingAnimesFromQueryDto r2 = seasonRow(200L, "A200", "C200", 800L);
+        when(rankingMapper.getYearSeasonRankingPaging(2024, 1, 1L, 0L, 2))
+                .thenReturn(List.of(r1, r2));
+
+        when(rankingMapper.getGenresByAnimeIds(List.of(100L, 200L)))
+                .thenReturn(List.of(
+                        genreOf(100L, 1L, "액션"),
+                        genreOf(200L, 2L, "코미디")
+                ));
+
+        // when
+        RankingResponse resp = sut.getYearSeasonRanking(2024, 1, genre, 0L, 0L, 2);
+
+        // then
+        assertThat(resp).isNotNull();
+        assertThat(resp.getAnimes()).hasSize(2);
+
+        RankingAnimesDto a1 = resp.getAnimes().get(0);
+        RankingAnimesDto a2 = resp.getAnimes().get(1);
+
+        // 표시 랭크: lastRank=0에서 시작 → 1, 2
+        assertThat(a1.getAnimeId()).isEqualTo(100L);
+        assertThat(a1.getRank()).isEqualTo(1L);
+        assertThat(a1.getGenres()).containsExactly("액션");
+
+        assertThat(a2.getAnimeId()).isEqualTo(200L);
+        assertThat(a2.getRank()).isEqualTo(2L);
+        assertThat(a2.getGenres()).containsExactly("코미디");
+
+        // 커서: 마지막 요소의 popularity
+        assertThat(resp.getCursor()).isNotNull();
+        assertThat(resp.getCursor().getLastId()).isEqualTo(800L);
+    }
+
+    @Test
+    @DisplayName("시즌 랭킹: 결과 없음 → cursor(null) + 빈 리스트")
+    void getYearSeasonRanking_empty() throws Exception {
+        when(rankingMapper.getYearSeasonRankingPaging(any(), any(), any(), any(), any()))
+                .thenReturn(List.of());
+        when(rankingMapper.getGenresByAnimeIds(anyList())).thenReturn(List.of());
+
+        RankingResponse resp = sut.getYearSeasonRanking(2024, 1, null, 0L, 0L, 20);
+
+        assertThat(resp.getAnimes()).isEmpty();
+        assertThat(resp.getCursor()).isNotNull();
+        assertThat(resp.getCursor().getLastId()).isNull();
+    }
+
+    // =========================
+    // getAllTimeRanking tests
+    // =========================
+
+    @Test
+    @DisplayName("올타임 랭킹: 표시랭크 증가 + 커서(popularity)")
+    void getAllTimeRanking_success() {
+        // given
+        RankingAnimesFromQueryDto a1 = seasonRow(100L, "A100", "C100", 500L);
+        RankingAnimesFromQueryDto a2 = seasonRow(200L, "A200", "C200", 600L);
+        when(rankingMapper.getAllTimeRankingPaging(null, 0L, 2))
+                .thenReturn(List.of(a1, a2));
+
+        when(rankingMapper.getGenresByAnimeIds(List.of(100L, 200L)))
+                .thenReturn(List.of(genreOf(100L, 9L, "판타지")));
+
+        // lastRank=10에서 시작 → 11, 12
+        RankingResponse resp = sut.getAllTimeRanking(null, 0L, 10L, 2);
+
+        assertThat(resp.getAnimes()).hasSize(2);
+        RankingAnimesDto r1 = resp.getAnimes().get(0);
+        RankingAnimesDto r2 = resp.getAnimes().get(1);
+
+        assertThat(r1.getRank()).isEqualTo(11L);
+        assertThat(r2.getRank()).isEqualTo(12L);
+
+        assertThat(resp.getCursor()).isNotNull();
+        assertThat(resp.getCursor().getLastId()).isEqualTo(600L);
+    }
+
+    // =========================
+    // Helpers (실객체용 빌더)
+    // =========================
+
+    private RealTimeRankingAnimesFromQueryDto rtRow(
+            Long animeId, String title, String cover, Long trending, Long popularity
+    ) {
+        // 게터만 공개되어 있고 @AllArgsConstructor가 없으니
+        // 테스트에서 필드 세팅 가능한 동일 패키지 보조 DTO를 만들거나
+        // 간단히 익명 서브클래스를 사용한다. (여기선 익명 서브클래스)
+        return new RealTimeRankingAnimesFromQueryDto() {
+            public Long getAnimeId() { return animeId; }
+            public String getTitle() { return title; }
+            public String getCoverImageUrl() { return cover; }
+            public Long getTrending() { return trending; }
+            public Long getPopularity() { return popularity; }
+        };
+    }
+
+    private RankingAnimesFromQueryDto seasonRow(
+            Long animeId, String title, String cover, Long popularity
+    ) {
+        return new RankingAnimesFromQueryDto(animeId, title, cover, popularity);
+    }
+
+    private AnimeGenresDto genreOf(Long animeId, Long genreId, String name) {
+        return new AnimeGenresDto(animeId, genreId, name);
+    }
 }
