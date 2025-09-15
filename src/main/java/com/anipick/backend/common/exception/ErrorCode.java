@@ -40,6 +40,7 @@ public enum ErrorCode {
 	USER_ANIME_OF_STATUS_DATA_NOT_FOUND(129, "유저 시청상태 데이터 찾을 수 없음", null),
 	ALREADY_BLOCKED_USER(130, "이미 차단한 유저", null),
 	SELF_BLOCKED_USER_ERROR(131, "본인 자신은 차단 불가", null),
+    ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS(132, "30일 이전에 삭제된 계정", "계정 탈퇴 후 30일 동안 동일한 이메일로 재가입할 수 없습니다."),
 	/**
 	 * Review
 	 */
