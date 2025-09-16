@@ -595,49 +595,45 @@ function initializeSmoothScroll() {
   window.addEventListener('scroll', () => {
     const sections = ['home', 'intro', 'recommend', 'ranking', 'explore', 'upcoming', 'download'];
     const scrollY = window.scrollY;
-    const windowHeight = window.innerHeight;
-    
-    sections.forEach((sectionId, index) => {
+
+    let currentSectionId = null;
+    sections.forEach((sectionId) => {
       const section = document.getElementById(sectionId);
       if (section) {
         const sectionTop = section.offsetTop - 100;
         const sectionBottom = sectionTop + section.offsetHeight;
-        
         if (scrollY >= sectionTop && scrollY < sectionBottom) {
-          updateActiveNavigation(index);
+          currentSectionId = sectionId;
         }
       }
     });
+
+    if (currentSectionId) {
+      updateActiveNavigation(currentSectionId);
+    }
+
+    // 진행 바는 전체 스크롤 퍼센트로 계산
+    const progressBar = document.querySelector('.header-progress');
+    if (progressBar) {
+      const scrollTop = window.pageYOffset;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = scrollPercent + '%';
+    }
   });
 }
 
 // 활성 네비게이션 업데이트
-function updateActiveNavigation(activeIndex) {
+function updateActiveNavigation(activeSectionId) {
   const navLinks = document.querySelectorAll('.nav-link');
-  
-  navLinks.forEach((link, index) => {
-    if (index === activeIndex - 1) { // nav-link는 home 제외
+  navLinks.forEach((link) => {
+    const section = link.getAttribute('data-section');
+    if (section === activeSectionId) {
       link.classList.add('active');
     } else {
       link.classList.remove('active');
     }
   });
-  
-  // 헤더 진행도 업데이트
-  const progressBar = document.querySelector('.header-progress');
-  if (progressBar) {
-    const sections = ['home', 'intro', 'recommend', 'ranking', 'explore', 'upcoming', 'download'];
-    const progress = (activeIndex / (sections.length - 1)) * 100;
-    progressBar.style.width = progress + '%';
-  }
-  
-  // 전체 페이지 스크롤 진행도도 업데이트
-  const scrollTop = window.pageYOffset;
-  const docHeight = document.body.scrollHeight - window.innerHeight;
-  const scrollPercent = (scrollTop / docHeight) * 100;
-  if (progressBar) {
-    progressBar.style.width = scrollPercent + '%';
-  }
 }
 
 // 모바일 네비게이션 초기화
@@ -674,7 +670,8 @@ function initializeMobileNavigation() {
   // 화면 크기 변경 시 모바일 메뉴 숨김
   window.addEventListener('resize', () => {
     if (window.innerWidth > 768) {
-      hideMobileMenu();
+      // 데스크톱 모드로 전환 시 인라인 스타일 초기화
+      resetNavbarStyles();
       mobileToggle.classList.remove('active');
     }
   });
@@ -714,8 +711,27 @@ function hideMobileMenu() {
   const navbar = document.querySelector('.navbar');
   if (!navbar) return;
   
-  navbar.style.display = 'none';
+  if (window.innerWidth <= 768) {
+    // 모바일에서만 숨김
+    navbar.style.display = 'none';
+  } else {
+    // 데스크톱에서는 원래 스타일로 복구
+    resetNavbarStyles();
+  }
   navbar.classList.remove('active');
+}
+
+// 네비게이션 인라인 스타일 초기화
+function resetNavbarStyles() {
+  const navbar = document.querySelector('.navbar');
+  if (!navbar) return;
+  navbar.removeAttribute('style');
+  const menu = navbar.querySelector('.navbar-menu');
+  if (menu) {
+    menu.removeAttribute('style');
+  }
+  const navLinks = navbar.querySelectorAll('.nav-link');
+  navLinks.forEach(link => link.removeAttribute('style'));
 }
 
 // 터치 디바이스 지원 (기본 터치 이벤트만)
