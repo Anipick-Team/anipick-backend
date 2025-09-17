@@ -39,11 +39,8 @@
         JOIN AnimeGenres AS ag
         ON a.anime_id = ag.anime_id
         WHERE 1 = 1
-        <if test="year != null">
-            AND a.season_year = #{year}
-        </if>
-        <if test="season != null">
-            AND a.season_int = #{season}
+        <if test="startDate != null and endDate != null">
+            AND a.start_date BETWEEN #{startDate} AND #{endDate}
         </if>
         <if test="genreId != null">
             AND ag.genre_id = #{genreId}

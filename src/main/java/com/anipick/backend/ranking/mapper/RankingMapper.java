@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper
 public interface RankingMapper {
     List<RankingAnimesFromQueryDto> getYearSeasonRankingPaging(
-            @Param("year") Integer year,
-            @Param("season") Integer season,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
             @Param("genreId") Long genreId,
             @Param("lastId") Long lastId,
             @Param("size") Integer size
