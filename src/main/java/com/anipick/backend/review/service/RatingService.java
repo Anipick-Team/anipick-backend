@@ -10,9 +10,11 @@ import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.ReviewRatingRequest;
 import com.anipick.backend.review.mapper.RatingMapper;
 import com.anipick.backend.review.mapper.ReviewMapper;
+import com.anipick.backend.user.domain.User;
 import com.anipick.backend.user.domain.UserAnimeOfStatus;
 import com.anipick.backend.user.domain.UserAnimeStatus;
 import com.anipick.backend.user.mapper.UserAnimeStatusMapper;
+import com.anipick.backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -34,11 +37,19 @@ public class RatingService {
     private final ReviewMapper reviewMapper;
     private final AnimeMapper animeMapper;
     private final UserRecommendStateMapper userRecommendMapper;
+    private final UserMapper userMapper;
     private final RedissonClient redissonClient;
 
 
     @Transactional
     public void createReviewRating(Long animeId, ReviewRatingRequest request, Long userId) {
+        User user = userMapper.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
+        Boolean reviewCompletedYn = user.getReviewCompletedYn();
+        if (!reviewCompletedYn) {
+            userMapper.updateReviewCompletedYn(userId);
+        }
+
         boolean present = ratingMapper.findByAnimeId(animeId, userId).isPresent();
         if (present) {
             throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
