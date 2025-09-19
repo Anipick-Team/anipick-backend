@@ -39,7 +39,6 @@
         UPDATE User
         SET nickname = #{nickname},
             password = '',
-            login_format = '',
             deleted_at = NOW()
         WHERE user_id = #{userId}
     </update>

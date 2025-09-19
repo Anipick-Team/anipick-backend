@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +38,17 @@ public class UserService {
     public SignUpResponse signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
         String requestPassword = request.getPassword();
+
+        // 30일 내에 탈퇴한 회원인지 확인
+        Optional<User> optionalUser = userMapper.findByEmail(requestEmail);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            LocalDateTime deletedAt = user.getDeletedAt();
+
+            if(deletedAt != null) {
+                throw new CustomException(ErrorCode.ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS);
+            }
+        }
 
         // 이메일 중복 확인
         if(checkDuplicateEmail(requestEmail)) {
