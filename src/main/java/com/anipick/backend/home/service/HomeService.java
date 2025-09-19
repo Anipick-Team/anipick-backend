@@ -196,7 +196,7 @@ public class HomeService {
 
     public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
-        String referenceAnimeTitle = anime.getTitleKor();
+        String referenceAnimeTitle = anime.getTitlePick();
 
         List<AnimeItemDto> resultAnimes;
 
