@@ -4,7 +4,6 @@ import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.dto.*;
