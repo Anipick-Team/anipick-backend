@@ -4,6 +4,7 @@ import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.dto.*;
@@ -65,7 +66,9 @@ public class RecommendService {
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
             Anime anime = animeMapper.selectAnimeByAnimeId(referenceAnimeId);
-            referenceAnimeTitle = anime.getTitleKor();
+
+            referenceAnimeTitle = anime.getTitlePick();
+
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
 
             if (tagIds.isEmpty()) {
@@ -151,7 +154,7 @@ public class RecommendService {
             Long size
     ) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
-        String referenceAnimeTitle = anime.getTitleKor();
+        String referenceAnimeTitle = anime.getTitlePick();
 
         List<AnimeItemDto> resultAnimes;
         List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
