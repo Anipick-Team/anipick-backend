@@ -1,14 +1,15 @@
 package com.anipick.backend.ranking.dto;
 
-import com.anipick.backend.anime.dto.GenreDto;
 import lombok.Getter;
 
-import java.util.List;
 
 @Getter
 public class RealTimeRankingAnimesFromQueryDto {
     private Long animeId;
-    private String title;
+    private String titleKor;
+    private String titleEng;
+    private String titleRom;
+    private String titleNat;
     private String coverImageUrl;
     private Long trending;
     private Long popularity;
