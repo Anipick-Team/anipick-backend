@@ -251,7 +251,7 @@ public class ReviewService {
         return MyReviewProviderResultDto.of(result);
     }
 
-    public String getImageUrlEndpoint(Long imageId) {
+    private String getImageUrlEndpoint(Long imageId) {
         return ImageDefaults.IMAGE_ENDPOINT + imageId;
     }
 }
