@@ -1,5 +1,6 @@
 package com.anipick.backend.review.service;
 
+import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
@@ -173,6 +174,8 @@ public class ReviewService {
 
         Long animeId = review.getAnimeId();
 
+        Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
+
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
 
@@ -182,7 +185,9 @@ public class ReviewService {
                 log.error("락 획득 실패");
                 throw new CustomException(ErrorCode.GET_LOCK_FAILED);
             }
-            animeMapper.updateMinusReviewCount(animeId);
+            if (anime.getReviewCount() > 0) {
+                animeMapper.updateMinusReviewCount(animeId);
+            }
             reviewMapper.deleteReview(reviewId, userId);
 
             List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
