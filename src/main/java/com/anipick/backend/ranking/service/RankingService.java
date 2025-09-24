@@ -1,5 +1,7 @@
 package com.anipick.backend.ranking.service;
 
+import com.anipick.backend.anime.domain.RangeDate;
+import com.anipick.backend.anime.domain.SeasonConverter;
 import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
@@ -120,7 +122,18 @@ public class RankingService {
             genreId = null;
         }
 
-        yearSeasonRankingPaging = rankingMapper.getYearSeasonRankingPaging(year, season, genreId, lastId, size);
+        RangeDate rangeDate = getRangeDate(year, season);
+        String startDate;
+        String endDate;
+        if(rangeDate == null) { // year = null && season = null인 경우
+            startDate = null;
+            endDate = null;
+        } else {
+            startDate = rangeDate.getStartDate();
+            endDate = rangeDate.getEndDate();
+        }
+
+        yearSeasonRankingPaging = rankingMapper.getYearSeasonRankingPaging(startDate, endDate, genreId, lastId, size);
 
         List<Long> animeIds = yearSeasonRankingPaging.stream()
                 .map(RankingAnimesFromQueryDto::getAnimeId)
@@ -251,5 +264,17 @@ public class RankingService {
 
     private boolean doesRealTimeRankingExist(List<RealTimeRankingAnimesDto> animes) {
         return animes != null && !animes.isEmpty();
+    }
+
+    private RangeDate getRangeDate(Integer year, Integer season) {
+        if(year != null && season != null) {
+            return SeasonConverter.getRangDate(year, season);
+        } else if(year != null && season == null) {
+            return SeasonConverter.getYearRangDate(year);
+        } else if(year == null && season != null) {
+            throw new CustomException(ErrorCode.EMPTY_YEAR);
+        } else {
+            return null;
+        }
     }
 }
