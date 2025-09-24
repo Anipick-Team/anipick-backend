@@ -1,5 +1,6 @@
 package com.anipick.backend.ranking.dto;
 
+import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.ranking.domain.Trend;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,9 +18,16 @@ public class RankingAnimesDto {
     private Long popularity;
 
     public static RankingAnimesDto from(Long displayRank, RankingAnimesFromQueryDto dto, List<String> genres) {
+        String title = LocalizationUtil.pickTitle(
+                dto.getTitleKor(),
+                dto.getTitleEng(),
+                dto.getTitleRom(),
+                dto.getTitleNat()
+        );
+
         return new RankingAnimesDto(
                 dto.getAnimeId(),
-                dto.getTitle(),
+                title,
                 dto.getCoverImageUrl(),
                 displayRank,
                 genres.stream()

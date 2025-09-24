@@ -5,7 +5,10 @@
 <mapper namespace="com.anipick.backend.ranking.mapper.RealTimeRankingMapper">
     <resultMap id="RankingResultMap" type="com.anipick.backend.ranking.dto.RealTimeRankingAnimesFromQueryDto">
         <id property="animeId" column="animeId"/>
-        <result property="title" column="title"/>
+        <result property="titleKor" column="titleKor"/>
+        <result property="titleEng" column="titleEng"/>
+        <result property="titleRom" column="titleRom"/>
+        <result property="titleNat" column="titleNat"/>
         <result property="coverImageUrl" column="coverImageUrl"/>
         <result property="trending" column="trending"/>
         <result property="popularity" column="popularity"/>
@@ -14,7 +17,10 @@
     <select id="getRealTimeRanking" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             a.trending AS trending,
             a.popularity AS popularity
@@ -25,7 +31,10 @@
     <select id="getRealTimeRankingPaging" resultMap="RankingResultMap">
         SELECT
             a.anime_id AS animeId,
-            a.title_kor AS title,
+            a.title_kor AS titleKor,
+            a.title_english AS titleEng,
+            a.title_romaj AS titleRom,
+            a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
             a.trending AS trending,
             a.popularity AS popularity
