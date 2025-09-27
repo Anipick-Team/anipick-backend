@@ -30,6 +30,13 @@
             ON an.anime_id = r.anime_id
                 AND r.user_id = #{userId}
         WHERE r.user_id IS NULL
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = an.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastCount != null and lastId != null">
             AND (
                 a.tag_count &lt; #{lastCount}
@@ -83,6 +90,13 @@
             ON r.anime_id = an.anime_id
                 AND r.user_id = #{userId}
         WHERE r.user_id IS NULL
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = an.anime_id
+            AND ag.genre_id = 19
+        )
             <if test="lastCount != null and lastId != null">
                 AND (
                 a.tag_count &lt; #{lastCount}

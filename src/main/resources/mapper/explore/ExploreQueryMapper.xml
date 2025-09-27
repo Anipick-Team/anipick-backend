@@ -6,6 +6,13 @@
 
     <!-- 공통 필터링(년도/분기/타입) -->
     <sql id="commonFilters">
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="startDate != null and endDate != null">
             AND a.start_date BETWEEN #{startDate} AND #{endDate}
         </if>

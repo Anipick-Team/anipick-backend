@@ -13,15 +13,13 @@ public class SignUpAnimeExploreSearchRequestDto {
     private Long genres;
     private Long lastId;
     private int size;
-    private String nowString;
 
     public static SignUpAnimeExploreSearchRequestDto of(
             RangeDate rangeDate,
             String query,
             Long genres,
             Long lastId,
-            int size,
-            String nowString
+            int size
     ) {
         return new SignUpAnimeExploreSearchRequestDto(
                 query,
@@ -29,8 +27,7 @@ public class SignUpAnimeExploreSearchRequestDto {
                 rangeDate.getEndDate(),
                 genres,
                 lastId,
-                size,
-                nowString
+                size
         );
     }
 
@@ -38,8 +35,7 @@ public class SignUpAnimeExploreSearchRequestDto {
             String query,
             Long genres,
             Long lastId,
-            int size,
-            String nowString
+            int size
     ) {
         return new SignUpAnimeExploreSearchRequestDto(
                 query,
@@ -47,8 +43,7 @@ public class SignUpAnimeExploreSearchRequestDto {
                 null,
                 genres,
                 lastId,
-                size,
-                nowString
+                size
         );
     }
 }
