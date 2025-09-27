@@ -32,6 +32,13 @@
         </if>
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
     </select>
 
     <select id="selectComingSoonLatestAnimes"
@@ -54,6 +61,13 @@
         </if>
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
         </if>
@@ -82,6 +96,13 @@
         </if>
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastId != null">
             AND a.popularity &lt; #{lastId}
         </if>
@@ -109,6 +130,13 @@
         </if>
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastValue != null">
             AND (
             a.start_date &gt; #{lastValue}
