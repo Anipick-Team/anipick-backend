@@ -22,11 +22,8 @@
             parameterType="com.anipick.backend.explore.dto.SignUpAnimeExploreSearchRequestDto"
             resultType="long">
         SELECT COUNT(*)
-        FROM popularityanimeorder pa
-            JOIN anime a
-                ON pa.anime_id = a.anime_id
+        FROM anime a
         <where>
-            pa.created_at = #{nowString}
             <!-- 검색 -->
             <if test="query != null and query.trim() != ''">
                 AND a.title_search LIKE CONCAT('%', #{query}, '%')
