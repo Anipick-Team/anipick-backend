@@ -21,7 +21,7 @@
         AND NOT EXISTS(
             SELECT 1
             FROM animegenres ag
-            WHERE ag.anime_id = an.anime_id
+            WHERE ag.anime_id = a.anime_id
             AND ag.genre_id = 19
         )
     </select>
@@ -34,7 +34,7 @@
         AND NOT EXISTS(
             SELECT 1
             FROM animegenres ag
-            WHERE ag.anime_id = an.anime_id
+            WHERE ag.anime_id = a.anime_id
             AND ag.genre_id = 19
         )
     </select>
@@ -54,7 +54,7 @@
         AND NOT EXISTS(
             SELECT 1
             FROM animegenres ag
-            WHERE ag.anime_id = an.anime_id
+            WHERE ag.anime_id = a.anime_id
             AND ag.genre_id = 19
         )
         <if test="lastId != null">
