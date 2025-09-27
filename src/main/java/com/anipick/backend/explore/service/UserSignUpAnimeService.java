@@ -43,10 +43,8 @@ public class UserSignUpAnimeService {
             genresName = null;
         }
 
-        String nowString = LocalDate.now().toString();
-
         SignUpAnimeExploreSearchRequestDto requestDto =
-                makeExploreSearchRequestDto(query, year, season, genres, lastId, size, nowString);
+                makeExploreSearchRequestDto(query, year, season, genres, lastId, size);
 
         long totalCount = userSignUpAnimeMapper.countExploredAndSearch(requestDto);
 
@@ -131,7 +129,7 @@ public class UserSignUpAnimeService {
     }
 
     private static SignUpAnimeExploreSearchRequestDto makeExploreSearchRequestDto(
-            String query, Integer year, Integer season, Long genres, Long lastId, Integer size, String nowString
+            String query, Integer year, Integer season, Long genres, Long lastId, Integer size
     ) {
         if (year != null && season != null) {
             RangeDate dateRange = SeasonConverter.getRangDate(year, season);
@@ -140,8 +138,7 @@ public class UserSignUpAnimeService {
                     query,
                     genres,
                     lastId,
-                    size,
-                    nowString
+                    size
             );
         } else if (year != null) {
             RangeDate dateRange = SeasonConverter.getYearRangDate(year);
@@ -150,16 +147,14 @@ public class UserSignUpAnimeService {
                     query,
                     genres,
                     lastId,
-                    size,
-                    nowString
+                    size
             );
         }
         return SignUpAnimeExploreSearchRequestDto.dateNullOf(
                 query,
                 genres,
                 lastId,
-                size,
-                nowString
+                size
         );
     };
 }
