@@ -48,6 +48,13 @@
         <if test="lastId != null">
             AND a.popularity &lt; #{lastId}
         </if>
+        <!-- 성인 애니 제거 -->
+            AND NOT EXISTS(
+                SELECT 1
+                FROM AnimeGenres as ag2
+                WHERE ag2.anime_id = a.anime_id
+                  AND ag2.genre_id = 19
+        )
         ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
@@ -71,6 +78,13 @@
         <if test="lastId != null">
             AND a.popularity &lt; #{lastId}
         </if>
+        <!-- 성인 애니 제거 -->
+            AND NOT EXISTS(
+                SELECT 1
+                FROM AnimeGenres as ag2
+                WHERE ag2.anime_id = a.anime_id
+                  AND ag2.genre_id = 19
+        )
         ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
