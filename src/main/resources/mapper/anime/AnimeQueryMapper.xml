@@ -25,12 +25,7 @@
         resultType="long">
         SELECT COUNT(*)
         FROM Anime a
-            WHERE
-        <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <!-- 성인 애니 제거 -->
         AND NOT EXISTS(
@@ -54,12 +49,7 @@
                a.format AS format,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <!-- 성인 애니 제거 -->
         AND NOT EXISTS(
@@ -89,12 +79,7 @@
                a.popularity AS score,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <!-- 성인 애니 제거 -->
         AND NOT EXISTS(
@@ -123,12 +108,7 @@
                a.format AS format,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
         <!-- 성인 애니 제거 -->
         AND NOT EXISTS(

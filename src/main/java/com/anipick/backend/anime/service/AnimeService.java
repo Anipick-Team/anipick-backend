@@ -74,14 +74,12 @@ public class AnimeService {
 		return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);
 	}
 
-	public ComingSoonPageDto getComingSoonAnimes(
-			String sort, Long lastId, Long size, Boolean includeAdult, String lastValue
-	) {
+	public ComingSoonPageDto getComingSoonAnimes(String sort, Long lastId, Long size, String lastValue) {
 		SortOption sortOption = SortOption.of(sort);
 		String orderByQuery = sortOption.getOrderByQuery();
 
 		ComingSoonRequestDto comingSoonRequestDto =
-				ComingSoonRequestDto.of(lastId, lastValue, size, includeAdult, orderByQuery, defaultCoverUrl);
+				ComingSoonRequestDto.of(lastId, lastValue, size, orderByQuery, defaultCoverUrl);
 
 		long totalCount = mapper.countComingSoon(comingSoonRequestDto);
 

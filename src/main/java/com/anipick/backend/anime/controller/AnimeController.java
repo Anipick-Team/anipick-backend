@@ -33,13 +33,10 @@ public class AnimeController {
 			@RequestParam(value = "sort", defaultValue = "latest") String sort,
 			@RequestParam(value = "lastId", required = false) Long lastId,
 			@RequestParam(value = "size", defaultValue = "18") Long size,
-			@RequestParam(value = "includeAdult", defaultValue = "false") Boolean includeAdult,
 			@RequestParam(value = "lastValue", required = false) String lastValue,
 			@AuthenticationPrincipal CustomUserDetails user
 	) {
-		ComingSoonPageDto result = animeService.getComingSoonAnimes(
-				sort, lastId, size, includeAdult, lastValue
-		);
+		ComingSoonPageDto result = animeService.getComingSoonAnimes(sort, lastId, size, lastValue);
 		return ApiResponse.success(result);
 	}
 
