@@ -25,6 +25,14 @@
             a.trending AS trending,
             a.popularity AS popularity
         FROM Anime AS a
+        WHERE 1 = 1
+        <!-- 성인 애니 제거 -->
+            AND NOT EXISTS(
+                SELECT 1
+                FROM AnimeGenres as ag
+                WHERE ag.anime_id = a.anime_id
+                  AND ag.genre_id = 19
+        )
         ORDER BY a.trending DESC, a.popularity DESC
     </select>
 
@@ -43,6 +51,13 @@
         <if test="lastId != null and lastValue != null">
             AND (a.trending , a.popularity) &lt; (#{lastValue}, #{lastId})
         </if>
+        <!-- 성인 애니 제거 -->
+            AND NOT EXISTS(
+                SELECT 1
+                FROM AnimeGenres as ag
+                WHERE ag.anime_id = a.anime_id
+                  AND ag.genre_id = 19
+        )
         ORDER BY a.trending DESC, a.popularity DESC
         LIMIT #{size}
     </select>
