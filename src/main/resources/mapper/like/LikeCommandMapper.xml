@@ -41,4 +41,10 @@
         WHERE user_id = #{userId}
         AND review_id = #{reviewId}
     </delete>
+
+    <delete id="deleteAllLikeReview">
+        DELETE
+        FROM Reviewlike
+        WHERE review_id = #{reviewId}
+    </delete>
 </mapper>

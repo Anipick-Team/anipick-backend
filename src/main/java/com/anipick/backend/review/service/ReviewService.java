@@ -6,6 +6,7 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.image.domain.ImageDefaults;
+import com.anipick.backend.like.mapper.LikeMapper;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.*;
@@ -42,6 +43,7 @@ public class ReviewService {
     private final UserMapper userMapper;
     private final UserAnimeStatusMapper userAnimeStatusMapper;
     private final UserRecommendStateMapper userRecommendStateMapper;
+    private final LikeMapper likeMapper;
     private final RedissonClient redissonClient;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -121,6 +123,9 @@ public class ReviewService {
                 animeMapper.updatePlusReviewCount(animeId);
             }
 
+            Long reviewId = review.getReviewId();
+            reviewMapper.updateReview(reviewId, userId, request);
+
             List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
             Double ratingAveraging = reviewsByAnimeId.stream()
                     .collect(Collectors.averagingDouble(Review::getRating));
@@ -135,9 +140,6 @@ public class ReviewService {
                 lock.unlock();
             }
         }
-
-        Long reviewId = review.getReviewId();
-        reviewMapper.updateReview(reviewId, userId, request);
     }
 
     @Transactional
@@ -188,32 +190,10 @@ public class ReviewService {
             if (anime.getReviewCount() > 0) {
                 animeMapper.updateMinusReviewCount(animeId);
             }
+
+            likeMapper.deleteAllLikeReview(reviewId);
             reviewMapper.deleteReview(reviewId, userId);
 
-            List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
-            Double ratingAveraging = reviewsByAnimeId.stream()
-                    .collect(Collectors.averagingDouble(Review::getRating));
-
-            animeMapper.updateReviewAverageScore(animeId, ratingAveraging);
-        } catch (InterruptedException e) {
-            log.error("락 인터럽트 : {}", e.getMessage());
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        } finally {
-            if (isLocked) {
-                lock.unlock();
-            }
-        }
-    }
-
-    private void updateReviewAverageScore(Long animeId) {
-        RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
-        boolean isLocked = false;
-        try {
-            isLocked = lock.tryLock(2, TimeUnit.SECONDS);
-            if (!isLocked) {
-                log.error("락 획득 실패");
-                throw new CustomException(ErrorCode.GET_LOCK_FAILED);
-            }
             List<Review> reviewsByAnimeId = reviewMapper.findAllByAnimeId(animeId);
             Double ratingAveraging = reviewsByAnimeId.stream()
                     .collect(Collectors.averagingDouble(Review::getRating));
@@ -271,7 +251,7 @@ public class ReviewService {
         return MyReviewProviderResultDto.of(result);
     }
 
-    public String getImageUrlEndpoint(Long imageId) {
+    private String getImageUrlEndpoint(Long imageId) {
         return ImageDefaults.IMAGE_ENDPOINT + imageId;
     }
 }

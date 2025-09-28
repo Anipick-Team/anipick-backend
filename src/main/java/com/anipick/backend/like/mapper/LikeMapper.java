@@ -49,4 +49,6 @@ public interface LikeMapper {
             @Param(value = "userId") Long userId,
             @Param(value = "reviewId") Long reviewId
     );
+
+    void deleteAllLikeReview(@Param(value = "reviewId") Long reviewId);
 }
