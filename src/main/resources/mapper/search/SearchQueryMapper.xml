@@ -17,12 +17,26 @@
             <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
                 #{animeId}
             </foreach>
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
     </select>
 
     <select id="countSearchAnime" parameterType="string" resultType="long">
         SELECT COUNT(*)
         FROM Anime a
         WHERE a.title_search LIKE CONCAT('%', #{query}, '%')
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
     </select>
 
     <select id="selectSearchAnimes" parameterType="map" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
@@ -36,6 +50,13 @@
         WHERE (
             a.title_search LIKE CONCAT('%', #{query}, '%')
             )
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
         </if>

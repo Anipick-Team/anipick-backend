@@ -64,6 +64,13 @@
         AND
             a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         ORDER BY ${orderByQuery}
         LIMIT #{size}
     </select>

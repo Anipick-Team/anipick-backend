@@ -25,13 +25,15 @@
         resultType="long">
         SELECT COUNT(*)
         FROM Anime a
-            WHERE
-        <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
     </select>
 
     <select id="selectComingSoonLatestAnimes"
@@ -47,13 +49,15 @@
                a.format AS format,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
         </if>
@@ -75,13 +79,15 @@
                a.popularity AS score,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastId != null">
             AND a.popularity &lt; #{lastId}
         </if>
@@ -102,13 +108,15 @@
                a.format AS format,
                a.is_adult AS isAdult
         FROM Anime a
-        WHERE
-         <if test="includeAdult != true">
-            a.is_adult = #{includeAdult}
-            AND
-        </if>
-            a.status = 'NOT_YET_RELEASED'
+        WHERE a.status = 'NOT_YET_RELEASED'
         AND a.cover_image_url != #{defaultCoverUrl}
+        <!-- 성인 애니 제거 -->
+        AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 19
+        )
         <if test="lastValue != null">
             AND (
             a.start_date &gt; #{lastValue}
