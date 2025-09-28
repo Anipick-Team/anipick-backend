@@ -65,7 +65,9 @@ public class RecommendService {
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
             Anime anime = animeMapper.selectAnimeByAnimeId(referenceAnimeId);
-            referenceAnimeTitle = anime.getTitleKor();
+
+            referenceAnimeTitle = anime.getTitlePick();
+
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
 
             if (tagIds.isEmpty()) {
@@ -151,7 +153,7 @@ public class RecommendService {
             Long size
     ) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
-        String referenceAnimeTitle = anime.getTitleKor();
+        String referenceAnimeTitle = anime.getTitlePick();
 
         List<AnimeItemDto> resultAnimes;
         List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;

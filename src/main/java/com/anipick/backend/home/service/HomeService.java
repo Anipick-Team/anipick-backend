@@ -2,20 +2,17 @@ package com.anipick.backend.home.service;
 
 import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
-import com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto;
 import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.domain.SortOption;
-import com.anipick.backend.common.dto.CursorDto;
-import com.anipick.backend.home.dto.HomeComingSoonItemDto;
-import com.anipick.backend.home.dto.HomeRecentReviewItemDto;
-import com.anipick.backend.home.dto.HomeTrendingRankingDto;
-import com.anipick.backend.home.dto.TrendingRankingFromQueryDto;
-import com.anipick.backend.home.dto.HomeRecommendationItemDto;
+import com.anipick.backend.home.dto.*;
 import com.anipick.backend.home.mapper.HomeMapper;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
-import com.anipick.backend.recommendation.dto.*;
+import com.anipick.backend.recommendation.dto.AnimeItemRecommendTagCountDto;
+import com.anipick.backend.recommendation.dto.RecentHighCountOnlyRequest;
+import com.anipick.backend.recommendation.dto.TagBasedCountOnlyRequest;
+import com.anipick.backend.recommendation.dto.TagScoreDto;
 import com.anipick.backend.recommendation.mapper.AnimeTagMapper;
 import com.anipick.backend.recommendation.mapper.RecommendMapper;
 import com.anipick.backend.recommendation.mapper.RecommendReviewUserMapper;
@@ -196,7 +193,7 @@ public class HomeService {
 
     public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
-        String referenceAnimeTitle = anime.getTitleKor();
+        String referenceAnimeTitle = anime.getTitlePick();
 
         List<AnimeItemDto> resultAnimes;
 
