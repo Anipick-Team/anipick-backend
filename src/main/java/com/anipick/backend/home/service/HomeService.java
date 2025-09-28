@@ -66,7 +66,6 @@ public class HomeService {
         return homeTrendingRanking;
     }
 
-    @Transactional(readOnly = true)
     public List<HomeRecentReviewItemDto> getRecentReviews(Long userId) {
         List<HomeRecentReviewItemDto> raws = homeMapper.selectHomeRecentReviews(userId, 10)
                 .stream()
@@ -92,7 +91,6 @@ public class HomeService {
         return items;
     }
 
-    @Transactional(readOnly = true)
     public List<HomeComingSoonItemDto> getComingSoonAnimes() {
         SortOption sortOption = SortOption.LATEST;
         String orderByQuery = sortOption.getOrderByQuery();
