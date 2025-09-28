@@ -336,7 +336,6 @@ public class AnimeService {
 		return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
   }
 
-	@Transactional(readOnly = true)
 	public AnimeDetailInfoResultDto getAnimeInfoDetail(Long animeId, Long userId) {
 		AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
 
