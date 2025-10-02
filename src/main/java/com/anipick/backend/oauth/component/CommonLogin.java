@@ -22,19 +22,24 @@ public class CommonLogin {
     private final TokenService tokenService;
     private final NicknameInitializer nicknameInitializer;
 
-    public LoginResponse signUpAndLogin(String email, LoginFormat loginFormat) {
+    public LoginResponse signUpAndLogin(String email, LoginFormat requestLoginFormat) {
         if(checkExistsEmail(email)) {
             User user = userMapper.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+            LoginFormat userLoginFormat = user.getLoginFormat();
+            if(userLoginFormat != null && userLoginFormat != requestLoginFormat) {
+                throw new CustomException(ErrorCode.ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN);
+            }
+
             TokenResponse response = tokenService.generateAndSaveTokens(email);
 
             return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         } else {
-            String nickname = nicknameInitializer.generateNickname(loginFormat);
+            String nickname = nicknameInitializer.generateNickname(requestLoginFormat);
             User user = User.builder()
                     .email(email)
                     .nickname(nickname)
-                    .loginFormat(loginFormat)
+                    .loginFormat(requestLoginFormat)
                     .termsAndConditions(true)
                     .adultYn(UserDefaults.DEFAULT_ADULT_YN)
                     .reviewCompletedYn(UserDefaults.DEFAULT_REVIEW_COMPLETED_YN)
