@@ -23,11 +23,9 @@ public class AppleLogin implements SocialLogin {
 
     @Override
     public LoginResponse login(SocialLoginRequest request) {
-        String prefixEmail = request.getCode();
+        String email = request.getCode();
 
         try {
-            String email = AppleDefaults.DEFAULT_APPLE_EMAIL_FORMAT
-                    .formatted(prefixEmail);
             return commonLogin.signUpAndLogin(email, LoginFormat.APPLE);
 
         } catch (Exception e) {
