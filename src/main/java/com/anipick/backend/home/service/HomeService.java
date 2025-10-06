@@ -18,6 +18,8 @@ import com.anipick.backend.recommendation.mapper.RecommendMapper;
 import com.anipick.backend.recommendation.mapper.RecommendReviewUserMapper;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HomeService {
@@ -192,6 +195,7 @@ public class HomeService {
     public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
         String referenceAnimeTitle = anime.getTitlePick();
+        log.error("[홈-추천 에러] animeId 값 : {}, userId 값 : {}", animeId, userId);
 
         List<AnimeItemDto> resultAnimes;
 
