@@ -11,11 +11,13 @@ import com.anipick.backend.user.domain.LoginFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoLogin implements SocialLogin {
     private final CommonLogin commonLogin;
     private final RestClient restClient = RestClient.builder()
@@ -38,18 +40,19 @@ public class KakaoLogin implements SocialLogin {
                     .headers(header -> header.setBearerAuth(accessToken))
                     .retrieve()
                     .body(String.class);
-
+            log.info("Kakao login response: {}", response);
             JsonNode root = objectMapper.readTree(response);
 
             JsonNode account = root.path(KakaoDefaults.DEFAULT_ACCOUNT_ROOT_PATH);
             String email = account.path(KakaoDefaults.DEFAULT_EMAIL_PATH).asText(null);
-
+            log.info("Kakao login email: {}", email);
             if(email == null || email.isEmpty()) {
                 throw new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL);
             }
 
             return commonLogin.signUpAndLogin(email, LoginFormat.KAKAO);
         } catch (Exception e) {
+            log.error("Kakao login error : {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
