@@ -91,7 +91,7 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
+            throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
 
         TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
