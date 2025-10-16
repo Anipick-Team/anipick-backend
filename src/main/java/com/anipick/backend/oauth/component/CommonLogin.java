@@ -26,6 +26,11 @@ public class CommonLogin {
         if(checkExistsEmail(email)) {
             User user = userMapper.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+
+            if(user.getDeletedAt() != null) { //탈퇴 후 30일 이전 체크 로직
+                throw new CustomException(ErrorCode.ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS);
+            }
+
             LoginFormat userLoginFormat = user.getLoginFormat();
             if(userLoginFormat != null && userLoginFormat != requestLoginFormat) {
                 throw new CustomException(ErrorCode.ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN);
