@@ -49,6 +49,8 @@ public class KakaoLogin implements SocialLogin {
             }
 
             return commonLogin.signUpAndLogin(email, LoginFormat.KAKAO);
+        } catch (CustomException e) {
+            throw e; // CustomException은 그대로 전파
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
