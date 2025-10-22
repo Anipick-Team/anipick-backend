@@ -90,6 +90,10 @@ public class UserService {
         User user = userMapper.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
 
+        if(user.getDeletedAt() != null) {
+            throw new CustomException(ErrorCode.ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS);
+        }
+
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
