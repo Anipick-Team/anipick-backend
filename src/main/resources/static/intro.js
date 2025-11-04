@@ -766,3 +766,15 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// 년도 동적으로 확인
+document.addEventListener("DOMContentLoaded", () => {
+    const year = new Date().getFullYear();
+    const element = document.getElementById("year");
+    if (element) {
+        element.textContent = year;
+        if (element.tagName.toLowerCase() === "time") {
+            element.setAttribute("datetime", String(year));
+        }
+    }
+})
