@@ -44,6 +44,7 @@ public class SecurityConfig {
                                                 "./upload/image/default.jpg",
                                                 "/privacy.html",
                                                 "/terms.html",
+                                                "/community-guidelines.html",
                                                 "/images/profile/**")
                                         .permitAll()
                                         .anyRequest()
