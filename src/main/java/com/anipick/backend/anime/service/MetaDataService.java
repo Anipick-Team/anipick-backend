@@ -27,7 +27,8 @@ public class MetaDataService {
         int thisYear = Year.now().getValue();
 
         List<Integer> years = IntStream.rangeClosed(1940, thisYear + 1)
-                .boxed().sorted(Comparator.reverseOrder())
+                .boxed()
+                .sorted(Comparator.reverseOrder())
                 .toList();
 
         List<SeasonDto> seasons = Arrays.stream(Season.values())
