@@ -14,7 +14,7 @@ public enum ErrorCode {
 	EMAIL_INVALID_FORMAT(103, "이메일 형식 X", "올바른 이메일 형식이 아닙니다."),
 	LOGIN_EMAIL_NOT_FOUND(104, "이메일 찾을 수 없음", null),
 	PASSWORD_NOT_PROVIDED(105, "비밀번호 미 입력", "비밀번호를 입력해 주세요."),
-	LOGIN_PASSWORD_MISMATCH(106, "비밀번호 불일치", null),
+	LOGIN_PASSWORD_MISMATCH(106, "비밀번호 불일치", "비밀번호가 일치하지 않습니다."),
 	PASSWORD_CHANGE_OLD_MISMATCH(107, "비밀번호 변경 시 현재 비밀번호 불일치", "현재 비밀번호가 일치하지 않습니다. 다시 입력해 주세요."),
 	PASSWORD_CONFIRM_MISMATCH(108, "비밀번호 확인 불일치", "비밀번호가 일치하지 않습니다."),
 	EMAIL_ALREADY_REGISTERED(109, "이미 가입된 이메일", "이미 존재하는 이메일입니다."),
