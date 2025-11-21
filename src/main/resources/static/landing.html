@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="나에게 꼭 맞는 애니 추천, AniPick 앱을 지금 만나보세요.">
+    <meta name="theme-color" content="#f4fcff">
+    <title>AniPick - 나에게 딱 맞는 애니 추천</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link rel="stylesheet" href="/landing.css">
+    <script defer src="/landing.js"></script>
+</head>
+<body data-deeplink="anipick://landing"
+      data-ios-store="https://apps.apple.com/kr/app/youtube/id544007664"
+      data-android-store="">
+<!-- data-ios-store 및 data-android-store 속성에 실제 앱스토어 주소를 채우면 버튼이 자동으로 활성화됩니다. -->
+<div class="landing-page">
+    <div class="floating-particles" aria-hidden="true">
+        <span class="particle particle--star"></span>
+        <span class="particle particle--dot dot--mint"></span>
+        <span class="particle particle--dot dot--pink"></span>
+        <span class="particle particle--dot dot--blue"></span>
+        <span class="particle particle--star star--small"></span>
+        <span class="particle particle--dot dot--mint dot--large"></span>
+    </div>
+    <main class="landing-card" role="main">
+        <header class="brand">
+            <img src="./image/landing_logo.png" alt="AniPick 로고" class="brand__logo">
+        </header>
+        <h1 class="headline">나에게 딱 맞는 애니 추천을 위해.</h1>
+        <p class="subhead">사용할수록 더 좋아지는 애니메이션 환경을 만나보세요</p>
+
+        <section class="mascot" aria-hidden="true">
+            <div class="mascot__wrapper">
+                <img src="./image/landing_mascot.png" alt="" class="mascot__image">
+                <span class="mascot__shadow"></span>
+            </div>
+        </section>
+
+        <section class="cta-group" aria-label="앱 설치 및 실행 버튼">
+            <button type="button" class="store-button" data-platform="android">
+                <span>구글 플레이 스토어로 설치하기</span>
+            </button>
+            <button type="button" class="store-button" data-platform="ios">
+                <span>애플 앱스토어로 설치하기</span>
+            </button>
+            <button type="button" class="open-app" data-open-app>
+                애니픽 Anipick 앱 열기
+            </button>
+        </section>
+        <p class="visually-hidden" id="deep-link-status" aria-live="polite"></p>
+    </main>
+</div>
+<noscript class="no-script">
+    이 페이지는 자바스크립트가 필요합니다. 브라우저 설정에서 자바스크립트를 활성화한 뒤 다시 시도해주세요.
+</noscript>
+</body>
+</html>
