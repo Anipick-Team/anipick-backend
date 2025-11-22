@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.version.mapper.UserAppVersionMapper">
+    <select id="existsRequiredUpdate" resultType="boolean">
+        SELECT EXISTS(
+            SELECT *
+            FROM Version v
+            WHERE (v.major, v.minor, v.patch) > (#{major}, #{minor}, #{patch})
+            AND v.important_yn = 1
+            AND v.platform = #{platform}
+        )
+    </select>
+
+    <select id="findVersion" resultType="com.anipick.backend.version.dto.NoticeUpdateItemDto">
+        SELECT v.type AS type,
+               v.title AS title,
+               v.updated_content AS content,
+               v.url AS url
+        FROM Version v
+        WHERE v.platform = #{platform}
+        ORDER BY v.version_id DESC
+        LIMIT 1;
+    </select>
+</mapper>
