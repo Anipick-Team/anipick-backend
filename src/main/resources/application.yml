@@ -4,5 +4,4 @@ spring:
       local: local-mysql
       dev: dev-mysql
       prod: prod-mysql
-    active: local
 ---
