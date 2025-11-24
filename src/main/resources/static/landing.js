@@ -13,8 +13,13 @@
     const body = document.body;
     const statusElement = document.getElementById('deep-link-status');
 
+    const DEEP_LINK_SCHEME = 'anipick://app/anime/detail/';
+    const animeId = getAnimeIdFromPath();
+    const deepLinkUrl = animeId ? `${DEEP_LINK_SCHEME}${animeId}` : '';
+
     const config = {
-      deepLink: (body.dataset.deeplink || '').trim(),
+      deepLink: deepLinkUrl,
+      animeId,
       storeUrls: {
         ios: (body.dataset.iosStore || '').trim(),
         android: (body.dataset.androidStore || '').trim()
@@ -31,6 +36,11 @@
 
     let autoDeepLinkAttempted = false;
 
+    if (!config.deepLink) {
+      handleMissingAnimeId();
+      return;
+    }
+
     updateHelperCopy(platform);
     decorateStoreButtons(storeButtons, config.storeUrls, platform);
     bindStoreButtons(storeButtons, config.storeUrls);
@@ -43,10 +53,6 @@
     }
 
     window.addEventListener('load', () => {
-      if (!config.deepLink) {
-        announceStatus('앱 딥링크 정보가 설정되지 않아 실행을 건너뜁니다.');
-        return;
-      }
       setTimeout(() => attemptDeepLink('auto'), config.attemptDelay);
     }, { once: true });
 
@@ -96,6 +102,14 @@
     function announceStatus(message) {
       if (!statusElement) return;
       statusElement.innerHTML = message;
+    }
+
+    function handleMissingAnimeId() {
+      announceStatus('애니 정보를 확인할 수 없어 앱 열기를 건너뜁니다.');
+      if (openAppButton) {
+        openAppButton.disabled = true;
+        openAppButton.setAttribute('aria-disabled', 'true');
+      }
     }
 
     function decorateStoreButtons(buttons, urls, currentPlatform) {
@@ -168,6 +182,18 @@
       }
       if (lowered === 'android') {
         return 'android';
+      }
+      return null;
+    }
+
+    function getAnimeIdFromPath() {
+      const match = window.location.pathname.match(/\/app\/anime\/detail\/([^/]+)/);
+      if (match && match[1]) {
+        try {
+          return decodeURIComponent(match[1]);
+        } catch (error) {
+          return match[1];
+        }
       }
       return null;
     }
