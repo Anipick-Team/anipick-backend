@@ -36,6 +36,7 @@ public class SecurityConfig {
                                                 "/api/auth/**",
                                                 "/api/oauth/**",
                                                 "/api/animes/meta-data-group",
+                                                "/app/**",
                                                 "/api/version",
                                                 "/intro.html",
                                                 "/intro.css",
