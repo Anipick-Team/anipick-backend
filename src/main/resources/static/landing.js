@@ -13,12 +13,23 @@
     const body = document.body;
     const statusElement = document.getElementById('deep-link-status');
 
-    // 딥링크 스킴 & 안드로이드 패키지명
-    const DEEP_LINK_SCHEME = 'https://anipick.p-e.kr/app/anime/detail/';
+    // ==========================
+    //  설정 값
+    // ==========================
+
+    // iOS용 커스텀 스킴 (앱에 등록되어 있어야 함)
+    const IOS_DEEP_LINK_SCHEME = 'anipick://app/anime/detail/';
+
+    // Android App Links용 HTTPS URL prefix (Manifest에 설정한 값과 일치)
+    const ANDROID_WEB_LINK_PREFIX = 'https://anipick.p-e.kr/app/anime/detail/';
+
+    // Android 패키지명
     const ANDROID_PACKAGE_NAME = 'com.jparkbro.anipick'; // 실제 패키지명으로 맞게 수정
 
     const animeId = getAnimeIdFromPath();
-    const deepLinkUrl = animeId ? `${DEEP_LINK_SCHEME}${animeId}` : '';
+
+    const iosDeepLinkUrl = animeId ? `${IOS_DEEP_LINK_SCHEME}${animeId}` : '';
+    const androidWebDeepLinkUrl = animeId ? `${ANDROID_WEB_LINK_PREFIX}${animeId}` : '';
 
     const storeUrls = {
       ios: (body.dataset.iosStore || '').trim(),
@@ -32,34 +43,54 @@
         /iphone|ipad|ipod/i.test(uaRaw) ||
         (uaRaw.includes('Macintosh') && 'ontouchend' in document);
 
+    // Android intent:// 링크 (https 스킴 + host + pathPrefix=/app)
     const androidIntentUrl = animeId
-        ? `intent://app/anime/detail/${encodeURIComponent(
+        ? `intent://anipick.p-e.kr/app/anime/detail/${encodeURIComponent(
             animeId
-        )}#Intent;scheme=anipick;package=${ANDROID_PACKAGE_NAME};end`
+        )}#Intent;scheme=https;package=${ANDROID_PACKAGE_NAME};end`
         : '';
 
-    if (!deepLinkUrl) {
+    if (!animeId) {
       handleMissingAnimeId();
       return;
     }
 
     const platform = detectPlatform();
     const storeButtons = document.querySelectorAll('.store-button');
+    const openAppButton = document.querySelector('[data-open-app]');
 
     decorateStoreButtons(storeButtons, storeUrls, platform);
     bindStoreButtons(storeButtons, storeUrls);
 
     updateHelperCopy(platform);
 
+    let fallbackTimer = null;
+    let deepLinkTried = false;
+
+    // 앱이 실제로 열리면 보통 브라우저 탭이 background로 가면서 hidden 상태가 됨
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && deepLinkTried && fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+    });
+
     // 페이지 로드되면 자동으로 앱 열기 시도
     window.addEventListener(
         'load',
         () => {
-          // 약간의 딜레이 후 자동 시도
           setTimeout(() => attemptDeepLink(), 300);
         },
         { once: true }
     );
+
+    // "앱 열기" 버튼 클릭 시 수동으로도 재시도 가능
+    if (openAppButton) {
+      openAppButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        attemptDeepLink();
+      });
+    }
 
     // ==========================
     //   내부 함수들
@@ -67,8 +98,9 @@
 
     function attemptDeepLink() {
       announceStatus('앱을 여는 중입니다...');
+      deepLinkTried = true;
 
-      // PC 환경이면 스토어 웹 페이지로만 보내기
+      // PC 환경이면 스토어 웹 페이지로만 이동
       if (!isAndroid && !isIOS) {
         if (storeUrls.android) {
           announceStatus('PC 환경입니다. Google Play 스토어 페이지로 이동합니다.');
@@ -82,9 +114,8 @@
       const fallbackUrl = isIOS ? storeUrls.ios : storeUrls.android;
       const fallbackName = isIOS ? 'App Store' : 'Google Play 스토어';
 
-      // 🔁 타임아웃 후 스토어로 이동 (앱이 설치되어 있어서 딥링크가 성공하면,
-      // 페이지 자체가 사라지기 때문에 이 타이머는 실행되지 않음)
-      let fallbackTimer = null;
+      // 앱이 설치되어 있어 딥링크가 성공하면 페이지가 백그라운드로 가서
+      // visibilitychange 이벤트에서 이 타이머를 clear 해 줌
       if (fallbackUrl) {
         fallbackTimer = setTimeout(() => {
           announceStatus(`앱이 열리지 않아 ${fallbackName}로 이동합니다.`);
@@ -92,24 +123,27 @@
         }, 1500);
       }
 
-      // 👉 플랫폼별 딥링크 시도
       try {
         if (isAndroid) {
-          // 안드로이드: intent:// 우선 시도 (카카오톡 등 인앱 브라우저 호환 ↑)
+          // Android: intent:// 링크 우선 시도 (카카오톡 등 인앱 브라우저 호환 ↑)
           if (androidIntentUrl) {
             window.location.href = androidIntentUrl;
-          } else {
-            window.location.href = deepLinkUrl;
+          } else if (androidWebDeepLinkUrl) {
+            // 혹시 몰라 HTTPS 딥링크도 한 번 더 시도
+            window.location.href = androidWebDeepLinkUrl;
           }
         } else if (isIOS) {
-          // iOS: 커스텀 스킴 직접 호출
-          window.location.href = deepLinkUrl;
+          // iOS: 커스텀 스킴으로 앱 호출
+          if (iosDeepLinkUrl) {
+            window.location.href = iosDeepLinkUrl;
+          }
         }
       } catch (e) {
         console.warn('[landing] deep link error', e);
-        // 예외가 나면 즉시 스토어로 보냄
         if (fallbackUrl) {
-          clearTimeout(fallbackTimer);
+          if (fallbackTimer) {
+            clearTimeout(fallbackTimer);
+          }
           window.location.href = fallbackUrl;
         }
       }
