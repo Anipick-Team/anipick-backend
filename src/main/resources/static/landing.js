@@ -14,7 +14,7 @@
     const statusElement = document.getElementById('deep-link-status');
 
     // 딥링크 스킴 & 안드로이드 패키지명
-    const DEEP_LINK_SCHEME = 'anipick://app/anime/detail/';
+    const DEEP_LINK_SCHEME = 'https://anipick.p-e.kr/app/anime/detail/';
     const ANDROID_PACKAGE_NAME = 'com.jparkbro.anipick'; // 실제 패키지명으로 맞게 수정
 
     const animeId = getAnimeIdFromPath();
