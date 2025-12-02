@@ -5,8 +5,8 @@
 <mapper namespace="com.anipick.backend.log.mapper.LogMapper">
     <insert id="createLog" parameterType="com.anipick.backend.log.dto.LogCreateRequestDto">
         INSERT INTO Log
-            (action, page, area, content_type, content, position, query, created_at)
+            (action, page, area, content_type, anime_id, position, query, created_at)
         VALUES
-            (#{action}, #{page}, #{area}, #{type}, #{content}, #{position}, #{query}, NOW())
+            (#{action}, #{page}, #{area}, #{type}, #{animeId}, #{position}, #{query}, NOW())
     </insert>
 </mapper>

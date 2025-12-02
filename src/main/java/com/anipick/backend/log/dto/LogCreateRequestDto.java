@@ -13,7 +13,7 @@ public class LogCreateRequestDto {
     private String page;
     private String area;
     private String type;
-    private String content;
+    private int animeId;
     private int position;
     private String query;
 
@@ -23,7 +23,7 @@ public class LogCreateRequestDto {
             .page(log.getPage().name())
             .area(log.getArea().name())
             .type(log.getType())
-            .content(log.getContent())
+            .animeId(log.getAnimeId())
             .position(log.getDataBody().getPosition())
             .query(log.getQuery())
             .build();
