@@ -54,7 +54,7 @@ public class UserActionLog {
     }
 
     @JsonIgnore
-    public String getContent() {
-        return dataBody.getContent();
+    public int getAnimeId() {
+        return dataBody.getAnimeId();
     }
 }

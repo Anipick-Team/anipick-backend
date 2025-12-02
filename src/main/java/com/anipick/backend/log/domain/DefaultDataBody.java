@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DefaultDataBody {
     private ContentType type;
-    private String content;
+    private int animeId;
     private int position;
 
-    public static DefaultDataBody createAnimeData(final String content, final int position) {
-        return new DefaultDataBody(ContentType.ANIME, content, position);
+    public static DefaultDataBody createAnimeData(final int animeId, final int position) {
+        return new DefaultDataBody(ContentType.ANIME, animeId, position);
     }
 
     @JsonIgnore

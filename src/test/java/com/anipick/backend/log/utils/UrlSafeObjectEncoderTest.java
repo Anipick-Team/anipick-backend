@@ -17,7 +17,7 @@ class UrlSafeObjectEncoderTest {
     @DisplayName("UserActionLog 객체를 URL 안전한 Base64로 인코딩할 수 있다")
     void encodeURL_UserActionLog_Success() {
         // given
-        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData(1, 1);
         UserActionLog userActionLog = UserActionLog.createClickLog(Page.SEARCH, Area.ITEM, dataBody);
 
         // when
@@ -35,7 +35,7 @@ class UrlSafeObjectEncoderTest {
     @DisplayName("UserActionSearchLog 객체를 URL 안전한 Base64로 인코딩할 수 있다")
     void encodeURL_UserActionSearchLog_Success() {
         // given
-        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData(1, 1);
         UserActionLog userActionLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, dataBody, "검색키워드");
 
         // when

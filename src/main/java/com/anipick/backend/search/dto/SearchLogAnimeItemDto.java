@@ -24,7 +24,8 @@ public class SearchLogAnimeItemDto {
             String logBaseUrl,
             String query
     ) {
-        DefaultDataBody logDataBody = DefaultDataBody.createAnimeData(item.getTitle(), positionNumber);
+        int itemAnimeId = item.getAnimeId().intValue();
+        DefaultDataBody logDataBody = DefaultDataBody.createAnimeData(itemAnimeId, positionNumber);
 
         UserActionLog userActionClickLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, logDataBody, query);
         UserActionLog userActionImpressionLog = UserActionLog.createImpressionSearchLog(Page.SEARCH, Area.ITEM, logDataBody, query);

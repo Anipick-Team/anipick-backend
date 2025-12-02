@@ -17,7 +17,7 @@ class UrlSafeObjectDecoderTest {
     @DisplayName("URL 안전한 Base64로 인코딩된 UserActionLog를 디코딩할 수 있다")
     void decodeURL_UserActionLog_Success() {
         // given
-        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData(1, 1);
         UserActionLog originalLog = UserActionLog.createClickLog(Page.SEARCH, Area.ITEM, dataBody);
         String encoded = UrlSafeObjectEncoder.encodeURL(originalLog);
 
@@ -28,7 +28,7 @@ class UrlSafeObjectDecoderTest {
         assertThat(decodedLog.getAction()).isEqualTo(originalLog.getAction());
         assertThat(decodedLog.getPage()).isEqualTo(originalLog.getPage());
         assertThat(decodedLog.getArea()).isEqualTo(originalLog.getArea());
-        assertThat(decodedLog.getDataBody().getContent()).isEqualTo(originalLog.getDataBody().getContent());
+        assertThat(decodedLog.getDataBody().getAnimeId()).isEqualTo(originalLog.getDataBody().getAnimeId());
         assertThat(decodedLog.getDataBody().getPosition()).isEqualTo(originalLog.getDataBody().getPosition());
     }
 
@@ -36,7 +36,7 @@ class UrlSafeObjectDecoderTest {
     @DisplayName("URL 안전한 Base64로 인코딩된 UserActionSearchLog를 디코딩할 수 있다")
     void decodeURL_UserActionSearchLog_Success() {
         // given
-        DefaultDataBody dataBody = DefaultDataBody.createAnimeData("애니메이션 제목", 1);
+        DefaultDataBody dataBody = DefaultDataBody.createAnimeData(1, 1);
         UserActionLog originalLog = UserActionLog.createClickSearchLog(Page.SEARCH, Area.ITEM, dataBody, "검색키워드");
         String encoded = UrlSafeObjectEncoder.encodeURL(originalLog);
 
@@ -47,7 +47,7 @@ class UrlSafeObjectDecoderTest {
         assertThat(decodedLog.getAction()).isEqualTo(originalLog.getAction());
         assertThat(decodedLog.getPage()).isEqualTo(originalLog.getPage());
         assertThat(decodedLog.getArea()).isEqualTo(originalLog.getArea());
-        assertThat(decodedLog.getDataBody().getContent()).isEqualTo(originalLog.getDataBody().getContent());
+        assertThat(decodedLog.getDataBody().getAnimeId()).isEqualTo(originalLog.getDataBody().getAnimeId());
         assertThat(decodedLog.getDataBody().getPosition()).isEqualTo(originalLog.getDataBody().getPosition());
     }
 
