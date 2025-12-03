@@ -15,12 +15,16 @@
     </select>
 
     <select id="findVersion" resultType="com.anipick.backend.version.dto.NoticeUpdateItemDto">
-        SELECT v.type AS type,
+        SELECT v.major AS major,
+               v.minor AS minor,
+               v.patch AS patch,
+               v.type AS type,
                v.title AS title,
                v.updated_content AS content,
                v.url AS url
         FROM Version v
         WHERE v.platform = #{platform}
+        <!-- DB에서 버전은 A.I순으로 높아져야 합니다. -->
         ORDER BY v.version_id DESC
         LIMIT 1;
     </select>
