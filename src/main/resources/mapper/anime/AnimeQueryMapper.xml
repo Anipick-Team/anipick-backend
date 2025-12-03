@@ -185,7 +185,19 @@
             LEFT JOIN Image i
                 ON i.auth_id = u.user_id
         WHERE r.anime_id = #{animeId}
-          AND r.content IS NOT NULL
+        AND r.content IS NOT NULL
+          -- 신고된 리뷰는 제외
+        AND NOT EXISTS (
+            SELECT 1 FROM ReportedReview rr
+            WHERE rr.review_id = r.review_id
+            AND rr.user_id = #{userId}
+        )
+        -- 차단된 사용자의 리뷰는 제외
+        AND NOT EXISTS (
+            SELECT 1 FROM BlockedUser bu
+            WHERE bu.blocked_user_id = r.user_id
+            AND bu.user_id = #{userId}
+        )
         <!-- 커서 정렬 -->
         <choose>
             <!-- 최신순 -->
