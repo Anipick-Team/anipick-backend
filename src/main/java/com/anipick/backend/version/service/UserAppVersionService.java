@@ -1,6 +1,7 @@
 package com.anipick.backend.version.service;
 
 import com.anipick.backend.version.dto.NoticeUpdateItemDto;
+import com.anipick.backend.version.dto.NoticeUpdateResultDto;
 import com.anipick.backend.version.dto.UserAppVersionRequestDto;
 import com.anipick.backend.version.dto.VersionResultDto;
 import com.anipick.backend.version.mapper.UserAppVersionMapper;
@@ -21,7 +22,16 @@ public class UserAppVersionService {
 
         Boolean updateRequired = userAppVersionMapper.existsRequiredUpdate(major, minor, patch, platform);
         NoticeUpdateItemDto item = userAppVersionMapper.findVersion(platform);
+        boolean isLatestVersion = isLatestVersion(request, item);
 
-        return VersionResultDto.from(updateRequired, item);
+        NoticeUpdateResultDto result = NoticeUpdateResultDto.of(item);
+
+        return VersionResultDto.from(isLatestVersion, updateRequired, result);
+    }
+
+    private boolean isLatestVersion(UserAppVersionRequestDto req, NoticeUpdateItemDto item) {
+        return req.getMajorVersion().equals(item.getMajorVersion()) &&
+                req.getMinorVersion().equals(item.getMinorVersion()) &&
+                req.getPatchVersion().equals(item.getPatchVersion());
     }
 }
