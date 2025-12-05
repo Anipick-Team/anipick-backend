@@ -36,6 +36,7 @@ public class AnimeService {
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
+    private static final String UNKNOWN_AIR_DATE = "미정";
 
     public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
         LocalDate now = LocalDate.now();
@@ -402,11 +403,16 @@ public class AnimeService {
 
         List<AnimeSeriesItemResultDto> airDateConvertItems = animeDateItemDtos.stream()
                 .map(dto -> {
+                    String resultAirDate;
                     LocalDate date = dto.getStartDate();
-                    Season season = Season.containsSeason(date);
-                    String seasonName = season.getName();
 
-                    String resultAirDate = date.getYear() + "년 " + seasonName;
+                    if (date != null) {
+                        Season season = Season.containsSeason(date);
+                        String seasonName = season.getName();
+                        resultAirDate = date.getYear() + "년 " + seasonName;
+                    } else {
+                        resultAirDate = UNKNOWN_AIR_DATE;
+                    }
 
                     return AnimeSeriesItemResultDto.of(
                             dto.getAnimeId(),
@@ -559,11 +565,16 @@ public class AnimeService {
                 .toList();
         List<AnimeSeriesItemResultDto> airDateConvertItems = items.stream()
                 .map(dto -> {
+                    String resultAirDate;
                     LocalDate date = dto.getStartDate();
-                    Season season = Season.containsSeason(date);
-                    String seasonName = season.getName();
 
-                    String resultAirDate = date.getYear() + "년 " + seasonName;
+                    if (date != null) {
+                        Season season = Season.containsSeason(date);
+                        String seasonName = season.getName();
+                        resultAirDate = date.getYear() + "년 " + seasonName;
+                    } else {
+                        resultAirDate = UNKNOWN_AIR_DATE;
+                    }
 
                     return AnimeSeriesItemResultDto.of(
                             dto.getAnimeId(),
