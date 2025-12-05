@@ -38,6 +38,9 @@ public class AnimeService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
     private static final String UNKNOWN_AIR_DATE = "미정";
 
+    /**
+     * 다음 시즌 방영 예정 애니
+     */
     public UpcomingSeasonResultDto getUpcomingSeasonAnimes() {
         LocalDate now = LocalDate.now();
         Season nextSeason = Season.getNextSeason(now);
@@ -70,6 +73,14 @@ public class AnimeService {
         return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);
     }
 
+    /**
+     * 공개예정 애니
+     *
+     * @param sort      정렬 (latest, popularity, startDate)
+     * @param lastId    마지막 ID
+     * @param size      개수
+     * @param lastValue 정렬이 startDate일 때 문자열 날짜 (ex. "2025-08-09")
+     */
     public ComingSoonPageDto getComingSoonAnimes(String sort, Long lastId, Long size, String lastValue) {
         SortOption sortOption = SortOption.of(sort);
         String orderByQuery = sortOption.getOrderByQuery();
@@ -93,100 +104,16 @@ public class AnimeService {
         }
     }
 
-    private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
-        List<ComingSoonItemBasicDto> latestSortAnimes =
-                mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
-                        .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
-                        .toList();
-
-        List<ComingSoonItemDto> items = latestSortAnimes.stream()
-                .map(b -> new ComingSoonItemDto(
-                        b.getAnimeId(),
-                        b.getTitle(),
-                        b.getCoverImageUrl(),
-                        b.getStartDate(),
-                        b.getIsAdult()
-                ))
-                .collect(Collectors.toList());
-
-        Long nextId;
-
-        if (items.isEmpty()) {
-            nextId = null;
-        } else {
-            nextId = items.getLast().getAnimeId();
-        }
-
-        CursorDto cursor = CursorDto.of(sort, nextId, null);
-        return ComingSoonPageDto.of(totalCount, cursor, items);
-    }
-
-    private ComingSoonPageDto getSortPopularityComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
-        List<ComingSoonItemPopularityDto> popularitySortAnimes =
-                mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto)
-                        .stream()
-                        .map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
-                        .toList();
-
-        Long nextId;
-
-        if (popularitySortAnimes.isEmpty()) {
-            nextId = null;
-        } else {
-            nextId = popularitySortAnimes.getLast().getScore();
-        }
-
-        List<ComingSoonItemDto> items = popularitySortAnimes.stream()
-                .map(b -> new ComingSoonItemDto(
-                        b.getAnimeId(),
-                        b.getTitle(),
-                        b.getCoverImageUrl(),
-                        b.getStartDate(),
-                        b.getIsAdult()
-                ))
-                .collect(Collectors.toList());
-
-        CursorDto cursor = CursorDto.of(sort, nextId, null);
-        return ComingSoonPageDto.of(totalCount, cursor, items);
-    }
-
-    private ComingSoonPageDto getSortStartDateComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
-        List<ComingSoonItemAllTitleDto> starDateSortAnimes =
-                mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
-
-        String nextValue;
-
-        if (starDateSortAnimes.isEmpty()) {
-            nextValue = null;
-        } else {
-            nextValue = starDateSortAnimes.getLast().getStartDate();
-        }
-
-        List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
-                .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
-                .collect(Collectors.toList());
-
-        List<ComingSoonItemDto> items = typeCovertAnimes.stream()
-                .map(b -> new ComingSoonItemDto(
-                        b.getAnimeId(),
-                        b.getTitle(),
-                        b.getCoverImageUrl(),
-                        b.getStartDate(),
-                        b.getIsAdult()
-                ))
-                .collect(Collectors.toList());
-
-        Long nextId;
-
-        if (starDateSortAnimes.isEmpty()) {
-            nextId = null;
-        } else {
-            nextId = starDateSortAnimes.getLast().getAnimeId();
-        }
-        CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
-        return ComingSoonPageDto.of(totalCount, cursor, items);
-    }
-
+    /**
+     * 애니 상세에서 리뷰보기
+     *
+     * @param animeId   애니 ID
+     * @param userId    로그인 중인 유저 ID
+     * @param sort      정렬 (latest, likes, ratingDesc, ratingAsc)
+     * @param lastId    마지막 ID (최신순일 경우, lastValue는 사용하지 않는다.)
+     * @param lastValue 좋아요순일 때(ex. "1234"), 평점순일 때(ex. "4.5")
+     * @param size      개수
+     */
     public AnimeDetailInfoReviewsPageDto getAnimeInfoReviews(Long animeId, Long userId, String sort, Long lastId, String lastValue, int size) {
         SortOption sortOption = SortOption.of(sort);
         String orderByQuery = sortOption.getOrderByQuery();
@@ -246,92 +173,12 @@ public class AnimeService {
         }
     }
 
-    private AnimeDetailInfoReviewsPageDto getSortLatestAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
-        Long nextId;
-
-        if (items.isEmpty()) {
-            nextId = null;
-        } else {
-            nextId = items.getLast().getReviewId();
-        }
-
-        CursorDto cursor = CursorDto.of(sort, nextId);
-
-        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
-    }
-
-    private AnimeDetailInfoReviewsPageDto getSortRatingDescAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
-        Long nextId;
-        Double nextValue;
-
-        if (items.isEmpty()) {
-            nextId = null;
-            nextValue = null;
-        } else {
-            nextId = items.getLast().getReviewId();
-            nextValue = items.getLast().getRating();
-        }
-
-        String nextValueStr;
-        if (nextValue == null) {
-            nextValueStr = null;
-        } else {
-            nextValueStr = nextValue.toString();
-        }
-
-        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
-
-        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
-    }
-
-    private AnimeDetailInfoReviewsPageDto getSortRatingAscAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
-        Long nextId;
-        Double nextValue;
-
-        if (items.isEmpty()) {
-            nextId = null;
-            nextValue = null;
-        } else {
-            nextId = items.getLast().getReviewId();
-            nextValue = items.getLast().getRating();
-        }
-
-        String nextValueStr;
-        if (nextValue == null) {
-            nextValueStr = null;
-        } else {
-            nextValueStr = nextValue.toString();
-        }
-
-        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
-
-        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
-    }
-
-    private AnimeDetailInfoReviewsPageDto getSortLikesAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
-        Long nextId;
-        Long nextValue;
-
-        if (items.isEmpty()) {
-            nextId = null;
-            nextValue = null;
-        } else {
-            nextId = items.getLast().getReviewId();
-            nextValue = items.getLast().getLikeCount();
-        }
-
-        String nextValueStr;
-        if (nextValue == null) {
-            nextValueStr = null;
-        } else {
-            nextValueStr = nextValue.toString();
-        }
-
-        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
-
-        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
-    }
-
+    /**
+     * 애니 상세의 애니 정보
+     *
+     * @param animeId 애니 ID
+     * @param userId  로그인 중인 유저 ID
+     */
     public AnimeDetailInfoResultDto getAnimeInfoDetail(Long animeId, Long userId) {
         AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
 
@@ -387,6 +234,11 @@ public class AnimeService {
                 .build();
     }
 
+    /**
+     * 애니 상세의 함께 볼만한 작품
+     *
+     * @param animeId 애니 ID
+     */
     public List<AnimeItemDto> getAnimeRecommendation(Long animeId) {
         List<AnimeItemDto> items = mapper.selectAnimeInfoRecommendationsByAnimeId(animeId, ITEM_DEFAULT_SIZE)
                 .stream()
@@ -395,6 +247,11 @@ public class AnimeService {
         return items;
     }
 
+    /**
+     * 애니 상세의 시리즈 정보
+     *
+     * @param animeId 애니 ID
+     */
     public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
         List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE)
                 .stream()
@@ -425,6 +282,11 @@ public class AnimeService {
         return airDateConvertItems;
     }
 
+    /**
+     * 애니 상세의 캐릭터와 성우진
+     *
+     * @param animeId 애니 ID
+     */
     public List<AnimeCharacterActorItemPickNameDto> getAnimeInfoCharacterActor(Long animeId) {
         List<AnimeCharacterActorItemPickNameDto> items = mapper.selectAnimeInfoCharacterActors(animeId, ITEM_DEFAULT_SIZE)
                 .stream()
@@ -473,6 +335,14 @@ public class AnimeService {
         return items;
     }
 
+    /**
+     * 해당 애니의 캐릭터와 성우진 리스트 상세
+     *
+     * @param animeId   애니 ID
+     * @param lastId    마지막 ID (캐릭터 ID)
+     * @param lastValue 캐릭터의 역할 (MAIN, SUPPORTING, BACKGROUND)
+     * @param size      개수
+     */
     public AnimeCharacterActorPageDto getAnimeCharacterActor(Long animeId, Long lastId, AnimeCharacterRole lastValue, int size) {
         List<AnimeCharacterActorResultDto> items = mapper.selectAnimeCharacterActors(animeId, lastId, lastValue, size);
 
@@ -536,6 +406,13 @@ public class AnimeService {
         return AnimeCharacterActorPageDto.of(cursor, pickNameCharacterAndActors);
     }
 
+    /**
+     * 해당 애니의 함께 볼만한 작품 리스트 상세
+     *
+     * @param animeId 애니 ID
+     * @param lastId  마지막 ID (애니 ID)
+     * @param size    개수
+     */
     public AnimeRecommendationPageDto getRecommendationsByAnime(Long animeId, Long lastId, int size) {
         Anime anime = mapper.selectAnimeByAnimeId(animeId);
 
@@ -556,6 +433,13 @@ public class AnimeService {
         return AnimeRecommendationPageDto.of(animeTitle, cursor, items);
     }
 
+    /**
+     * 해당 애니의 시리즈 리스트 상세
+     *
+     * @param animeId 애니 ID
+     * @param lastId  마지막 ID (애니 ID)
+     * @param size    개수
+     */
     public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
         long totalCount = mapper.countSeriesAnime(animeId);
 
@@ -597,6 +481,12 @@ public class AnimeService {
         return AnimeSeriesPageDto.of(totalCount, cursor, airDateConvertItems);
     }
 
+    /**
+     * 해당 애니의 내 리뷰 보기
+     *
+     * @param animeId 애니 ID
+     * @param userId  로그인 중인 유저 ID
+     */
     public AnimeMyReviewResultDto getAnimeMyReview(Long animeId, Long userId) {
         AnimeMyReviewResultDto result = mapper.selectAnimeMyReview(animeId, userId);
         if (result == null) {
@@ -609,7 +499,241 @@ public class AnimeService {
         return AnimeMyReviewResultDto.createdAtFormatted(result, formattedDate);
     }
 
-    public String getImageUrlEndpoint(Long imageId) {
+    /**
+     * 공개예정 애니의 정렬이 최신순
+     *
+     * @param sort                 latest
+     * @param comingSoonRequestDto
+     * @param totalCount
+     */
+    private ComingSoonPageDto getSortLatestComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+        List<ComingSoonItemBasicDto> latestSortAnimes =
+                mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
+                        .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
+                        .toList();
+
+        List<ComingSoonItemDto> items = latestSortAnimes.stream()
+                .map(b -> new ComingSoonItemDto(
+                        b.getAnimeId(),
+                        b.getTitle(),
+                        b.getCoverImageUrl(),
+                        b.getStartDate(),
+                        b.getIsAdult()
+                ))
+                .collect(Collectors.toList());
+
+        Long nextId;
+
+        if (items.isEmpty()) {
+            nextId = null;
+        } else {
+            nextId = items.getLast().getAnimeId();
+        }
+
+        CursorDto cursor = CursorDto.of(sort, nextId, null);
+        return ComingSoonPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 공개예정 애니의 정렬이 인기순
+     *
+     * @param sort                 popularity
+     * @param comingSoonRequestDto
+     * @param totalCount
+     */
+    private ComingSoonPageDto getSortPopularityComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+        List<ComingSoonItemPopularityDto> popularitySortAnimes =
+                mapper.selectComingSoonPopularityAnimes(comingSoonRequestDto)
+                        .stream()
+                        .map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
+                        .toList();
+
+        Long nextId;
+
+        if (popularitySortAnimes.isEmpty()) {
+            nextId = null;
+        } else {
+            nextId = popularitySortAnimes.getLast().getScore();
+        }
+
+        List<ComingSoonItemDto> items = popularitySortAnimes.stream()
+                .map(b -> new ComingSoonItemDto(
+                        b.getAnimeId(),
+                        b.getTitle(),
+                        b.getCoverImageUrl(),
+                        b.getStartDate(),
+                        b.getIsAdult()
+                ))
+                .collect(Collectors.toList());
+
+        CursorDto cursor = CursorDto.of(sort, nextId, null);
+        return ComingSoonPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 공개예정 애니의 정렬이 방영 예정 순
+     *
+     * @param sort                 startDate
+     * @param comingSoonRequestDto
+     * @param totalCount
+     */
+    private ComingSoonPageDto getSortStartDateComingSoonAnimes(String sort, ComingSoonRequestDto comingSoonRequestDto, long totalCount) {
+        List<ComingSoonItemAllTitleDto> starDateSortAnimes =
+                mapper.selectComingSoonStartDateAnimes(comingSoonRequestDto);
+
+        String nextValue;
+
+        if (starDateSortAnimes.isEmpty()) {
+            nextValue = null;
+        } else {
+            nextValue = starDateSortAnimes.getLast().getStartDate();
+        }
+
+        List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
+                .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
+                .collect(Collectors.toList());
+
+        List<ComingSoonItemDto> items = typeCovertAnimes.stream()
+                .map(b -> new ComingSoonItemDto(
+                        b.getAnimeId(),
+                        b.getTitle(),
+                        b.getCoverImageUrl(),
+                        b.getStartDate(),
+                        b.getIsAdult()
+                ))
+                .collect(Collectors.toList());
+
+        Long nextId;
+
+        if (starDateSortAnimes.isEmpty()) {
+            nextId = null;
+        } else {
+            nextId = starDateSortAnimes.getLast().getAnimeId();
+        }
+        CursorDto cursor = CursorDto.of(sort, nextId, nextValue);
+        return ComingSoonPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 애니 상세에서 리뷰보기의 최신순
+     *
+     * @param totalCount
+     * @param items
+     * @param sort       latest
+     */
+    private AnimeDetailInfoReviewsPageDto getSortLatestAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+        Long nextId;
+
+        if (items.isEmpty()) {
+            nextId = null;
+        } else {
+            nextId = items.getLast().getReviewId();
+        }
+
+        CursorDto cursor = CursorDto.of(sort, nextId);
+
+        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 애니 상세에서 리뷰보기의 평점 높은 순
+     *
+     * @param totalCount
+     * @param items
+     * @param sort       ratingDesc
+     */
+    private AnimeDetailInfoReviewsPageDto getSortRatingDescAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+        Long nextId;
+        Double nextValue;
+
+        if (items.isEmpty()) {
+            nextId = null;
+            nextValue = null;
+        } else {
+            nextId = items.getLast().getReviewId();
+            nextValue = items.getLast().getRating();
+        }
+
+        String nextValueStr;
+        if (nextValue == null) {
+            nextValueStr = null;
+        } else {
+            nextValueStr = nextValue.toString();
+        }
+
+        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 애니 상세에서 리뷰보기의 평점 낮은 순
+     *
+     * @param totalCount
+     * @param items
+     * @param sort       ratingAsc
+     */
+    private AnimeDetailInfoReviewsPageDto getSortRatingAscAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+        Long nextId;
+        Double nextValue;
+
+        if (items.isEmpty()) {
+            nextId = null;
+            nextValue = null;
+        } else {
+            nextId = items.getLast().getReviewId();
+            nextValue = items.getLast().getRating();
+        }
+
+        String nextValueStr;
+        if (nextValue == null) {
+            nextValueStr = null;
+        } else {
+            nextValueStr = nextValue.toString();
+        }
+
+        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 애니 상세에서 리뷰보기의 좋아요 순
+     *
+     * @param totalCount
+     * @param items
+     * @param sort       likes
+     */
+    private AnimeDetailInfoReviewsPageDto getSortLikesAnimeDetailReviews(long totalCount, List<AnimeDetailInfoReviewsResultDto> items, String sort) {
+        Long nextId;
+        Long nextValue;
+
+        if (items.isEmpty()) {
+            nextId = null;
+            nextValue = null;
+        } else {
+            nextId = items.getLast().getReviewId();
+            nextValue = items.getLast().getLikeCount();
+        }
+
+        String nextValueStr;
+        if (nextValue == null) {
+            nextValueStr = null;
+        } else {
+            nextValueStr = nextValue.toString();
+        }
+
+        CursorDto cursor = CursorDto.of(sort, nextId, nextValueStr);
+
+        return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
+    }
+
+    /**
+     * 유저의 프로필 사진 URL 생성
+     *
+     * @param imageId 유저 ID (auth_id)
+     */
+    private String getImageUrlEndpoint(Long imageId) {
         return ImageDefaults.IMAGE_ENDPOINT + imageId;
     }
 }
