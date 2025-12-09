@@ -40,7 +40,10 @@ public interface AnimeMapper {
 			@Param("size") int size
   );
 
+	Long selectAnimeSeriesGroupId(@Param(value = "animeId") Long animeId);
+
   List<AnimeAllTitleDateDto> selectAnimeInfoSeriesByAnimeId(
+		    @Param(value = "animeId") Long animeId,
 			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "size") int size
   );
@@ -71,10 +74,12 @@ public interface AnimeMapper {
 	);
 
 	long countSeriesAnime(
+			@Param(value = "animeId") Long animeId,
 			@Param(value = "seriesGroupId") Long seriesGroupId
 	);
 
 	List<AnimeAllTitleDateDto> selectSeriesByAnimeId(
+		    @Param(value = "animeId") Long animeId,
 			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "lastId") Long lastId,
 			@Param(value = "size") int size
