@@ -37,12 +37,17 @@ public class RankingService {
         // Redis에서 실시간 랭킹 데이터를 가져오는 부분
         Map<Long, Long> rankMapByRedis = new HashMap<>();
         boolean isRedisDataAvailable = false;
+        Long genreId = null;
+        String realTimeRankingKey;
 
         try {
-            String realTimeRankingKey;
             if(StringUtils.hasText(genre)) {
-                Long genreId = genreMapper.findGenreIdByGenreName(genre);
-                realTimeRankingKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                genreId = genreMapper.findGenreIdByGenreName(genre);
+                if(genreId != null) {
+                    realTimeRankingKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                } else {
+                    realTimeRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                }
             } else {
                 realTimeRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
             }
@@ -70,8 +75,8 @@ public class RankingService {
             log.error("Redis 장애 또는 데이터 파싱 오류 : {}", e.getMessage(), e);
         }
 
-        List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking();
-        List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(lastValue, lastId, size);
+        List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking(genreId);
+        List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(genreId, lastValue, lastId, size);
         List<Long> animeIds = realTimeRankingPaging.stream()
                 .map(RealTimeRankingAnimesFromQueryDto::getAnimeId)
                 .toList();
