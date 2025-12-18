@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class TrendingRankingFromQueryDto {
     private Long animeId;
-    private String title;
+    private String titleKor;
+    private String titleEng;
     private String coverImageUrl;
 }
