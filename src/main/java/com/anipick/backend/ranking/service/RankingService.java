@@ -34,81 +34,108 @@ public class RankingService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public RealTimeRankingResponse getRealTimeRanking(String genre, Long lastId, Long lastValue, Integer size) {
+        // Redis에서 실시간 랭킹 데이터를 가져오는 부분
+        Map<Long, Long> rankMapByRedis = new HashMap<>();
+        boolean isRedisDataAvailable = false;
+        Long genreId = null;
+        String realTimeRankingKey;
+
         try {
-            String realTimeRankingKey;
             if(StringUtils.hasText(genre)) {
-                Long genreId = genreMapper.findGenreIdByGenreName(genre);
-                realTimeRankingKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                genreId = genreMapper.findGenreIdByGenreName(genre);
+                if(genreId != null) {
+                    realTimeRankingKey = RankingDefaults.RANKING_ALIAS_KEY + genreId + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                } else {
+                    realTimeRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
+                }
             } else {
                 realTimeRankingKey = RankingDefaults.RANKING_GENRE_ALL_KEY + RankingDefaults.COLON + RankingDefaults.CURRENT;
             }
 
             String realTimeRankingJson = redisTemplate.opsForValue().get(realTimeRankingKey);
 
-            RealTimeRankWrapper rankWrapper = objectMapper.readValue(realTimeRankingJson, RealTimeRankWrapper.class);
-            List<RedisRealTimeRankingAnimesDto> redisAnimes = rankWrapper.getRealTimeRank().stream()
-                    .map(RedisRealTimeRankingAnimesDto::of)
-                    .toList();
-
-            Map<Long, Long> rankMapByRedis = new HashMap<>();
-            for(int i = 0; i < redisAnimes.size(); i++) {
-                rankMapByRedis.put(redisAnimes.get(i).getAnimeId(), (long) (i + 1));
-            }
-
-            List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking();
-            List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(lastValue, lastId, size);
-            List<Long> animeIds = realTimeRankingPaging.stream()
-                    .map(RealTimeRankingAnimesFromQueryDto::getAnimeId)
-                    .toList();
-            List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
-
-            Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
-                    .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
-            Map<Long, Long> rankMapByDb = new HashMap<>();
-            for(int i = 0; i < realTimeRanking.size(); i++) {
-                rankMapByDb.put(realTimeRanking.get(i).getAnimeId(), (long) (i + 1));
-            }
-
-            List<RealTimeRankingAnimesDto> animes = realTimeRankingPaging.stream()
-                    .map(dto -> {
-                        Long redisRank = rankMapByRedis.get(dto.getAnimeId());
-                        Long dbRank = rankMapByDb.get(dto.getAnimeId());
-                        String change;
-                        String trend;
-                        List<AnimeGenresDto> genres = Optional.ofNullable(animeGenresMap.get(dto.getAnimeId()))
-                                .orElse(Collections.emptyList());
-                        List<String> genreNames = getGenresByOrdering(genres, genre);
-
-                        if(redisRank == null && dbRank != null) {
-                            change = "N";
-                            trend = changeToTrend(change);
-                            return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
-                        }
-
-                        Long diff = redisRank - dbRank;
-                        change = String.valueOf(diff);
-                        trend = changeToTrend(change);
-
-                        return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
-                    })
-                    .toList();
-
-            Long newLastId;
-            Long newLastValue;
-
-            if(!doesRealTimeRankingExist(animes)) {
-                CursorDto cursor = CursorDto.of(RankingDefaults.SORT, null, "null");
-
-                return RealTimeRankingResponse.of(cursor, animes);
+            // Redis에 데이터가 없는 경우
+            if(realTimeRankingJson == null) {
+                log.warn("Redis 실시간 랭킹 -> null for key: {}", realTimeRankingKey);
             } else {
-                newLastId = animes.getLast().getPopularity();
-                newLastValue = animes.getLast().getTrending();
-                CursorDto cursor = CursorDto.of(RankingDefaults.SORT, newLastId, String.valueOf(newLastValue));
+                RealTimeRankWrapper rankWrapper = objectMapper.readValue(realTimeRankingJson, RealTimeRankWrapper.class);
+                if(rankWrapper != null && rankWrapper.getRealTimeRank() != null) {
+                    List<RedisRealTimeRankingAnimesDto> redisAnimes = rankWrapper.getRealTimeRank().stream()
+                            .map(RedisRealTimeRankingAnimesDto::of)
+                            .toList();
 
-                return RealTimeRankingResponse.of(cursor, animes);
+                    for(int i = 0; i < redisAnimes.size(); i++) {
+                        rankMapByRedis.put(redisAnimes.get(i).getAnimeId(), (long) (i + 1));
+                    }
+                    isRedisDataAvailable = true;
+                }
             }
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            // Redis 장애나 데이터 파싱 오류 발생 시 로그만 남김
+            log.error("Redis 장애 또는 데이터 파싱 오류 : {}", e.getMessage(), e);
+        }
+
+        List<RealTimeRankingAnimesFromQueryDto> realTimeRanking = realTimeRankingMapper.getRealTimeRanking(genreId);
+        List<RealTimeRankingAnimesFromQueryDto> realTimeRankingPaging = realTimeRankingMapper.getRealTimeRankingPaging(genreId, lastValue, lastId, size);
+        List<Long> animeIds = realTimeRankingPaging.stream()
+                .map(RealTimeRankingAnimesFromQueryDto::getAnimeId)
+                .toList();
+        List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
+
+        Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
+                .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
+        Map<Long, Long> rankMapByDb = new HashMap<>();
+        for(int i = 0; i < realTimeRanking.size(); i++) {
+            rankMapByDb.put(realTimeRanking.get(i).getAnimeId(), (long) (i + 1));
+        }
+
+        final boolean redisAvailable = isRedisDataAvailable;
+
+        List<RealTimeRankingAnimesDto> animes = realTimeRankingPaging.stream()
+                .map(dto -> {
+                    Long redisRank = rankMapByRedis.get(dto.getAnimeId());
+                    Long dbRank = rankMapByDb.get(dto.getAnimeId());
+                    String change;
+                    String trend;
+                    List<AnimeGenresDto> genres = Optional.ofNullable(animeGenresMap.get(dto.getAnimeId()))
+                            .orElse(Collections.emptyList());
+                    List<String> genreNames = getGenresByOrdering(genres, genre);
+
+                    // Redis 자체에 데이터가 없는 경우 (장애 또는 데이터 없음)
+                    if(!redisAvailable) {
+                        change = null;
+                        trend = changeToTrend(change);
+                        return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
+                    }
+
+                    // Redis에는 데이터가 있지만 특정 애니는 없는 경우 (새로운 애니)
+                    if(redisRank == null && dbRank != null) {
+                        change = "N";
+                        trend = changeToTrend(change);
+                        return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
+                    }
+
+                    Long diff = redisRank - dbRank;
+                    change = String.valueOf(diff);
+                    trend = changeToTrend(change);
+
+                    return RealTimeRankingAnimesDto.from(dbRank, change, trend, dto, genreNames);
+                })
+                .toList();
+
+        Long newLastId;
+        Long newLastValue;
+
+        if(!doesRealTimeRankingExist(animes)) {
+            CursorDto cursor = CursorDto.of(RankingDefaults.SORT, null, "null");
+
+            return RealTimeRankingResponse.of(cursor, animes);
+        } else {
+            newLastId = animes.getLast().getPopularity();
+            newLastValue = animes.getLast().getTrending();
+            CursorDto cursor = CursorDto.of(RankingDefaults.SORT, newLastId, String.valueOf(newLastValue));
+
+            return RealTimeRankingResponse.of(cursor, animes);
         }
     }
 
@@ -134,10 +161,10 @@ public class RankingService {
         }
 
         yearSeasonRankingPaging = rankingMapper.getYearSeasonRankingPaging(startDate, endDate, genreId, lastId, size);
-
         List<Long> animeIds = yearSeasonRankingPaging.stream()
                 .map(RankingAnimesFromQueryDto::getAnimeId)
                 .toList();
+
         List<AnimeGenresDto> genresByAnimeIds = rankingMapper.getGenresByAnimeIds(animeIds);
         Map<Long, List<AnimeGenresDto>> animeGenresMap = genresByAnimeIds.stream()
                 .collect(Collectors.groupingBy(AnimeGenresDto::getAnimeId));
@@ -216,7 +243,9 @@ public class RankingService {
     private String changeToTrend(String change) {
         Trend trend;
 
-        if(change.equals("N")) {
+        if(change == null) {
+            trend = Trend.SAME;
+        } else if(change.equals("N")) {
             trend = Trend.NEW;
         } else {
             long changeAsLong = Long.parseLong(change);

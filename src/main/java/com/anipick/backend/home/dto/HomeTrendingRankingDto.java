@@ -7,14 +7,16 @@ import lombok.Getter;
 @AllArgsConstructor
 public class HomeTrendingRankingDto {
     private Long animeId;
-    private String title;
+    private String titleKor;
+    private String titleEng;
     private Long rank;
     private String coverImageUrl;
 
     public static HomeTrendingRankingDto of(TrendingRankingFromQueryDto dto, Long rank) {
         return new HomeTrendingRankingDto(
                 dto.getAnimeId(),
-                dto.getTitle(),
+                dto.getTitleKor(),
+                dto.getTitleEng(),
                 rank,
                 dto.getCoverImageUrl()
         );

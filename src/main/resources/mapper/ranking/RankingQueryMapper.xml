@@ -20,10 +20,13 @@
             g.genre_kor AS genreName
         FROM Genres AS g
         JOIN AnimeGenres AS ag ON g.genre_id = ag.genre_id
-        WHERE ag.anime_id IN
-        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
-            #{animeId}
-        </foreach>
+        WHERE 1 = 1
+        <if test="animeIds != null and animeIds.size() > 0">
+            AND ag.anime_id IN
+            <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+                #{animeId}
+            </foreach>
+        </if>
     </select>
 
     <select id="getYearSeasonRankingPaging" resultMap="RankingResultMap">
@@ -39,9 +42,6 @@
         JOIN AnimeGenres AS ag
         ON a.anime_id = ag.anime_id
         WHERE 1 = 1
-        <if test="startDate != null and endDate != null">
-            AND a.start_date BETWEEN #{startDate} AND #{endDate}
-        </if>
         <if test="genreId != null">
             AND ag.genre_id = #{genreId}
         </if>
@@ -55,6 +55,9 @@
                 WHERE ag2.anime_id = a.anime_id
                   AND ag2.genre_id = 19
         )
+        <if test="startDate != null and endDate != null">
+            AND a.start_date BETWEEN #{startDate} AND #{endDate}
+        </if>
         ORDER BY a.popularity DESC
         LIMIT #{size}
     </select>
