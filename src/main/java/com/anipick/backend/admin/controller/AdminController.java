@@ -1,6 +1,6 @@
 package com.anipick.backend.admin.controller;
 
-import com.anipick.backend.admin.dto.AdminSignupRequest;
+import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
 import com.anipick.backend.admin.service.AdminService;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
@@ -20,8 +20,8 @@ public class AdminController {
 
     // 관리자 계정 생성
     @PostMapping("/signup")
-    public ApiResponse<Void> signup(@RequestBody AdminSignupRequest request) {
-        boolean validUsernameAndPassword = AdminSignupRequest
+    public ApiResponse<Void> signup(@RequestBody AdminUsernamePasswordRequestDto request) {
+        boolean validUsernameAndPassword = AdminUsernamePasswordRequestDto
                 .checkValidUsernameAndPassword(request.getUsername(), request.getPassword());
         if (!validUsernameAndPassword) {
             throw new CustomException(ErrorCode.BAD_REQUEST);

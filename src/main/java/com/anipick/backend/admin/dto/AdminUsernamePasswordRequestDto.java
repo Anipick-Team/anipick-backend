@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.util.StringUtils;
 
 @Getter
-public class AdminSignupRequest {
+public class AdminUsernamePasswordRequestDto {
     private String username;
     private String password;
 

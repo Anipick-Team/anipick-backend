@@ -1,7 +1,7 @@
 package com.anipick.backend.admin.service;
 
 import com.anipick.backend.admin.domain.Admin;
-import com.anipick.backend.admin.dto.AdminSignupRequest;
+import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
 import com.anipick.backend.admin.mapper.AdminMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
@@ -18,7 +18,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(AdminSignupRequest request) {
+    public void signup(AdminUsernamePasswordRequestDto request) {
         if (existAccount(request)) {
             throw new CustomException(ErrorCode.ALREADY_ADMIN_USERNAME);
         }
@@ -32,7 +32,7 @@ public class AdminService {
         adminMapper.insertAdminAccount(account);
     }
 
-    private Boolean existAccount(AdminSignupRequest request) {
+    private Boolean existAccount(AdminUsernamePasswordRequestDto request) {
         return adminMapper.existAdminAccountUsername(request.getUsername());
     }
 }
