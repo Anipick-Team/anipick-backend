@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AniPick Admin Login</title>
+
+</head>
+<style>
+  :root {
+    --anipick-teal: #50C8B8;
+    --anipick-purple: #34344A;
+    --primary-blue: var(--anipick-teal);
+    --primary-blue-light: #6dd4c7;
+
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --text-tertiary: #6b7280;
+
+    --background-deep: #0f1224;
+    --border-light: #e5e7eb;
+
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 16px 40px rgba(0, 0, 0, 0.25);
+
+    --border-radius: 12px;
+    --border-radius-large: 18px;
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Noto Sans KR", "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--background-deep);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .admin-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .cta-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+            radial-gradient(circle at 30% 20%, rgba(80, 200, 184, 0.35), transparent 55%),
+            radial-gradient(circle at 70% 80%, rgba(52, 52, 74, 0.45), transparent 55%);
+    animation: gradientShift 10s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% {
+      filter: hue-rotate(0deg);
+    }
+    50% {
+      filter: hue-rotate(20deg);
+    }
+  }
+
+  .cta-stars span {
+    position: absolute;
+    opacity: 0.7;
+    animation: starTwinkle 3s ease-in-out infinite;
+  }
+
+  .star-1 { top: 15%; left: 12%; }
+  .star-2 { top: 30%; right: 18%; animation-delay: .5s; }
+  .star-3 { top: 55%; left: 22%; animation-delay: 1s; }
+  .star-4 { top: 70%; right: 25%; animation-delay: 1.5s; }
+  .star-5 { top: 85%; left: 40%; animation-delay: 2s; }
+
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .admin-login-card {
+    position: relative;
+    z-index: 2;
+    width: 360px;
+    padding: 36px 30px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-heavy);
+    backdrop-filter: blur(20px);
+    animation: fadeInUp 0.8s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .admin-login-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .admin-login-header img {
+    width: 44px;
+    margin-bottom: 10px;
+  }
+
+  .admin-login-header h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-primary);
+  }
+
+  .admin-login-header p {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  .admin-form-group {
+    margin-bottom: 16px;
+  }
+
+  .admin-form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .admin-form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    font-size: 14px;
+    transition: var(--transition);
+  }
+
+  .admin-form-group input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(80, 200, 184, 0.25);
+  }
+
+  .admin-login-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(
+            135deg,
+            var(--primary-blue),
+            var(--primary-blue-light)
+    );
+    box-shadow: var(--shadow-medium);
+    transition: var(--transition);
+  }
+
+  .admin-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+  }
+
+  .admin-toast {
+    margin-top: 16px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+    display: none;
+  }
+
+  .admin-toast.success {
+    background: rgba(80, 200, 184, 0.15);
+    color: var(--primary-blue);
+  }
+
+  .admin-toast.error {
+    background: rgba(229, 57, 53, 0.12);
+    color: #e53935;
+  }
+</style>
+
+<body>
+
+<div class="admin-bg">
+  <div class="cta-gradient"></div>
+  <div class="cta-stars">
+    <span class="star-1">✨</span>
+    <span class="star-2">⭐</span>
+    <span class="star-3">💫</span>
+    <span class="star-4">✨</span>
+    <span class="star-5">⭐</span>
+  </div>
+</div>
+
+<div class="admin-login-card">
+  <div class="admin-login-header">
+    <img src="/image/anipick_logo.png" alt="AniPick">
+    <h2>AniPick Admin</h2>
+    <p>관리자 전용 로그인</p>
+  </div>
+
+  <div class="admin-form-group">
+    <label>Username</label>
+    <input id="username" placeholder="관리자 아이디">
+  </div>
+
+  <div class="admin-form-group">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="비밀번호">
+  </div>
+
+  <button class="admin-login-btn" onclick="login()">로그인</button>
+  <div id="toast" class="admin-toast"></div>
+</div>
+
+<script>
+  const toast = document.getElementById("toast");
+
+  function showToast(message, type) {
+    toast.textContent = message;
+    toast.className = `admin-toast ${type}`;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 1500);
+  }
+
+  async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (data.code === 200) {
+      showToast("로그인 성공", "success");
+      setTimeout(() => location.href = "/admin-version.html", 1000);
+    } else {
+      showToast("로그인 실패", "error");
+    }
+  }
+</script>
+
+</body>
+</html>

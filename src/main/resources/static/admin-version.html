@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AniPick Admin – 버전 관리</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --anipick-teal: #50C8B8;
+      --primary: var(--anipick-teal);
+      --primary-light: #6dd4c7;
+
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+
+      --bg-page: #f5f6f8;
+      --bg-card: #ffffff;
+
+      --border-light: #e5e7eb;
+
+      --shadow-light: 0 6px 20px rgba(0,0,0,0.08);
+      --shadow-medium: 0 10px 30px rgba(0,0,0,0.12);
+
+      --radius-large: 16px;
+      --transition: all 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      z-index: 10;
+    }
+
+    .header-container {
+      max-width: 1100px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .logo img {
+      width: 32px;
+    }
+
+    .menu-btn {
+      width: 32px;
+      height: 22px;
+      border: none;
+      background: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .menu-btn span {
+      height: 3px;
+      background: var(--text-primary);
+      border-radius: 2px;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      z-index: 19;
+    }
+
+    .menu-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100%;
+      background: white;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+      padding: 24px;
+      transition: var(--transition);
+      z-index: 20;
+    }
+
+    .side-menu.show {
+      right: 0;
+    }
+
+    .side-menu h3 {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 20px;
+    }
+
+    .side-menu a {
+      display: block;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(80,200,184,0.12);
+      text-decoration: none;
+    }
+
+    .admin-container {
+      max-width: 900px;
+      margin: 120px auto 80px;
+      background: var(--bg-card);
+      padding: 36px;
+      border-radius: var(--radius-large);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .admin-title {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 22px; }
+    .form-group label { font-weight: 700; margin-bottom: 8px; display: block; }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-light);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row input { flex: 1; }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+    }
+
+    .submit-btn {
+      margin-top: 36px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+  const token = localStorage.getItem("ADMIN_ACCESS_TOKEN");
+  if (!token) {
+    alert("로그인이 필요합니다.");
+    location.href = "/admin-login.html";
+  }
+</script>
+
+<header>
+  <div class="header-container">
+    <a href="/admin-version.html" class="logo">
+      <img src="/image/anipick_logo.png" alt="AniPick">
+      AniPick Admin
+    </a>
+
+    <button id="menuBtn" class="menu-btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div id="overlay" class="menu-overlay"></div>
+
+<div id="sideMenu" class="side-menu">
+  <h3>관리자 메뉴</h3>
+  <a href="/admin-version.html">🛠 버전 관리</a>
+</div>
+
+
+<div class="admin-container">
+  <h1 class="admin-title">버전 등록</h1>
+
+  <div class="form-group">
+    <label>플랫폼</label>
+    <div class="btn-group">
+      <button class="btn active">ANDROID</button>
+      <button class="btn">iOS</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>버전 (x.y.z)</label>
+    <div class="form-row">
+      <input type="number" placeholder="major">
+      <input type="number" placeholder="minor">
+      <input type="number" placeholder="patch">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>필수 업데이트 여부</label>
+    <div class="btn-group">
+      <button class="btn active">필수</button>
+      <button class="btn">선택</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>타입</label>
+    <div class="btn-group">
+      <button class="btn active">업데이트</button>
+      <button class="btn">공지사항</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>URL</label>
+    <input type="text" placeholder="https://...">
+  </div>
+
+  <div class="form-group">
+    <label>제목</label>
+    <input type="text" placeholder="제목을 입력하세요">
+  </div>
+
+  <div class="form-group">
+    <label>내용</label>
+    <textarea rows="6" placeholder="업데이트 또는 공지 내용을 입력하세요"></textarea>
+  </div>
+
+  <button class="submit-btn">버전 등록</button>
+</div>
+
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const sideMenu = document.getElementById("sideMenu");
+  const overlay = document.getElementById("overlay");
+
+  menuBtn.onclick = () => {
+    sideMenu.classList.add("show");
+    overlay.classList.add("show");
+  };
+
+  overlay.onclick = () => {
+    sideMenu.classList.remove("show");
+    overlay.classList.remove("show");
+  };
+</script>
+
+</body>
+</html>

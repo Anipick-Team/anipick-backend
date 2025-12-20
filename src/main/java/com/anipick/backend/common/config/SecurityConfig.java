@@ -39,6 +39,8 @@ public class SecurityConfig {
                                                 "/app/**",
                                                 "/api/version",
                                                 "/api/admin/**",
+                                                "/admin-login.html",
+                                                "/admin-version.html",
                                                 "/intro.html",
                                                 "/intro.css",
                                                 "/intro.js",
