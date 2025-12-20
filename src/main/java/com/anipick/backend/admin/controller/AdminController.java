@@ -5,6 +5,7 @@ import com.anipick.backend.admin.service.AdminService;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.token.dto.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,17 +22,29 @@ public class AdminController {
     // 관리자 계정 생성
     @PostMapping("/signup")
     public ApiResponse<Void> signup(@RequestBody AdminUsernamePasswordRequestDto request) {
+        checkUsernamePassword(request);
+        adminService.signup(request);
+        return ApiResponse.success();
+    }
+
+    // 관리자 로그인
+    @PostMapping("/login")
+    public ApiResponse<TokenResponse> login(@RequestBody AdminUsernamePasswordRequestDto request) {
+        checkUsernamePassword(request);
+        TokenResponse response = adminService.login(request);
+        return ApiResponse.success(response);
+    }
+
+    // 버전 등록
+    // 버전 조회
+    // 버전 수정
+    // 버전 삭제
+
+    private static void checkUsernamePassword(AdminUsernamePasswordRequestDto request) {
         boolean validUsernameAndPassword = AdminUsernamePasswordRequestDto
                 .checkValidUsernameAndPassword(request.getUsername(), request.getPassword());
         if (!validUsernameAndPassword) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
-        adminService.signup(request);
-        return ApiResponse.success();
     }
-    // 관리자 로그인
-    // 버전 등록
-    // 버전 조회
-    // 버전 수정
-    // 버전 삭제
 }

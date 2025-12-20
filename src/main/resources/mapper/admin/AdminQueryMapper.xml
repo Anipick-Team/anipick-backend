@@ -10,4 +10,15 @@
                 WHERE username = #{username}
         )
     </select>
+
+    <select id="findByUsername" resultType="com.anipick.backend.admin.domain.Admin">
+        SELECT ac.admin_id AS adminId,
+               ac.username AS username,
+               ac.password AS password,
+               ac.is_active AS isActive,
+               ac.created_at AS createdAt,
+               ac.last_login_at AS lastLoginAt
+        FROM Adminaccount ac
+        WHERE username = #{username}
+    </select>
 </mapper>
