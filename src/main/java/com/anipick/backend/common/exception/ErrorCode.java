@@ -78,7 +78,11 @@ public enum ErrorCode {
 	 * Image
 	 */
 	INVAILD_IMAGE_EXTENSION(901, "유효한 이미지 확장자가 아님", null),
-	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null);
+	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null),
+	/**
+	 * Admin
+	 */
+	ALREADY_ADMIN_USERNAME(1, "관리자 계정 이미 존재", null);
 
 	private final int code;
 	private final String errorReason;

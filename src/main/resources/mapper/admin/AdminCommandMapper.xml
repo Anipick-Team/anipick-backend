@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anipick.backend.admin.mapper.AdminMapper">
+    <insert id="insertAdminAccount" parameterType="com.anipick.backend.admin.domain.Admin"
+        useGeneratedKeys="true" keyProperty="adminId">
+        INSERT INTO Adminaccount
+            (username, password, is_active, created_at, last_login_at)
+        VALUES
+            (#{username}, #{password}, #{isActive}, #{createdAt}, #{lastLoginAt})
+    </insert>
+
+</mapper>

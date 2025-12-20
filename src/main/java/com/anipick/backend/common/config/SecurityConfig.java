@@ -38,6 +38,7 @@ public class SecurityConfig {
                                                 "/api/animes/meta-data-group",
                                                 "/app/**",
                                                 "/api/version",
+                                                "/api/admin/**",
                                                 "/intro.html",
                                                 "/intro.css",
                                                 "/intro.js",
