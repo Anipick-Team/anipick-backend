@@ -1,6 +1,7 @@
 package com.anipick.backend.version.mapper;
 
 import com.anipick.backend.admin.dto.CreateVersionRequestDto;
+import com.anipick.backend.admin.dto.UpdateVersionRequestDto;
 import com.anipick.backend.admin.dto.VersionKeyDto;
 import com.anipick.backend.version.domain.Version;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,4 +23,8 @@ public interface VersionMapper {
     );
 
     Optional<Version> findVersionById(@Param(value = "versionId") Long versionId);
+
+    void updateVersion(UpdateVersionRequestDto request);
+
+    void deleteVersion(@Param(value = "versionId") Long versionId);
 }

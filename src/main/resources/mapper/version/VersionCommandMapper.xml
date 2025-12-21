@@ -9,4 +9,23 @@
         values
             (#{platform}, #{major}, #{minor}, #{patch}, #{importantYn}, #{url}, #{type}, #{title}, #{updatedContent}, NOW())
     </insert>
+
+    <update id="updateVersion" parameterType="com.anipick.backend.admin.dto.UpdateVersionRequestDto">
+        UPDATE version
+        SET platform = #{platform},
+            major = #{major},
+            minor = #{minor},
+            patch = #{patch},
+            important_yn = #{importantYn},
+            url = #{url},
+            type = #{type},
+            title = #{title},
+            updated_content = #{updatedContent}
+        WHERE version_id = #{versionId}
+    </update>
+
+    <delete id="deleteVersion">
+        DELETE FROM version
+        WHERE version_id = #{versionId}
+    </delete>
 </mapper>

@@ -88,6 +88,12 @@
       width: 100%; padding: 12px;
       border-radius: 10px; border: 1px solid var(--border-light);
     }
+    /* Readonly style */
+    input:read-only, textarea:read-only {
+      background-color: #f9fafb;
+      color: #6b7280;
+      border-color: #e5e7eb;
+    }
 
     .version-row { display: flex; gap: 10px; align-items: center; }
     .version-row input { width: 80px; text-align: center; }
@@ -124,7 +130,7 @@
     .version-item:hover { background: rgba(0,0,0,0.04); }
     .meta { color: #6b7280; font-size: 13px; font-weight: 700; }
 
-    .hidden { display: none; }
+    .hidden { display: none !important; }
 
     /* ---------- DETAIL MODAL ---------- */
     .detail-modal {
@@ -138,9 +144,22 @@
       display: none;
     }
     .detail-modal.show { display: block; }
-    .modal-title { font-size: 18px; font-weight: 900; margin-bottom: 14px; }
+
+    /* Modal Header */
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .modal-title { font-size: 18px; font-weight: 900; }
+
+    /* Mode Badge */
+    .mode-badge {
+      padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 900;
+    }
+    .mode-badge.read { background: #e5e7eb; color: #374151; }
+    .mode-badge.edit { background: #50C8B8; color: white; }
+
     .danger { background: #ef4444; color: white; border: none; }
-    .muted { color: #6b7280; font-size: 13px; font-weight: 700; }
+    .danger:hover { background: #dc2626; }
+    .muted { color: #6b7280; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+
   </style>
 </head>
 
@@ -173,13 +192,11 @@
 
 <div class="admin-container">
 
-  <!-- TAB -->
   <div class="tab-bar">
     <div id="tabCreate" class="tab active">버전 등록</div>
     <div id="tabList" class="tab">버전 조회</div>
   </div>
 
-  <!--  CREATE  -->
   <section id="createSection">
     <h1 class="admin-title">버전 등록</h1>
 
@@ -236,7 +253,6 @@
     <button id="submitBtn" class="submit-btn" type="button">버전 등록</button>
   </section>
 
-  <!--  LIST  -->
   <section id="listSection" class="hidden">
     <h1 class="admin-title">버전 조회</h1>
 
@@ -266,97 +282,224 @@
 
 <div id="detailOverlay" class="menu-overlay"></div>
 <div id="detailModal" class="detail-modal">
-  <div class="modal-title">버전 상세</div>
+
+  <div class="modal-header">
+    <div class="modal-title">버전 상세</div>
+    <div id="modeBadge" class="mode-badge read">READ</div>
+  </div>
+
   <div class="muted" id="dMeta"></div>
 
-  <div style="height: 14px;"></div>
+  <div id="readOnlyView">
+    <div class="form-group">
+      <label>버전</label>
+      <input id="rVersion" readonly>
+    </div>
+    <div class="form-group">
+      <label>플랫폼</label>
+      <input id="rPlatform" readonly>
+    </div>
+    <div class="form-group">
+      <label>타입</label>
+      <input id="rType" readonly>
+    </div>
+    <div class="form-group">
+      <label>필수 여부</label>
+      <input id="rImportant" readonly>
+    </div>
+    <div class="form-group">
+      <label>URL</label>
+      <input id="rUrl" readonly>
+    </div>
+    <div class="form-group">
+      <label>제목</label>
+      <input id="rTitle" readonly>
+    </div>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="rContent" rows="6" readonly></textarea>
+    </div>
+  </div>
 
-  <div class="form-group"><label>버전</label><input id="dVersion" readonly></div>
-  <div class="form-group"><label>플랫폼</label><input id="dPlatform" readonly></div>
-  <div class="form-group"><label>타입</label><input id="dType" readonly></div>
-  <div class="form-group"><label>필수 여부</label><input id="dImportant" readonly></div>
-  <div class="form-group"><label>URL</label><input id="dUrl" readonly></div>
-  <div class="form-group"><label>제목</label><input id="dTitle" readonly></div>
-  <div class="form-group"><label>내용</label><textarea id="dContent" rows="6" readonly></textarea></div>
+  <div id="editOnlyView" class="hidden">
+    <div class="form-group">
+      <label>플랫폼</label>
+      <div class="btn-group" id="editPlatformBtns">
+        <button class="btn" type="button">ANDROID</button>
+        <button class="btn" type="button">IOS</button>
+      </div>
+    </div>
 
-  <div class="btn-group">
-    <button id="editBtn" class="btn" type="button">수정</button>
+    <div class="form-group">
+      <label>버전</label>
+      <div class="version-row">
+        <input id="eMajor" type="number" min="0" placeholder="0">
+        <span>.</span>
+        <input id="eMinor" type="number" min="0" placeholder="0">
+        <span>.</span>
+        <input id="ePatch" type="number" min="0" placeholder="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>필수 여부</label>
+      <div class="btn-group" id="editImportantBtns">
+        <button class="btn" type="button">필수</button>
+        <button class="btn" type="button">선택</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>타입</label>
+      <div class="btn-group" id="editTypeBtns">
+        <button class="btn" type="button">업데이트</button>
+        <button class="btn" type="button">공지사항</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>URL</label>
+      <input id="eUrl">
+    </div>
+
+    <div class="form-group">
+      <label>제목</label>
+      <input id="eTitle">
+    </div>
+
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="eContent" rows="6"></textarea>
+    </div>
+  </div>
+
+  <div class="btn-group" style="margin-top: 24px;">
+    <button id="editBtn" class="btn active" type="button" style="flex:1;">수정</button>
     <button id="deleteBtn" class="btn danger" type="button">삭제</button>
   </div>
 </div>
 
+
 <script>
+  // === STATE ===
   let selectedPlatform = "ANDROID";
   let selectedImportantYn = 1;
   let selectedType = "update";
 
   let listPlatform = "ANDROID";
-  let listType = null; // 전체
+  let listType = null; // null=전체
 
+  let currentVersionId = null;
+  let isEditMode = false; // 현재 수정 모드인지 여부
+
+  // === DOM ELEMENTS ===
   const $ = (id) => document.getElementById(id);
 
+  // Create Section
   const platformBtns = $("platformBtns");
   const importantBtns = $("importantBtns");
   const typeBtns = $("typeBtns");
+  const major = $("major"), minor = $("minor"), patch = $("patch");
+  const url = $("url"), title = $("title"), content = $("content");
+  const submitBtn = $("submitBtn");
 
+  // List Section
   const listPlatformBtns = $("listPlatformBtns");
   const listTypeBtns = $("listTypeBtns");
   const searchBtn = $("searchBtn");
-
   const versionList = $("versionList");
 
+  // Tabs & Sections
   const tabCreate = $("tabCreate");
   const tabList = $("tabList");
   const createSection = $("createSection");
   const listSection = $("listSection");
 
+  // Menu & Modal
   const menuBtn = $("menuBtn");
   const sideMenu = $("sideMenu");
   const overlay = $("overlay");
-
   const detailOverlay = $("detailOverlay");
   const detailModal = $("detailModal");
 
-  const submitBtn = $("submitBtn");
-
-  const major = $("major");
-  const minor = $("minor");
-  const patch = $("patch");
-  const url = $("url");
-  const title = $("title");
-  const content = $("content");
-
+  // Detail Modal Elements
   const dMeta = $("dMeta");
-  const dVersion = $("dVersion");
-  const dPlatform = $("dPlatform");
-  const dType = $("dType");
-  const dImportant = $("dImportant");
-  const dUrl = $("dUrl");
-  const dTitle = $("dTitle");
-  const dContent = $("dContent");
+  const modeBadge = $("modeBadge");
+  const readOnlyView = $("readOnlyView");
+  const editOnlyView = $("editOnlyView");
   const editBtn = $("editBtn");
   const deleteBtn = $("deleteBtn");
 
+  // Read Inputs
+  const rVersion = $("rVersion");
+  const rPlatform = $("rPlatform");
+  const rType = $("rType");
+  const rImportant = $("rImportant");
+  const rUrl = $("rUrl");
+  const rTitle = $("rTitle");
+  const rContent = $("rContent");
+
+  // Edit Inputs & Groups
+  const eMajor = $("eMajor");
+  const eMinor = $("eMinor");
+  const ePatch = $("ePatch");
+  const eUrl = $("eUrl");
+  const eTitle = $("eTitle");
+  const eContent = $("eContent");
+  const editPlatformBtns = $("editPlatformBtns");
+  const editImportantBtns = $("editImportantBtns");
+  const editTypeBtns = $("editTypeBtns");
+
+
+  // === EVENT BINDING FUNCTIONS ===
   function toggleGroup(groupEl, callback) {
     groupEl.querySelectorAll(".btn").forEach(btn => {
       btn.addEventListener("click", () => {
         groupEl.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        callback(btn.innerText.trim());
+        if (callback) callback(btn.innerText.trim());
       });
     });
   }
 
+  // Helper to programmatically set active button
+  function setActiveBtn(groupEl, textToMatch) {
+    groupEl.querySelectorAll(".btn").forEach(btn => {
+      if(btn.innerText.trim() === textToMatch) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  // Helper to get active button text
+  function getActiveBtnText(groupEl) {
+    const active = groupEl.querySelector(".btn.active");
+    return active ? active.innerText.trim() : "";
+  }
+
+
+  // === INITIALIZE GROUPS ===
+  // Create Section Groups
   toggleGroup(platformBtns, v => selectedPlatform = v);
   toggleGroup(importantBtns, v => selectedImportantYn = (v === "필수" ? 1 : 0));
   toggleGroup(typeBtns, v => selectedType = (v === "업데이트" ? "update" : "notice"));
 
+  // List Section Groups
   toggleGroup(listPlatformBtns, v => listPlatform = v);
   toggleGroup(listTypeBtns, v => {
     if (v === "전체") listType = null;
     else listType = (v === "업데이트" ? "update" : "notice");
   });
 
+  // Edit Section Groups (No global state update needed here, we pull from DOM on save)
+  toggleGroup(editPlatformBtns);
+  toggleGroup(editImportantBtns);
+  toggleGroup(editTypeBtns);
+
+
+  // === TAB LOGIC ===
   tabCreate.addEventListener("click", () => {
     tabCreate.classList.add("active");
     tabList.classList.remove("active");
@@ -371,26 +514,29 @@
     createSection.classList.add("hidden");
   });
 
+
+  // === MENU LOGIC ===
   menuBtn.addEventListener("click", () => {
     sideMenu.classList.add("show");
     overlay.classList.add("show");
   });
-
   overlay.addEventListener("click", () => {
     sideMenu.classList.remove("show");
     overlay.classList.remove("show");
   });
 
-  function openDetailModal() {
-    detailOverlay.classList.add("show");
-    detailModal.classList.add("show");
-  }
+
+  // === MODAL LOGIC ===
   function closeDetailModal() {
     detailOverlay.classList.remove("show");
     detailModal.classList.remove("show");
+    // 모달 닫을 때 상태 초기화
+    isEditMode = false;
   }
   detailOverlay.addEventListener("click", closeDetailModal);
 
+
+  // === SUBMIT (CREATE) ===
   submitBtn.addEventListener("click", async () => {
     const requiredInputs = [major, minor, patch, url, title, content];
     if (!requiredInputs.every(el => String(el.value).trim() !== "")) {
@@ -437,6 +583,8 @@
     location.reload();
   });
 
+
+  // === SEARCH (LIST) ===
   searchBtn.addEventListener("click", async () => {
     if (!listPlatform) {
       alert("플랫폼을 선택해주세요.");
@@ -463,7 +611,7 @@
       const empty = document.createElement("div");
       empty.className = "version-item";
       empty.style.cursor = "default";
-      empty.innerHTML = `<div>조회 결과가 없습니다.</div><div class="meta">최대 50개까지 표시</div>`;
+      empty.innerHTML = `<div>조회 결과가 없습니다.</div>`;
       versionList.appendChild(empty);
       return;
     }
@@ -472,15 +620,19 @@
       const div = document.createElement("div");
       div.className = "version-item";
       const vText = `v${item.major}.${item.minor}.${item.patch}`;
-      const tText = item.type || "";
+      // API may return 'update'/'notice', map to KR if needed, or show as is
+      const tText = (item.type === "update" ? "업데이트" : (item.type === "notice" ? "공지사항" : item.type));
       div.innerHTML = `<div><b>${vText}</b> · ${tText}</div><div class="meta">ID: ${item.versionId}</div>`;
       div.addEventListener("click", () => loadDetail(item.versionId));
       versionList.appendChild(div);
     });
   });
 
-  // ====== 단건 조회 ======
+
+  // === DETAIL & EDIT ===
   async function loadDetail(versionId) {
+    currentVersionId = versionId;
+
     const res = await fetch(`/api/admin/version/${encodeURIComponent(versionId)}`, {
       headers: { "Authorization": `Bearer ${adminAccessToken}` }
     });
@@ -492,21 +644,155 @@
     }
 
     const result = data.result;
-    dMeta.textContent = `versionId=${result.versionId}`;
-    dVersion.value = `${result.major}.${result.minor}.${result.patch}`;
-    dPlatform.value = result.platform ?? "";
-    dType.value = result.type ?? "";
-    dImportant.value = (result.importantYn === 1 || result.importantYn === "1") ? "필수" : "선택";
-    dUrl.value = result.url ?? "";
-    dTitle.value = result.title ?? "";
-    dContent.value = result.updatedContent ?? "";
+    dMeta.textContent = `versionId=${result.versionId} / UpdatedAt=${result.updatedAt || '-'}`;
 
-    // 수정/삭제는 구조만 (API 붙이면 여기서 구현)
-    editBtn.onclick = () => alert("수정 API 연결 전입니다.");
-    deleteBtn.onclick = () => alert("삭제 API 연결 전입니다.");
+    // 1. READ MODE 값 세팅
+    rVersion.value = `${result.major}.${result.minor}.${result.patch}`;
+    rPlatform.value = result.platform;
+    rType.value = (result.type === "update" ? "업데이트" : "공지사항");
+    rImportant.value = (result.importantYn === 1 ? "필수" : "선택");
+    rUrl.value = result.url;
+    rTitle.value = result.title;
+    rContent.value = result.updatedContent;
 
-    openDetailModal();
+    // 2. EDIT MODE 초기 값 세팅 (미리 채워두기)
+    eMajor.value = result.major;
+    eMinor.value = result.minor;
+    ePatch.value = result.patch;
+    eUrl.value = result.url;
+    eTitle.value = result.title;
+    eContent.value = result.updatedContent;
+
+    // 버튼 그룹 상태 동기화
+    setActiveBtn(editPlatformBtns, result.platform); // ANDROID or IOS
+    setActiveBtn(editImportantBtns, result.importantYn === 1 ? "필수" : "선택");
+    setActiveBtn(editTypeBtns, result.type === "update" ? "업데이트" : "공지사항");
+
+
+    // 3. UI 초기화 (Read 모드로 시작)
+    isEditMode = false;
+    readOnlyView.classList.remove("hidden");
+    editOnlyView.classList.add("hidden");
+
+    modeBadge.textContent = "READ";
+    modeBadge.className = "mode-badge read";
+
+    editBtn.textContent = "수정";
+
+    // 모달 열기
+    detailOverlay.classList.add("show");
+    detailModal.classList.add("show");
   }
+
+
+  // === EDIT / SAVE BUTTON CLICK ===
+  editBtn.onclick = async () => {
+    // [1] 수정 모드로 진입
+    if (!isEditMode) {
+      isEditMode = true;
+
+      // 뷰 교체
+      readOnlyView.classList.add("hidden");
+      editOnlyView.classList.remove("hidden");
+
+      // 배지 및 버튼 텍스트 변경
+      modeBadge.textContent = "EDIT";
+      modeBadge.className = "mode-badge edit";
+      editBtn.textContent = "저장";
+
+      return;
+    }
+
+    // [2] 저장 로직 (이미 Edit Mode인 경우)
+    const maj = Number(eMajor.value);
+    const min = Number(eMinor.value);
+    const pat = Number(ePatch.value);
+
+    if ([maj, min, pat].some(v => Number.isNaN(v) || v < 0)) {
+      alert("버전 형식이 올바르지 않습니다. (0 이상의 정수 입력)");
+      return;
+    }
+
+    // 버튼 그룹에서 선택된 텍스트 가져오기
+    const pText = getActiveBtnText(editPlatformBtns); // ANDROID or IOS
+    const iText = getActiveBtnText(editImportantBtns); // 필수 or 선택
+    const tText = getActiveBtnText(editTypeBtns); // 업데이트 or 공지사항
+
+    if (!pText || !iText || !tText) {
+      alert("플랫폼, 타입, 필수여부를 모두 선택해주세요.");
+      return;
+    }
+
+    const payload = {
+      platform: pText,
+      major: maj,
+      minor: min,
+      patch: pat,
+      importantYn: (iText === "필수" ? 1 : 0),
+      type: (tText === "업데이트" ? "update" : "notice"),
+      url: eUrl.value.trim(),
+      title: eTitle.value.trim(),
+      updatedContent: eContent.value.trim()
+    };
+
+    try {
+      const res = await fetch(`/api/admin/version/${currentVersionId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${adminAccessToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.code !== 200) {
+        alert((data && data.errorValue) || "수정 실패");
+        return;
+      }
+
+      alert("수정 완료되었습니다.");
+
+      // 저장 후 다시 상세 조회(Read Mode)로 갱신
+      loadDetail(currentVersionId);
+      // 목록도 갱신 필요 시 호출 (선택 사항)
+      searchBtn.click();
+
+    } catch (err) {
+      console.error(err);
+      alert("서버 통신 오류");
+    }
+  };
+
+
+  // === DELETE BUTTON ===
+  deleteBtn.onclick = async () => {
+    if (!confirm("정말 이 버전을 삭제하시겠습니까? 복구할 수 없습니다.")) return;
+
+    try {
+      const res = await fetch(`/api/admin/version/${currentVersionId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${adminAccessToken}`
+        }
+      });
+
+      if (!res.ok) {
+        alert("삭제 실패");
+        return;
+      }
+
+      alert("삭제 완료");
+      closeDetailModal();
+      searchBtn.click(); // 목록 갱신
+
+    } catch (err) {
+      console.error(err);
+      alert("서버 통신 오류");
+    }
+  };
+
 </script>
 
 </body>

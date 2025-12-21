@@ -84,7 +84,27 @@ public class AdminController {
     }
 
     // 버전 수정
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/version/{versionId}")
+    public ApiResponse<Void> updateVersion(
+            @PathVariable(value = "versionId") Long versionId,
+            @Valid @RequestBody CreateVersionRequestDto request,
+            @AuthenticationPrincipal CustomAdminDetails admin
+    ) {
+        adminService.updateVersion(versionId, request);
+        return ApiResponse.success();
+    }
+
     // 버전 삭제
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/version/{versionId}")
+    public ApiResponse<Void> deleteVersion(
+            @PathVariable(value = "versionId") Long versionId,
+            @AuthenticationPrincipal CustomAdminDetails admin
+    ) {
+        adminService.deleteVersion(versionId);
+        return ApiResponse.success();
+    }
 
     private static void checkUsernamePassword(AdminUsernamePasswordRequestDto request) {
         boolean validUsernameAndPassword = AdminUsernamePasswordRequestDto

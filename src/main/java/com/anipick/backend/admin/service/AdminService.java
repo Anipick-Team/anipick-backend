@@ -91,4 +91,23 @@ public class AdminService {
         VersionResultDto result = VersionResultDto.from(version);
         return result;
     }
+
+    public void updateVersion(Long versionId, CreateVersionRequestDto request) {
+        Version version = versionMapper.findVersionById(versionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+
+
+        Long id = version.getVersionId();
+        UpdateVersionRequestDto updateVersionRequestDto = UpdateVersionRequestDto.of(id, request);
+
+        versionMapper.updateVersion(updateVersionRequestDto);
+    }
+
+    public void deleteVersion(Long versionId) {
+        Version version = versionMapper.findVersionById(versionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+
+        Long id = version.getVersionId();
+        versionMapper.deleteVersion(id);
+    }
 }
