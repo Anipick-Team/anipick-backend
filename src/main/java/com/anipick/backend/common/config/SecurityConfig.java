@@ -42,7 +42,7 @@ public class SecurityConfig {
                                                 "/api/animes/meta-data-group",
                                                 "/app/**",
                                                 "/api/version",
-                                                "/api/admin/**",
+                                                "/api/admin/login",
                                                 "/admin-login.html",
                                                 "/admin-version.html",
                                                 "/intro.html",
