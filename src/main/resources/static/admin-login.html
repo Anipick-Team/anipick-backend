@@ -247,18 +247,22 @@
   }
 
   async function login() {
+    let adminAccessToken = null;
+
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // ⭐ 쿠키 받기
       body: JSON.stringify({ username, password })
     });
 
     const data = await res.json();
 
     if (data.code === 200) {
+      adminAccessToken = data.result.accessToken;
       showToast("로그인 성공", "success");
       setTimeout(() => location.href = "/admin-version.html", 1000);
     } else {

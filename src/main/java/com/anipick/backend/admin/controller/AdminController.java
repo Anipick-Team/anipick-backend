@@ -1,5 +1,6 @@
 package com.anipick.backend.admin.controller;
 
+import com.anipick.backend.admin.dto.AccessTokenResponse;
 import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
 import com.anipick.backend.admin.dto.CreateVersionRequestDto;
 import com.anipick.backend.admin.service.AdminService;
@@ -9,6 +10,8 @@ import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,13 +36,20 @@ public class AdminController {
 
     // 관리자 로그인
     @PostMapping("/login")
-    public ApiResponse<TokenResponse> login(@RequestBody AdminUsernamePasswordRequestDto request) {
+    public ApiResponse<AccessTokenResponse> login(
+            @RequestBody AdminUsernamePasswordRequestDto request,
+            HttpServletResponse response
+            ) {
         checkUsernamePassword(request);
-        TokenResponse response = adminService.login(request);
-        return ApiResponse.success(response);
+        TokenResponse tokenResponse = adminService.login(request);
+
+        AccessTokenResponse accessTokenResponse = issueTokensToResponse(response, tokenResponse);
+
+        return ApiResponse.success(accessTokenResponse);
     }
 
     // 버전 등록
+
     @PostMapping("/version")
     public ApiResponse<Void> createVersion(
 //            @RequestBody CreateVersionRequestDto request,
@@ -52,12 +62,29 @@ public class AdminController {
     // 버전 조회
     // 버전 수정
     // 버전 삭제
-
     private static void checkUsernamePassword(AdminUsernamePasswordRequestDto request) {
         boolean validUsernameAndPassword = AdminUsernamePasswordRequestDto
                 .checkValidUsernameAndPassword(request.getUsername(), request.getPassword());
         if (!validUsernameAndPassword) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
+    }
+
+    private static AccessTokenResponse issueTokensToResponse(HttpServletResponse response, TokenResponse tokenResponse) {
+        Cookie refreshCookie = new Cookie(
+                "ADMIN_REFRESH_TOKEN",
+                tokenResponse.getRefreshToken()
+        );
+
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge((1209600000 / 1000));
+
+        response.addCookie(refreshCookie);
+
+        AccessTokenResponse accessTokenResponse = AccessTokenResponse
+                .of(tokenResponse.getAccessToken());
+        return accessTokenResponse;
     }
 }
