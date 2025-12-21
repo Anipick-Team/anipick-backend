@@ -21,6 +21,7 @@ public class CommonLogin {
     private final UserMapper userMapper;
     private final TokenService tokenService;
     private final NicknameInitializer nicknameInitializer;
+    private static final String USER_ROLE = "ROLE_USER";
 
     public LoginResponse signUpAndLogin(String email, LoginFormat requestLoginFormat) {
         if(checkExistsEmail(email)) {
@@ -36,7 +37,7 @@ public class CommonLogin {
                 throw new CustomException(ErrorCode.ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN);
             }
 
-            TokenResponse response = tokenService.generateAndSaveTokens(email);
+            TokenResponse response = tokenService.generateAndSaveTokens(email, USER_ROLE);
 
             return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         } else {
@@ -54,7 +55,7 @@ public class CommonLogin {
 
             userMapper.insertUser(user);
 
-            TokenResponse response = tokenService.generateAndSaveTokens(email);
+            TokenResponse response = tokenService.generateAndSaveTokens(email, USER_ROLE);
             return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         }
     }

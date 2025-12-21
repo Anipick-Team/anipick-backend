@@ -1,12 +1,16 @@
 package com.anipick.backend.admin.controller;
 
 import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
+import com.anipick.backend.admin.dto.CreateVersionRequestDto;
 import com.anipick.backend.admin.service.AdminService;
+import com.anipick.backend.common.auth.dto.CustomAdminDetails;
+import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +40,15 @@ public class AdminController {
     }
 
     // 버전 등록
+    @PostMapping("/version")
+    public ApiResponse<Void> createVersion(
+//            @RequestBody CreateVersionRequestDto request,
+            @AuthenticationPrincipal CustomAdminDetails admin
+    ) {
+        Long adminId = admin.getAdminId();
+        System.out.println("adminId = " + adminId);
+        return null;
+    }
     // 버전 조회
     // 버전 수정
     // 버전 삭제

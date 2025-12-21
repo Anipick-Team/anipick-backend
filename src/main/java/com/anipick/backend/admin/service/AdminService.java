@@ -19,6 +19,7 @@ public class AdminService {
     private final AdminMapper adminMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private static final String ADMIN_ROLE = "ROLE_ADMIN";
 
     @Transactional
     public void signup(AdminUsernamePasswordRequestDto request) {
@@ -51,6 +52,6 @@ public class AdminService {
             throw new CustomException(ErrorCode.ADMIN_ACCOUNT_LOGIN_FAIL);
         }
 
-        return tokenService.generateAndSaveTokens(request.getUsername());
+        return tokenService.generateAndSaveTokens(request.getUsername(), ADMIN_ROLE);
     }
 }

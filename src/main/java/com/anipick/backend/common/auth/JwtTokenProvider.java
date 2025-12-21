@@ -32,19 +32,20 @@ public class JwtTokenProvider {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String createAccessToken(String email) {
-        return createToken(email, accessTokenExpiration);
+    public String createAccessToken(String account, String role) {
+        return createToken(account, role, accessTokenExpiration);
     }
 
-    public String createRefreshToken(String email) {
-        return createToken(email, refreshTokenExpiration);
+    public String createRefreshToken(String account, String role) {
+        return createToken(account, role, refreshTokenExpiration);
     }
 
-    private String createToken(String email, long expireTime) {
+    private String createToken(String account, String role, long expireTime) {
         Date now = new Date();
 
         return Jwts.builder()
-                .subject(email)
+                .subject(account)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expireTime))
                 .signWith(jwtSecretKey())
@@ -103,6 +104,28 @@ public class JwtTokenProvider {
             return Math.max(diff, 0);
         } catch (JwtException | IllegalArgumentException e) {
             return 0L;
+        }
+    }
+
+    public String getRole(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    public String getSubject(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public Claims getClaims(String token) {
+        try {
+            return Jwts.parser()
+                .verifyWith(jwtSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.REQUESTED_TOKEN_INVALID);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.anipick.backend.common.auth;
 
+import com.anipick.backend.admin.service.CustomAdminDetailsService;
 import com.anipick.backend.common.auth.service.CustomUserDetailsService;
 import com.anipick.backend.common.dto.ApiResponse;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.user.domain.UserDefaults;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAdminDetailsService adminDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -53,9 +56,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     
                     return;
                 }
-                
-                String emailFromToken = jwtTokenProvider.getEmailFromToken(accessToken);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(emailFromToken);
+
+                String role = jwtTokenProvider.getRole(accessToken);
+                String subject = jwtTokenProvider.getSubject(accessToken);
+
+                UserDetails userDetails = switch (role) {
+                    case "ROLE_ADMIN" -> adminDetailsService.loadUserByUsername(subject);
+                    case "ROLE_USER" -> userDetailsService.loadUserByUsername(subject);
+                    default -> throw new IllegalArgumentException("Invalid Role Error");
+                };
+
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

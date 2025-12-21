@@ -24,31 +24,32 @@ public class TokenService {
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
-    public TokenResponse generateAndSaveTokens(String email) {
-        String accessToken = jwtTokenProvider.createAccessToken(email);
-        String refreshToken = jwtTokenProvider.createRefreshToken(email);
+    public TokenResponse generateAndSaveTokens(String account, String role) {
+        String accessToken = jwtTokenProvider.createAccessToken(account, role);
+        String refreshToken = jwtTokenProvider.createRefreshToken(account, role);
 
         RefreshToken savedRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
+                .role(role)
                 .build();
 
         Duration duration = Duration.ofMillis(refreshTokenExpireTime);
-        redisTemplate.opsForValue().set(email, savedRefreshToken, duration);
+        redisTemplate.opsForValue().set(account, savedRefreshToken, duration);
 
         return TokenResponse.fromPairToken(accessToken, refreshToken);
     }
 
     public TokenResponse reissueToken(HttpServletRequest request) {
         String requestedToken = jwtTokenProvider.resolveAccessToken(request);
-        String email = jwtTokenProvider.getEmailFromToken(requestedToken);
+        String subject = jwtTokenProvider.getClaims(requestedToken).getSubject();
 
-        RefreshToken refreshToken = redisTemplate.opsForValue().get(email);
+        RefreshToken refreshToken = redisTemplate.opsForValue().get(subject);
 
         if (refreshToken != null && !refreshToken.getToken().equals(requestedToken)) {
             throw new CustomException(ErrorCode.REQUESTED_TOKEN_INVALID);
         }
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(email);
+        String newAccessToken = jwtTokenProvider.createAccessToken(subject, refreshToken.getRole());
 
         return TokenResponse.fromPairToken(newAccessToken, requestedToken);
     }

@@ -8,4 +8,5 @@ import lombok.*;
 @Builder
 public class RefreshToken {
     private String token;
+    private String role;
 }

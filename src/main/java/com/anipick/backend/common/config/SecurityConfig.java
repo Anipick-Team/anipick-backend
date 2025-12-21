@@ -1,5 +1,6 @@
 package com.anipick.backend.common.config;
 
+import com.anipick.backend.admin.service.CustomAdminDetailsService;
 import com.anipick.backend.common.auth.JwtAuthFilter;
 import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.auth.service.CustomUserDetailsService;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAdminDetailsService adminDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -62,7 +64,7 @@ public class SecurityConfig {
                         session ->
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(new JwtAuthFilter(userDetailsService, jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthFilter(userDetailsService, adminDetailsService, jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

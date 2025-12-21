@@ -34,6 +34,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final NicknameInitializer nicknameInitializer;
+    private static final String USER_ROLE = "ROLE_USER";
 
     public SignUpResponse signUp(SignUpRequest request) {
         String requestEmail = request.getEmail();
@@ -78,7 +79,7 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
-        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail(), USER_ROLE);
         return SignUpResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
@@ -98,7 +99,7 @@ public class UserService {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
 
-        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail());
+        TokenResponse response = tokenService.generateAndSaveTokens(user.getEmail(), USER_ROLE);
         return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
     }
 
