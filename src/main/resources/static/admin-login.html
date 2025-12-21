@@ -262,7 +262,10 @@
     const data = await res.json();
 
     if (data.code === 200) {
-      adminAccessToken = data.result.accessToken;
+      sessionStorage.setItem(
+              "ADMIN_ACCESS_TOKEN",
+              data.result.accessToken
+      );
       showToast("로그인 성공", "success");
       setTimeout(() => location.href = "/admin-version.html", 1000);
     } else {

@@ -2,11 +2,14 @@ package com.anipick.backend.admin.service;
 
 import com.anipick.backend.admin.domain.Admin;
 import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
+import com.anipick.backend.admin.dto.CreateVersionRequestDto;
+import com.anipick.backend.admin.dto.VersionKeyDto;
 import com.anipick.backend.admin.mapper.AdminMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.version.mapper.VersionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final AdminMapper adminMapper;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final AdminMapper adminMapper;
+    private final VersionMapper versionMapper;
+
+    private final PasswordEncoder passwordEncoder;
     private static final String ADMIN_ROLE = "ROLE_ADMIN";
 
     @Transactional
@@ -53,5 +58,16 @@ public class AdminService {
         }
 
         return tokenService.generateAndSaveTokens(request.getUsername(), ADMIN_ROLE);
+    }
+
+    public void createVersion(CreateVersionRequestDto request) {
+        VersionKeyDto versionKeyRequest = VersionKeyDto.from(request);
+
+        Boolean existVersion = versionMapper.existVersionByKey(versionKeyRequest);
+        if (existVersion) {
+            throw new CustomException(ErrorCode.ALREADY_VERSION);
+        } else {
+            versionMapper.createVersionOfUpdateOrNotice(request);
+        }
     }
 }

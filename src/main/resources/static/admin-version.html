@@ -9,54 +9,39 @@
 
   <style>
     :root {
-      --anipick-teal: #50C8B8;
-      --primary: var(--anipick-teal);
+      --primary: #50C8B8;
       --primary-light: #6dd4c7;
-
       --text-primary: #1f2937;
-      --text-secondary: #4b5563;
-
       --bg-page: #f5f6f8;
       --bg-card: #ffffff;
-
       --border-light: #e5e7eb;
-
-      --shadow-light: 0 6px 20px rgba(0,0,0,0.08);
       --shadow-medium: 0 10px 30px rgba(0,0,0,0.12);
-
-      --radius-large: 16px;
-      --transition: all 0.25s ease;
+      --radius: 16px;
+      --transition: all .25s ease;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Noto Sans KR", sans-serif;
       background: var(--bg-page);
-      color: var(--text-primary);
     }
 
+    /* ---------- HEADER ---------- */
     header {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      inset: 0 0 auto 0;
       height: 64px;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(12px);
+      background: white;
       border-bottom: 1px solid rgba(0,0,0,0.06);
-      z-index: 10;
+      z-index: 20;
     }
 
     .header-container {
       max-width: 1100px;
-      height: 100%;
       margin: 0 auto;
       padding: 0 20px;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -67,20 +52,17 @@
       align-items: center;
       gap: 10px;
       font-weight: 900;
-      font-size: 18px;
-      text-decoration: none;
       color: var(--text-primary);
+      text-decoration: none;
     }
 
-    .logo img {
-      width: 32px;
-    }
+    .logo img { width: 32px; }
 
     .menu-btn {
       width: 32px;
       height: 22px;
-      border: none;
       background: none;
+      border: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -93,14 +75,15 @@
       border-radius: 2px;
     }
 
+    /* ---------- SIDE MENU ---------- */
     .menu-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.4);
       opacity: 0;
       visibility: hidden;
       transition: var(--transition);
-      z-index: 19;
+      z-index: 30;
     }
 
     .menu-overlay.show {
@@ -111,42 +94,40 @@
     .side-menu {
       position: fixed;
       top: 0;
-      right: -300px;
-      width: 300px;
+      right: -280px;
+      width: 280px;
       height: 100%;
       background: white;
-      box-shadow: -10px 0 30px rgba(0,0,0,0.15);
       padding: 24px;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.15);
       transition: var(--transition);
-      z-index: 20;
+      z-index: 40;
     }
 
-    .side-menu.show {
-      right: 0;
-    }
+    .side-menu.show { right: 0; }
 
     .side-menu h3 {
       font-size: 18px;
-      font-weight: 900;
       margin-bottom: 20px;
     }
 
     .side-menu a {
       display: block;
-      padding: 14px 16px;
+      padding: 14px;
       border-radius: 12px;
-      font-weight: 700;
+      background: rgba(80,200,184,.12);
       color: var(--primary);
-      background: rgba(80,200,184,0.12);
+      font-weight: 700;
       text-decoration: none;
     }
 
+    /* ---------- CONTENT ---------- */
     .admin-container {
       max-width: 900px;
-      margin: 120px auto 80px;
+      margin: 120px auto;
       background: var(--bg-card);
       padding: 36px;
-      border-radius: var(--radius-large);
+      border-radius: var(--radius);
       box-shadow: var(--shadow-medium);
     }
 
@@ -157,44 +138,57 @@
     }
 
     .form-group { margin-bottom: 22px; }
-    .form-group label { font-weight: 700; margin-bottom: 8px; display: block; }
-    .form-group input,
-    .form-group textarea {
+    label { font-weight: 700; display: block; margin-bottom: 8px; }
+
+    input, textarea {
       width: 100%;
-      padding: 12px 14px;
+      padding: 12px;
       border-radius: 10px;
       border: 1px solid var(--border-light);
     }
 
-    .form-row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .form-row input { flex: 1; }
-
-    .btn-group {
+    /* 🔢 버전 입력 가로 */
+    .version-row {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
+
+    .version-row input {
+      width: 80px;
+      text-align: center;
+    }
+
+    .version-row span {
+      font-weight: 900;
+    }
+
+    /* ---------- BUTTON GROUP ---------- */
+    .btn-group { display: flex; gap: 10px; }
 
     .btn {
       padding: 10px 18px;
       border-radius: 999px;
       border: 1px solid var(--border-light);
       background: white;
-      font-weight: 600;
       cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
     }
 
     .btn.active {
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
       border: none;
+      box-shadow: 0 6px 16px rgba(0,0,0,.15);
     }
 
     .submit-btn {
-      margin-top: 36px;
+      margin-top: 32px;
       width: 100%;
       padding: 16px;
       border-radius: 14px;
@@ -203,6 +197,7 @@
       font-weight: 800;
       color: white;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      cursor: pointer;
     }
   </style>
 </head>
@@ -210,59 +205,59 @@
 <body>
 
 <script>
-  const token = localStorage.getItem("ADMIN_ACCESS_TOKEN");
-  if (!token) {
+  const adminAccessToken = sessionStorage.getItem("ADMIN_ACCESS_TOKEN");
+  if (!adminAccessToken) {
     alert("로그인이 필요합니다.");
     location.href = "/admin-login.html";
   }
+
+  let selectedPlatform = "ANDROID";
+  let selectedImportantYn = 1;
+  let selectedType = "update";
 </script>
 
 <header>
   <div class="header-container">
-    <a href="/admin-version.html" class="logo">
-      <img src="/image/anipick_logo.png" alt="AniPick">
-      AniPick Admin
+    <a class="logo" href="/admin-version.html">
+      <img src="/image/anipick_logo.png"> AniPick Admin
     </a>
-
     <button id="menuBtn" class="menu-btn">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
 <div id="overlay" class="menu-overlay"></div>
-
 <div id="sideMenu" class="side-menu">
   <h3>관리자 메뉴</h3>
   <a href="/admin-version.html">🛠 버전 관리</a>
 </div>
-
 
 <div class="admin-container">
   <h1 class="admin-title">버전 등록</h1>
 
   <div class="form-group">
     <label>플랫폼</label>
-    <div class="btn-group">
+    <div class="btn-group" id="platformBtns">
       <button class="btn active">ANDROID</button>
-      <button class="btn">iOS</button>
+      <button class="btn">IOS</button>
     </div>
   </div>
 
   <div class="form-group">
-    <label>버전 (x.y.z)</label>
-    <div class="form-row">
-      <input type="number" placeholder="major">
-      <input type="number" placeholder="minor">
-      <input type="number" placeholder="patch">
+    <label>버전</label>
+    <div class="version-row">
+      <input id="major" type="number" min="0" required placeholder="0">
+      <span>.</span>
+      <input id="minor" type="number" min="0" required placeholder="0">
+      <span>.</span>
+      <input id="patch" type="number" min="0" required placeholder="0">
     </div>
   </div>
 
   <div class="form-group">
-    <label>필수 업데이트 여부</label>
-    <div class="btn-group">
+    <label>필수 여부</label>
+    <div class="btn-group" id="importantBtns">
       <button class="btn active">필수</button>
       <button class="btn">선택</button>
     </div>
@@ -270,7 +265,7 @@
 
   <div class="form-group">
     <label>타입</label>
-    <div class="btn-group">
+    <div class="btn-group" id="typeBtns">
       <button class="btn active">업데이트</button>
       <button class="btn">공지사항</button>
     </div>
@@ -278,26 +273,73 @@
 
   <div class="form-group">
     <label>URL</label>
-    <input type="text" placeholder="https://...">
+    <input id="url" required placeholder="https://...">
   </div>
 
   <div class="form-group">
     <label>제목</label>
-    <input type="text" placeholder="제목을 입력하세요">
+    <input id="title" required placeholder="업데이트 또는 내용의 제목">
   </div>
 
   <div class="form-group">
     <label>내용</label>
-    <textarea rows="6" placeholder="업데이트 또는 공지 내용을 입력하세요"></textarea>
+    <textarea id="content" rows="5" required placeholder="업데이트 또는 공지사항의 내용"></textarea>
   </div>
 
-  <button class="submit-btn">버전 등록</button>
+  <button id="submitBtn" class="submit-btn">버전 등록</button>
 </div>
 
 <script>
-  const menuBtn = document.getElementById("menuBtn");
-  const sideMenu = document.getElementById("sideMenu");
-  const overlay = document.getElementById("overlay");
+  const toggle = (group, cb) => {
+    group.querySelectorAll(".btn").forEach(btn => {
+      btn.onclick = () => {
+        group.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        cb(btn.innerText.trim());
+      };
+    });
+  };
+
+  toggle(platformBtns, v => selectedPlatform = v);
+  toggle(importantBtns, v => selectedImportantYn = v === "필수" ? 1 : 0);
+  toggle(typeBtns, v => selectedType = v === "업데이트" ? "update" : "notice");
+
+  submitBtn.onclick = async () => {
+    if (![major, minor, patch, url, title, content].every(i => i.value !== "")) {
+      alert("모든 값을 입력해주세요.");
+      return;
+    }
+
+    const payload = {
+      platform: selectedPlatform,
+      major: Number(major.value),
+      minor: Number(minor.value),
+      patch: Number(patch.value),
+      importantYn: selectedImportantYn,
+      type: selectedType,
+      url: url.value,
+      title: title.value,
+      updatedContent: content.value
+    };
+
+    const res = await fetch("/api/admin/version", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${adminAccessToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.code !== 200) {
+      alert(data.errorValue || "등록 실패");
+      return;
+    }
+
+    alert("버전 등록 성공");
+    location.reload();
+  };
 
   menuBtn.onclick = () => {
     sideMenu.classList.add("show");

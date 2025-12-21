@@ -1,6 +1,8 @@
 package com.anipick.backend.admin.mapper;
 
 import com.anipick.backend.admin.domain.Admin;
+import com.anipick.backend.admin.dto.CreateVersionRequestDto;
+import com.anipick.backend.admin.dto.VersionKeyDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

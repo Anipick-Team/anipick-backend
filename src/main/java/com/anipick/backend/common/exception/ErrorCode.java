@@ -85,7 +85,8 @@ public enum ErrorCode {
 	ALREADY_ADMIN_USERNAME(1, "관리자 계정 이미 존재", null),
 	ADMIN_ACCOUNT_NOT_FOUNT_BY_USERNAME(2, "가입된 관리자 계정 없음", null),
 	ADMIN_ACCOUNT_DEACTIVATE(3, "비활성화된 관리자 계정", null),
-	ADMIN_ACCOUNT_LOGIN_FAIL(4, "관리자 로그인 실패", null);
+	ADMIN_ACCOUNT_LOGIN_FAIL(4, "관리자 로그인 실패", null),
+	ALREADY_VERSION(5, "이미 존재하는 버전과 타입", null);
 
 	private final int code;
 	private final String errorReason;
