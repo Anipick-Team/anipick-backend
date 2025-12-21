@@ -35,4 +35,20 @@
         ORDER BY version_id DESC
         LIMIT 50
     </select>
+
+    <select id="findVersionById" resultType="com.anipick.backend.version.domain.Version">
+        SELECT version_id AS versionId,
+               platform AS platform,
+               major AS major,
+               minor AS minor,
+               patch AS patch,
+               important_yn AS importantYn,
+               url AS url,
+               type AS type,
+               title AS title,
+               updated_content AS updatedContent,
+               updated_at AS updatedAt
+        FROM Version
+        WHERE version_id = #{versionId}
+    </select>
 </mapper>

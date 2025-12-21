@@ -1,9 +1,6 @@
 package com.anipick.backend.admin.controller;
 
-import com.anipick.backend.admin.dto.AccessTokenResponse;
-import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
-import com.anipick.backend.admin.dto.CreateVersionRequestDto;
-import com.anipick.backend.admin.dto.VersionListResultDto;
+import com.anipick.backend.admin.dto.*;
 import com.anipick.backend.admin.service.AdminService;
 import com.anipick.backend.common.auth.dto.CustomAdminDetails;
 import com.anipick.backend.common.dto.ApiResponse;
@@ -74,6 +71,16 @@ public class AdminController {
     ) {
         VersionListResultDto items = adminService.getVersionItems(platform, type);
         return ApiResponse.success(items);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/version/{versionId}")
+    public ApiResponse<VersionResultDto> getVersion(
+            @PathVariable(value = "versionId") Long versionId,
+            @AuthenticationPrincipal CustomAdminDetails admin
+    ) {
+        VersionResultDto item = adminService.getVersionItem(versionId);
+        return ApiResponse.success(item);
     }
 
     // 버전 수정

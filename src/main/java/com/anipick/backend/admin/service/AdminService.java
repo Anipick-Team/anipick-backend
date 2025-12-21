@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -81,5 +82,13 @@ public class AdminService {
 
         VersionListResultDto results = VersionListResultDto.of(items);
         return results;
+    }
+
+    public VersionResultDto getVersionItem(Long versionId) {
+        Version version = versionMapper.findVersionById(versionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+
+        VersionResultDto result = VersionResultDto.from(version);
+        return result;
     }
 }
