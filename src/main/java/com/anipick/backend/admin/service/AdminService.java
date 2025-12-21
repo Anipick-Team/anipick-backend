@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -85,16 +84,14 @@ public class AdminService {
     }
 
     public VersionResultDto getVersionItem(Long versionId) {
-        Version version = versionMapper.findVersionById(versionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+        Version version = getVersion(versionId);
 
         VersionResultDto result = VersionResultDto.from(version);
         return result;
     }
 
     public void updateVersion(Long versionId, CreateVersionRequestDto request) {
-        Version version = versionMapper.findVersionById(versionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+        Version version = getVersion(versionId);
 
 
         Long id = version.getVersionId();
@@ -104,10 +101,15 @@ public class AdminService {
     }
 
     public void deleteVersion(Long versionId) {
-        Version version = versionMapper.findVersionById(versionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+        Version version = getVersion(versionId);
 
         Long id = version.getVersionId();
         versionMapper.deleteVersion(id);
+    }
+
+    private Version getVersion(Long versionId) {
+        Version version = versionMapper.findVersionById(versionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VERSION));
+        return version;
     }
 }
