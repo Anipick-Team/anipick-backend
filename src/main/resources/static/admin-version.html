@@ -21,183 +21,113 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Noto Sans KR", sans-serif; background: var(--bg-page); }
 
-    body {
-      font-family: "Noto Sans KR", sans-serif;
-      background: var(--bg-page);
-    }
-
-    /* ---------- HEADER ---------- */
     header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      height: 64px;
-      background: white;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      position: fixed; inset: 0 0 auto 0; height: 64px;
+      background: white; border-bottom: 1px solid rgba(0,0,0,0.06);
       z-index: 20;
     }
 
     .header-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 20px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      max-width: 1100px; margin: 0 auto; padding: 0 20px;
+      height: 100%; display: flex; align-items: center; justify-content: space-between;
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 900;
-      color: var(--text-primary);
-      text-decoration: none;
-    }
-
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; color: var(--text-primary); text-decoration: none; }
     .logo img { width: 32px; }
 
     .menu-btn {
-      width: 32px;
-      height: 22px;
-      background: none;
-      border: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
+      width: 32px; height: 22px; background: none; border: none;
+      display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;
     }
+    .menu-btn span { height: 3px; background: var(--text-primary); border-radius: 2px; }
 
-    .menu-btn span {
-      height: 3px;
-      background: var(--text-primary);
-      border-radius: 2px;
-    }
-
-    /* ---------- SIDE MENU ---------- */
     .menu-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      opacity: 0;
-      visibility: hidden;
-      transition: var(--transition);
-      z-index: 30;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      opacity: 0; visibility: hidden; transition: var(--transition); z-index: 30;
     }
-
-    .menu-overlay.show {
-      opacity: 1;
-      visibility: visible;
-    }
+    .menu-overlay.show { opacity: 1; visibility: visible; }
 
     .side-menu {
-      position: fixed;
-      top: 0;
-      right: -280px;
-      width: 280px;
-      height: 100%;
-      background: white;
-      padding: 24px;
+      position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
+      background: white; padding: 24px;
       box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-      transition: var(--transition);
-      z-index: 40;
+      transition: var(--transition); z-index: 40;
     }
-
     .side-menu.show { right: 0; }
 
-    .side-menu h3 {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    .side-menu a {
-      display: block;
-      padding: 14px;
-      border-radius: 12px;
-      background: rgba(80,200,184,.12);
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    /* ---------- CONTENT ---------- */
     .admin-container {
-      max-width: 900px;
-      margin: 120px auto;
-      background: var(--bg-card);
-      padding: 36px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-medium);
+      max-width: 900px; margin: 120px auto;
+      background: var(--bg-card); padding: 36px;
+      border-radius: var(--radius); box-shadow: var(--shadow-medium);
     }
 
-    .admin-title {
-      font-size: 26px;
-      font-weight: 900;
-      margin-bottom: 32px;
+    .tab-bar { display: flex; gap: 10px; margin-bottom: 32px; }
+    .tab {
+      padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border-light);
+      cursor: pointer; font-weight: 800; background: white;
     }
+    .tab.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white; border: none;
+    }
+
+    .admin-title { font-size: 26px; font-weight: 900; margin-bottom: 32px; }
 
     .form-group { margin-bottom: 22px; }
     label { font-weight: 700; display: block; margin-bottom: 8px; }
 
     input, textarea {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-light);
+      width: 100%; padding: 12px;
+      border-radius: 10px; border: 1px solid var(--border-light);
     }
 
-    /* 🔢 버전 입력 가로 */
-    .version-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
+    .version-row { display: flex; gap: 10px; align-items: center; }
+    .version-row input { width: 80px; text-align: center; }
+    .version-row span { font-weight: 900; }
 
-    .version-row input {
-      width: 80px;
-      text-align: center;
-    }
-
-    .version-row span {
-      font-weight: 900;
-    }
-
-    /* ---------- BUTTON GROUP ---------- */
     .btn-group { display: flex; gap: 10px; }
-
     .btn {
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 1px solid var(--border-light);
-      background: white;
-      cursor: pointer;
-      transition: var(--transition);
+      padding: 10px 18px; border-radius: 999px;
+      border: 1px solid var(--border-light); background: white; cursor: pointer;
     }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0,0,0,.1);
-    }
-
     .btn.active {
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      color: white;
-      border: none;
-      box-shadow: 0 6px 16px rgba(0,0,0,.15);
+      color: white; border: none;
     }
 
     .submit-btn {
-      margin-top: 32px;
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      font-size: 16px;
-      font-weight: 800;
-      color: white;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      margin-top: 32px; width: 100%; padding: 16px;
+      border-radius: 14px; border: none;
+      font-size: 16px; font-weight: 800;
+      color: white; background: linear-gradient(135deg, var(--primary), var(--primary-light));
       cursor: pointer;
+    }
+
+    .version-list { margin-top: 24px; border-top: 1px solid var(--border-light); }
+    .version-item {
+      padding: 14px; border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+    .version-item:hover { background: rgba(0,0,0,0.04); }
+
+    .hidden { display: none; }
+
+    /* ---------- DETAIL MODAL ---------- */
+    .detail-modal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 520px; max-height: 80vh; overflow-y: auto;
+      background: white; padding: 28px;
+      border-radius: 16px; z-index: 50;
+      box-shadow: var(--shadow-medium);
+      display: none;
+    }
+    .detail-modal.show { display: block; }
+
+    .danger {
+      background: #ef4444; color: white; border: none;
     }
   </style>
 </head>
@@ -234,60 +164,127 @@
 </div>
 
 <div class="admin-container">
-  <h1 class="admin-title">버전 등록</h1>
 
-  <div class="form-group">
-    <label>플랫폼</label>
-    <div class="btn-group" id="platformBtns">
-      <button class="btn active">ANDROID</button>
-      <button class="btn">IOS</button>
+  <!-- TAB -->
+  <div class="tab-bar">
+    <div id="tabCreate" class="tab active">버전 등록</div>
+    <div id="tabList" class="tab">버전 조회</div>
+  </div>
+
+  <section id="createSection">
+    <h1 class="admin-title">버전 등록</h1>
+
+    <div class="form-group">
+      <label>플랫폼</label>
+      <div class="btn-group" id="platformBtns">
+        <button class="btn active">ANDROID</button>
+        <button class="btn">IOS</button>
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label>버전</label>
-    <div class="version-row">
-      <input id="major" type="number" min="0" required placeholder="0">
-      <span>.</span>
-      <input id="minor" type="number" min="0" required placeholder="0">
-      <span>.</span>
-      <input id="patch" type="number" min="0" required placeholder="0">
+    <div class="form-group">
+      <label>버전</label>
+      <div class="version-row">
+        <input id="major" type="number" min="0" required placeholder="0">
+        <span>.</span>
+        <input id="minor" type="number" min="0" required placeholder="0">
+        <span>.</span>
+        <input id="patch" type="number" min="0" required placeholder="0">
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label>필수 여부</label>
-    <div class="btn-group" id="importantBtns">
-      <button class="btn active">필수</button>
-      <button class="btn">선택</button>
+    <div class="form-group">
+      <label>필수 여부</label>
+      <div class="btn-group" id="importantBtns">
+        <button class="btn active">필수</button>
+        <button class="btn">선택</button>
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label>타입</label>
-    <div class="btn-group" id="typeBtns">
-      <button class="btn active">업데이트</button>
-      <button class="btn">공지사항</button>
+    <div class="form-group">
+      <label>타입</label>
+      <div class="btn-group" id="typeBtns">
+        <button class="btn active">업데이트</button>
+        <button class="btn">공지사항</button>
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label>URL</label>
-    <input id="url" required placeholder="https://...">
-  </div>
+    <div class="form-group">
+      <label>URL</label>
+      <input id="url" required placeholder="https://...">
+    </div>
 
-  <div class="form-group">
-    <label>제목</label>
-    <input id="title" required placeholder="업데이트 또는 내용의 제목">
-  </div>
+    <div class="form-group">
+      <label>제목</label>
+      <input id="title" required>
+    </div>
 
-  <div class="form-group">
-    <label>내용</label>
-    <textarea id="content" rows="5" required placeholder="업데이트 또는 공지사항의 내용"></textarea>
-  </div>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="content" rows="5" required></textarea>
+    </div>
 
-  <button id="submitBtn" class="submit-btn">버전 등록</button>
+    <button id="submitBtn" class="submit-btn">버전 등록</button>
+  </section>
+
+  <section id="listSection" class="hidden">
+    <h1 class="admin-title">버전 조회</h1>
+
+    <div class="form-group">
+      <label>플랫폼 (필수)</label>
+      <div class="btn-group">
+        <button class="btn active">ANDROID</button>
+        <button class="btn">IOS</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>타입 (선택)</label>
+      <div class="btn-group">
+        <button class="btn active">전체</button>
+        <button class="btn">업데이트</button>
+        <button class="btn">공지사항</button>
+      </div>
+    </div>
+
+    <button class="submit-btn">조회</button>
+
+    <div class="version-list">
+      <div class="version-item">v1.0.2 · update · 2025-12-12</div>
+      <div class="version-item">v1.0.1 · notice · 2025-12-01</div>
+    </div>
+  </section>
+
 </div>
+
+<div id="detailOverlay" class="menu-overlay"></div>
+<div id="detailModal" class="detail-modal">
+  <h3>버전 상세</h3>
+
+  <div class="form-group"><label>버전</label><input readonly value="1.0.2"></div>
+  <div class="form-group"><label>타입</label><input readonly value="update"></div>
+  <div class="form-group"><label>제목</label><input readonly value="제목..."></div>
+  <div class="form-group"><label>내용</label><textarea rows="4" readonly>내용...</textarea></div>
+
+  <div class="btn-group">
+    <button class="btn">수정</button>
+    <button class="btn danger">삭제</button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".version-item").forEach(item => {
+    item.onclick = () => {
+      detailOverlay.classList.add("show");
+      detailModal.classList.add("show");
+    };
+  });
+
+  detailOverlay.onclick = () => {
+    detailOverlay.classList.remove("show");
+    detailModal.classList.remove("show");
+  };
+</script>
 
 <script>
   const toggle = (group, cb) => {
@@ -305,11 +302,6 @@
   toggle(typeBtns, v => selectedType = v === "업데이트" ? "update" : "notice");
 
   submitBtn.onclick = async () => {
-    if (![major, minor, patch, url, title, content].every(i => i.value !== "")) {
-      alert("모든 값을 입력해주세요.");
-      return;
-    }
-
     const payload = {
       platform: selectedPlatform,
       major: Number(major.value),
@@ -322,23 +314,27 @@
       updatedContent: content.value
     };
 
-    const res = await fetch("/api/admin/version", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${adminAccessToken}`
-      },
-      body: JSON.stringify(payload)
-    });
+    // TODO: API 연동
+    alert("버전 등록 (API 연동 전)");
+  };
 
-    const data = await res.json();
-    if (data.code !== 200) {
-      alert(data.errorValue || "등록 실패");
-      return;
-    }
+  const tabCreate = document.getElementById("tabCreate");
+  const tabList = document.getElementById("tabList");
+  const createSection = document.getElementById("createSection");
+  const listSection = document.getElementById("listSection");
 
-    alert("버전 등록 성공");
-    location.reload();
+  tabCreate.onclick = () => {
+    tabCreate.classList.add("active");
+    tabList.classList.remove("active");
+    createSection.classList.remove("hidden");
+    listSection.classList.add("hidden");
+  };
+
+  tabList.onclick = () => {
+    tabList.classList.add("active");
+    tabCreate.classList.remove("active");
+    listSection.classList.remove("hidden");
+    createSection.classList.add("hidden");
   };
 
   menuBtn.onclick = () => {
