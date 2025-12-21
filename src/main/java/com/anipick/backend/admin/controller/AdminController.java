@@ -11,9 +11,12 @@ import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,14 +56,14 @@ public class AdminController {
     }
 
     // 버전 등록
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/version")
     public ApiResponse<Void> createVersion(
-            @RequestBody CreateVersionRequestDto request,
+            @Valid @RequestBody CreateVersionRequestDto request,
             @AuthenticationPrincipal CustomAdminDetails admin
     ) {
-        Long adminId = admin.getAdminId();
-        System.out.println("adminId = " + adminId);
-        return null;
+        adminService.createVersion(request);
+        return ApiResponse.success();
     }
 
     // 버전 조회
