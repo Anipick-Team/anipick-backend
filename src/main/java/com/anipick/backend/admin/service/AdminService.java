@@ -1,19 +1,20 @@
 package com.anipick.backend.admin.service;
 
 import com.anipick.backend.admin.domain.Admin;
-import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
-import com.anipick.backend.admin.dto.CreateVersionRequestDto;
-import com.anipick.backend.admin.dto.VersionKeyDto;
+import com.anipick.backend.admin.dto.*;
 import com.anipick.backend.admin.mapper.AdminMapper;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.token.dto.TokenResponse;
 import com.anipick.backend.token.service.TokenService;
+import com.anipick.backend.version.domain.Version;
 import com.anipick.backend.version.mapper.VersionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -69,5 +70,16 @@ public class AdminService {
         } else {
             versionMapper.createVersionOfUpdateOrNotice(request);
         }
+    }
+
+    public VersionListResultDto getVersionItems(String platform, String type) {
+        List<Version> versions = versionMapper.selectVersions(platform, type);
+
+        List<VersionMetadataDto> items = versions.stream()
+                .map(VersionMetadataDto::of)
+                .toList();
+
+        VersionListResultDto results = VersionListResultDto.of(items);
+        return results;
     }
 }

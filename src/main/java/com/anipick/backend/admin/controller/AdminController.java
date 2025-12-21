@@ -3,6 +3,7 @@ package com.anipick.backend.admin.controller;
 import com.anipick.backend.admin.dto.AccessTokenResponse;
 import com.anipick.backend.admin.dto.AdminUsernamePasswordRequestDto;
 import com.anipick.backend.admin.dto.CreateVersionRequestDto;
+import com.anipick.backend.admin.dto.VersionListResultDto;
 import com.anipick.backend.admin.service.AdminService;
 import com.anipick.backend.common.auth.dto.CustomAdminDetails;
 import com.anipick.backend.common.dto.ApiResponse;
@@ -17,10 +18,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -67,6 +65,17 @@ public class AdminController {
     }
 
     // 버전 조회
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/version")
+    public ApiResponse<VersionListResultDto> getVersions(
+            @RequestParam(value = "platform") String platform,
+            @RequestParam(value = "type", required = false) String type,
+            @AuthenticationPrincipal CustomAdminDetails admin
+    ) {
+        VersionListResultDto items = adminService.getVersionItems(platform, type);
+        return ApiResponse.success(items);
+    }
+
     // 버전 수정
     // 버전 삭제
 
