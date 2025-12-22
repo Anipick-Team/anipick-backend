@@ -11,11 +11,12 @@
             a.cover_image_url AS coverImageUrl
         FROM Anime AS a
         WHERE 1 = 1
+          <!-- 성인 애니 제거 -->
           AND NOT EXISTS(
             SELECT 1
             FROM AnimeGenres as ag
             WHERE ag.anime_id = a.anime_id
-              AND ag.genre_id = 19
+              AND ag.genre_id = 638
         )
         ORDER BY a.trending DESC, a.popularity DESC
         LIMIT #{size}
@@ -77,7 +78,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = a.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
         ORDER BY ${orderByQuery}
         LIMIT #{size}

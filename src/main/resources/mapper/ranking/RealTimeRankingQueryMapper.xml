@@ -36,7 +36,7 @@
                 SELECT 1
                 FROM AnimeGenres as ag
                 WHERE ag.anime_id = a.anime_id
-                  AND ag.genre_id = 19
+                  AND ag.genre_id = 638
         )
         ORDER BY a.trending DESC, a.popularity DESC
     </select>
@@ -66,7 +66,7 @@
                 SELECT 1
                 FROM AnimeGenres as ag
                 WHERE ag.anime_id = a.anime_id
-                  AND ag.genre_id = 19
+                  AND ag.genre_id = 638
         )
         ORDER BY a.trending DESC, a.popularity DESC
         LIMIT #{size}

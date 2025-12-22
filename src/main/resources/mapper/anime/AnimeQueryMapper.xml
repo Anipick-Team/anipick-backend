@@ -32,7 +32,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = a.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
     </select>
 
@@ -56,7 +56,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = a.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
@@ -86,7 +86,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = a.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
         <if test="lastId != null">
             AND a.popularity &lt; #{lastId}
@@ -115,7 +115,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = a.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
         <if test="lastValue != null">
             AND (

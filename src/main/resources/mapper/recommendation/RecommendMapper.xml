@@ -35,7 +35,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = an.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
         <if test="lastCount != null and lastId != null">
             AND (
@@ -95,7 +95,7 @@
             SELECT 1
             FROM animegenres ag
             WHERE ag.anime_id = an.anime_id
-            AND ag.genre_id = 19
+            AND ag.genre_id = 638
         )
             <if test="lastCount != null and lastId != null">
                 AND (

@@ -53,7 +53,7 @@
                 SELECT 1
                 FROM AnimeGenres as ag2
                 WHERE ag2.anime_id = a.anime_id
-                  AND ag2.genre_id = 19
+                  AND ag2.genre_id = 638
         )
         <if test="startDate != null and endDate != null">
             AND a.start_date BETWEEN #{startDate} AND #{endDate}
@@ -86,7 +86,7 @@
                 SELECT 1
                 FROM AnimeGenres as ag2
                 WHERE ag2.anime_id = a.anime_id
-                  AND ag2.genre_id = 19
+                  AND ag2.genre_id = 638
         )
         ORDER BY a.popularity DESC
         LIMIT #{size}
