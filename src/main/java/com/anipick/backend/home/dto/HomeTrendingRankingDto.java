@@ -1,5 +1,6 @@
 package com.anipick.backend.home.dto;
 
+import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,16 +8,16 @@ import lombok.Getter;
 @AllArgsConstructor
 public class HomeTrendingRankingDto {
     private Long animeId;
-    private String titleKor;
-    private String titleEng;
+    private String title;
     private Long rank;
     private String coverImageUrl;
 
     public static HomeTrendingRankingDto of(TrendingRankingFromQueryDto dto, Long rank) {
+        String title = LocalizationUtil.pickTitle(dto.getTitleKor(), dto.getTitleEng(), dto.getTitleRom(), dto.getTitleNat());
+
         return new HomeTrendingRankingDto(
                 dto.getAnimeId(),
-                dto.getTitleKor(),
-                dto.getTitleEng(),
+                title,
                 rank,
                 dto.getCoverImageUrl()
         );
