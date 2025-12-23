@@ -8,7 +8,7 @@
         SELECT genre_id AS id, genre_kor AS name
         FROM Genres
         <!-- 성인 장르 ID -->
-        WHERE genre_id != 19
+        WHERE genre_id != 638
         ORDER BY genre_id
     </select>
 

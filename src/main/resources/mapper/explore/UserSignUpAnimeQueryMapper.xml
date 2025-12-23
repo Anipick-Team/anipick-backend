@@ -49,7 +49,7 @@
                  SELECT 1
                  FROM animegenres ag19
                  WHERE ag19.anime_id = a.anime_id
-                 AND ag19.genre_id = 19
+                 AND ag19.genre_id = 638
              )
         </where>
 
@@ -91,7 +91,7 @@
                  SELECT 1
                  FROM animegenres ag19
                  WHERE ag19.anime_id = a.anime_id
-                 AND ag19.genre_id = 19
+                 AND ag19.genre_id = 638
              )
 
              <!-- 커서 -->
