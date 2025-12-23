@@ -158,6 +158,11 @@ public class HomeService {
         } else {
             List<Long> topRatedAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
 
+            // 리뷰가 없는 경우 바로 리턴한다.
+            if (topRatedAnimeIds.isEmpty()) {
+                    return HomeRecommendationItemDto.of(null, List.of());
+            }
+
             List<Long> filteredIds = topRatedAnimeIds.stream()
                     .filter(topRatedAnimeIds::contains)
                     .toList();
