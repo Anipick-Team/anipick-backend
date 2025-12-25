@@ -135,9 +135,14 @@ public class HomeService {
         }
 
         List<AnimeItemDto> resultAnimes;
+        String referenceAnimeTitle;
 
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
             Long referenceAnimeId = reviewUserMapper.findMostRecentHighRateAnime(userId);
+
+            Anime anime = animeMapper.selectAnimeByAnimeId(referenceAnimeId);
+            referenceAnimeTitle = anime.getTitlePick();
+
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
 
             RecentHighCountOnlyRequest request =
@@ -156,6 +161,8 @@ public class HomeService {
                     ))
                     .toList();
         } else {
+            referenceAnimeTitle = null;
+
             List<Long> topRatedAnimeIds = reviewUserMapper.findTopRatedAnimeIds(userId, 20);
 
             // 리뷰가 없는 경우 바로 리턴한다.
@@ -191,7 +198,7 @@ public class HomeService {
                     ))
                     .toList();
         }
-        return HomeRecommendationItemDto.of(null, resultAnimes);
+        return HomeRecommendationItemDto.of(referenceAnimeTitle, resultAnimes);
     }
 
     public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
