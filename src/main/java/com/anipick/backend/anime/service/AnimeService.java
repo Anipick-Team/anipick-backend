@@ -493,13 +493,21 @@ public class AnimeService {
      */
     public AnimeMyReviewResultDto getAnimeMyReview(Long animeId, Long userId) {
         AnimeMyReviewResultDto result = mapper.selectAnimeMyReview(animeId, userId);
+
+        // 평가를 아예 진행하지 않은 경우
         if (result == null) {
             return AnimeMyReviewResultDto.empty();
         }
+
         String reviewCreatedAt = result.getCreatedAt();
         LocalDateTime dateTime = LocalDateTime.parse(reviewCreatedAt, parser);
 
         String formattedDate = dateTime.format(formatter);
+
+        // 평가만 진행한 경우
+        if (result.getContent() == null) {
+            return AnimeMyReviewResultDto.createdAtOnlyRatingFormatted(result, formattedDate);
+        }
         return AnimeMyReviewResultDto.createdAtFormatted(result, formattedDate);
     }
 
