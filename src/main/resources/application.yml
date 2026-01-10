@@ -1,4 +1,11 @@
 spring:
+  cache:
+    type: redis
+    multilevel:
+      time-to-live: 10m
+      local:
+        max-size: 2000
+        expiry-jitter: 50
   profiles:
     group:
       local: local-mysql

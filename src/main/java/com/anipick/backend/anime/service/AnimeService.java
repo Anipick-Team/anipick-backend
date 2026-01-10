@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AnimeService {
     private final AnimeMapper mapper;
+    private final AnimeCacheService animeCacheService;
     private final GenreMapper genreMapper;
     private final StudioMapper studioMapper;
     private static final int ITEM_DEFAULT_SIZE = 10;
@@ -59,7 +60,7 @@ public class AnimeService {
                 .endDate(endDate)
                 .build();
 
-        List<AnimeItemDto> nextSeasonAnimes = mapper.selectUpcomingSeasonAnimes(rangeDateRequestDto)
+        List<AnimeItemDto> nextSeasonAnimes = animeCacheService.getUpcomingSeasonAnimes(rangeDateRequestDto)
                 .stream()
                 .map(AnimeItemDto::animeTitleTranslationPick)
                 .collect(Collectors.toList());
