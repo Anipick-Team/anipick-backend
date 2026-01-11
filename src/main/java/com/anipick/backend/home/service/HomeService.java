@@ -203,6 +203,11 @@ public class HomeService {
 
     public HomeRecommendationItemDto getLastDetailAnimeRecommendations(Long userId, Long animeId) {
         Anime anime = animeMapper.selectAnimeByAnimeId(animeId);
+        // 첫 방문 시 anime는 null이기 때문에 빈 값 처리
+        if (anime == null) {
+            return HomeRecommendationItemDto.of(null, List.of());
+        }
+
         String referenceAnimeTitle = anime.getTitlePick();
 
         List<AnimeItemDto> resultAnimes;
