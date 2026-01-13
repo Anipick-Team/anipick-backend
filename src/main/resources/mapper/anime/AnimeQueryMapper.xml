@@ -515,8 +515,12 @@
                r.rating AS rating,
                r.content AS content,
                r.created_at AS createdAt,
-               r.like_count AS likeCount
+               r.like_count AS likeCount,
+               IF(rl.review_id IS NOT NULL, TRUE, FALSE) AS isLiked
         FROM Review r
+        LEFT JOIN ReviewLike rl
+            ON r.review_id = rl.review_id
+                AND rl.user_id = #{userId}
         WHERE r.anime_id = #{animeId}
         AND r.user_id = #{userId}
     </select>

@@ -11,6 +11,7 @@ public class AnimeMyReviewResultDto {
 	private String content;
 	private String createdAt;
 	private Long likeCount;
+	private Boolean isLiked;
 
 	public static AnimeMyReviewResultDto createdAtFormatted(AnimeMyReviewResultDto dto, String formatCreatedAtStr) {
 		return new AnimeMyReviewResultDto(
@@ -18,11 +19,23 @@ public class AnimeMyReviewResultDto {
 			dto.getRating(),
 			dto.getContent(),
 			formatCreatedAtStr,
-			dto.getLikeCount()
+			dto.getLikeCount(),
+			dto.getIsLiked()
+		);
+	}
+
+	public static AnimeMyReviewResultDto createdAtOnlyRatingFormatted(AnimeMyReviewResultDto dto, String formatCreatedAtStr) {
+		return new AnimeMyReviewResultDto(
+			dto.getReviewId(),
+			dto.getRating(),
+			dto.getContent(),
+			formatCreatedAtStr,
+			dto.getLikeCount(),
+			null
 		);
 	}
 
 	public static AnimeMyReviewResultDto empty() {
-		return new AnimeMyReviewResultDto(null, null, null, null, null);
+		return new AnimeMyReviewResultDto(null, null, null, null, null, null);
 	}
 }
