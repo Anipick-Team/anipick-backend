@@ -32,12 +32,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers(
+                                                /**
+                                                 * API
+                                                 */
                                                 "/api/users/**",
                                                 "/api/auth/**",
                                                 "/api/oauth/**",
                                                 "/api/animes/meta-data-group",
                                                 "/app/**",
                                                 "/api/version",
+                                                /**
+                                                 * 정적 리소스
+                                                 */
+                                                "/favicon.ico",
                                                 "/intro.html",
                                                 "/intro.css",
                                                 "/intro.js",
