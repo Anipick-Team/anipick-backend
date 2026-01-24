@@ -40,8 +40,6 @@ public interface AnimeMapper {
 			@Param("size") int size
   );
 
-	Long selectAnimeSeriesGroupId(@Param(value = "animeId") Long animeId);
-
   List<AnimeAllTitleDateDto> selectAnimeInfoSeriesByAnimeId(
 		    @Param(value = "animeId") Long animeId,
 			@Param(value = "size") int size
