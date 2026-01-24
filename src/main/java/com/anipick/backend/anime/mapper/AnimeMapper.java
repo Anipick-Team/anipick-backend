@@ -44,7 +44,6 @@ public interface AnimeMapper {
 
   List<AnimeAllTitleDateDto> selectAnimeInfoSeriesByAnimeId(
 		    @Param(value = "animeId") Long animeId,
-			@Param(value = "seriesGroupId") Long seriesGroupId,
 			@Param(value = "size") int size
   );
   

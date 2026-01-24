@@ -253,9 +253,7 @@ public class AnimeService {
      * @param animeId 애니 ID
      */
     public List<AnimeSeriesItemResultDto> getAnimeSeries(Long animeId) {
-        Long groupId = mapper.selectAnimeSeriesGroupId(animeId);
-
-        List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, groupId, ITEM_DEFAULT_SIZE)
+        List<AnimeDateItemDto> animeDateItemDtos = mapper.selectAnimeInfoSeriesByAnimeId(animeId, ITEM_DEFAULT_SIZE)
                 .stream()
                 .map(AnimeDateItemDto::animeTitleTranslationPick)
                 .toList();
