@@ -484,8 +484,8 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{animeId})
+                           WHERE ra.reference_anime_id = #{animeId}
+                          )
     </select>
 
     <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
@@ -499,8 +499,7 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{animeId}
+                           WHERE ra.reference_anime_id = #{animeId}
                            )
         <if test="lastId != null">
             AND a.anime_id > #{lastId}

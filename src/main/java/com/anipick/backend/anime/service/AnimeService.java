@@ -441,11 +441,9 @@ public class AnimeService {
      * @param size    개수
      */
     public AnimeSeriesPageDto getSeriesByAnime(Long animeId, Long lastId, int size) {
-        Long groupId = mapper.selectAnimeSeriesGroupId(animeId);
+        long totalCount = mapper.countSeriesAnime(animeId);
 
-        long totalCount = mapper.countSeriesAnime(animeId, groupId);
-
-        List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, groupId, lastId, size)
+        List<AnimeDateItemDto> items = mapper.selectSeriesByAnimeId(animeId, lastId, size)
                 .stream()
                 .map(AnimeDateItemDto::animeTitleTranslationPick)
                 .toList();
