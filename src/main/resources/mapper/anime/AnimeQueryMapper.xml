@@ -308,8 +308,7 @@
         FROM anime a
         WHERE anime_id IN (SELECT ra.anime_id
                            FROM relatedanime ra
-                           WHERE ra.group_id = #{seriesGroupId}
-                           AND ra.anime_id != #{animeId}
+                           WHERE ra.reference_anime_id = #{animeId}
                            )
         ORDER BY a.anime_id
         LIMIT #{size}
