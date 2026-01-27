@@ -144,6 +144,10 @@ public class HomeService {
             referenceAnimeTitle = anime.getTitlePick();
 
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
+            // 해당 애니의 태그가 없을 경우
+            if (tagIds.isEmpty()) {
+                return HomeRecommendationItemDto.of(null, List.of());
+            }
 
             RecentHighCountOnlyRequest request =
                     RecentHighCountOnlyRequest.of(userId, referenceAnimeId, tagIds, null, null, 10L);
@@ -175,6 +179,10 @@ public class HomeService {
                     .toList();
 
             List<TagScoreDto> tagScores = recommendMapper.selectTagScoresForUser(userId, filteredIds);
+            // 리뷰한 애니들의 태그가 없을 경우
+            if (tagScores.isEmpty()) {
+                return HomeRecommendationItemDto.of(null, List.of());
+            }
 
             List<Long> tagIds = tagScores.stream()
                     .sorted(Comparator.comparingDouble(TagScoreDto::getScore).reversed())
