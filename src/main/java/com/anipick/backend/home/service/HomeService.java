@@ -221,6 +221,10 @@ public class HomeService {
         List<AnimeItemDto> resultAnimes;
 
         List<Long> tagIds = animeTagMapper.findTopTagsByAnime(animeId, 5);
+        // 해당 애니의 태그가 없을 경우
+        if (tagIds.isEmpty()) {
+            return HomeRecommendationItemDto.of(null, List.of());
+        }
 
         RecentHighCountOnlyRequest request =
                 RecentHighCountOnlyRequest.of(userId, animeId, tagIds, null, null, 10L);
