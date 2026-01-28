@@ -4,6 +4,7 @@ import com.anipick.backend.anime.domain.Anime;
 import com.anipick.backend.anime.dto.AnimeItemDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
 import com.anipick.backend.common.dto.CursorDto;
+import com.anipick.backend.home.dto.HomeRecommendationItemDto;
 import com.anipick.backend.recommendation.domain.UserRecommendMode;
 import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.dto.*;
@@ -67,7 +68,7 @@ public class RecommendService {
             referenceAnimeTitle = anime.getTitlePick();
 
             List<Long> tagIds = animeTagMapper.findTopTagsByAnime(referenceAnimeId, 5);
-
+            // 해당 애니의 태그가 없을 경우
             if (tagIds.isEmpty()) {
                 return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
             }
@@ -104,6 +105,10 @@ public class RecommendService {
                     .toList();
 
             List<TagScoreDto> tagScores = recommendMapper.selectTagScoresForUser(userId, filteredIds);
+            // 리뷰한 애니들의 태그가 없을 경우
+            if (tagScores.isEmpty()) {
+                return UserMainRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+            }
 
             List<Long> tagIds = tagScores.stream()
                     .sorted(Comparator.comparingDouble(TagScoreDto::getScore).reversed())
@@ -157,6 +162,10 @@ public class RecommendService {
         List<AnimeItemRecommendTagCountDto> recommendTagCountDtoAnimes;
 
         List<Long> tagIds = animeTagMapper.findTopTagsByAnime(animeId, 5);
+        // 해당 애니의 태그가 없을 경우
+        if (tagIds.isEmpty()) {
+            return UserLastDetailAnimeRecommendationPageDto.of(null, CursorDto.of(null), List.of());
+        }
 
         RecentHighCountOnlyRequest request =
                 RecentHighCountOnlyRequest.of(userId, animeId, tagIds, lastValue, lastId, size);
