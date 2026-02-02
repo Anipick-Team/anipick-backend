@@ -186,7 +186,9 @@
                 ON i.auth_id = u.user_id
         WHERE r.anime_id = #{animeId}
         AND r.content IS NOT NULL
-          -- 신고된 리뷰는 제외
+        -- 소프트 삭제된 리뷰는 제외
+        AND r.deleted_at IS NULL
+        -- 신고된 리뷰는 제외
         AND NOT EXISTS (
             SELECT 1 FROM ReportedReview rr
             WHERE rr.review_id = r.review_id
