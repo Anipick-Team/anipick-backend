@@ -40,10 +40,8 @@
         -- 내가 좋아요 눌렀는지
             CASE WHEN rl.review_id IS NOT NULL THEN TRUE ELSE FALSE END AS likedByCurrentUser,
         -- 내가 쓴 글인지
-        (r.user_id = #{currentUserId}) AS isMine
-
+            (r.user_id = #{currentUserId}) AS isMine
         FROM Review r
-
         JOIN Anime a ON a.anime_id = r.anime_id
         JOIN User u ON u.user_id = r.user_id
         LEFT JOIN ReviewLike rl
@@ -53,6 +51,8 @@
         ON i.auth_id = u.user_id
         WHERE r.is_spoiler = FALSE
         AND r.content IS NOT NULL
+        -- 소프트 삭제된 리뷰는 제외
+        AND r.deleted_at IS NULL
         -- 신고된 리뷰는 제외
         AND NOT EXISTS (
             SELECT 1 FROM ReportedReview rr
