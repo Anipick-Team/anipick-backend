@@ -53,12 +53,15 @@ public class SecurityConfig {
                                                 "/landing.html",
                                                 "/landing.css",
                                                 "/landing.js",
-                                                "/image/**",
-                                                "./upload/image/anipick_mascot.png",
-                                                "./upload/image/default.jpg",
                                                 "/privacy.html",
                                                 "/terms.html",
                                                 "/community-guidelines.html",
+                                                /**
+                                                 * 유저 사용
+                                                 */
+                                                "/image/**",
+                                                "./upload/image/anipick_mascot.png",
+                                                "./upload/image/default.jpg",
                                                 "/images/profile/**")
                                         .permitAll()
                                         .anyRequest()
