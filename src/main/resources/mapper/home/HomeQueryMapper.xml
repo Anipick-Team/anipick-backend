@@ -41,6 +41,8 @@
         JOIN User u ON u.user_id = r.user_id
         WHERE r.is_spoiler = FALSE
         AND r.content IS NOT NULL
+        -- 소프트 삭제된 리뷰는 제외
+        AND r.deleted_at IS NULL
         -- 신고된 리뷰는 제외
         AND NOT EXISTS (
             SELECT 1
