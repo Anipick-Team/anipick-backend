@@ -288,7 +288,15 @@
         FROM anime a
         WHERE a.anime_id IN (SELECT ara.anime_id
                              FROM anilistrecommendationsanimes ara
-                             WHERE ara.recommendation_anime_id = #{animeId})
+                             WHERE ara.recommendation_anime_id = #{animeId}
+                             <!-- 성인 애니 제거 -->
+                             AND NOT EXISTS(
+                                    SELECT 1
+                                    FROM animegenres ag
+                                    WHERE ag.anime_id = a.anime_id
+                                    AND ag.genre_id = 638
+                                )
+                             )
         ORDER BY a.anime_id DESC
         LIMIT #{size}
     </select>
@@ -467,7 +475,15 @@
         FROM anime a
         WHERE a.anime_id IN (SELECT ara.anime_id
                              FROM anilistrecommendationsanimes ara
-                             WHERE ara.recommendation_anime_id = #{animeId})
+                             WHERE ara.recommendation_anime_id = #{animeId}
+                             <!-- 성인 애니 제거 -->
+                             AND NOT EXISTS(
+                                    SELECT 1
+                                    FROM animegenres ag
+                                    WHERE ag.anime_id = a.anime_id
+                                    AND ag.genre_id = 638
+                                )
+                             )
         <if test="lastId != null">
             AND a.anime_id &lt; #{lastId}
         </if>
