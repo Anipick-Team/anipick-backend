@@ -62,7 +62,10 @@ public class SecurityConfig {
                                                 "/image/**",
                                                 "./upload/image/anipick_mascot.png",
                                                 "./upload/image/default.jpg",
-                                                "/images/profile/**")
+                                                "/images/profile/**",
+                                                "/actuator/health",
+                                                "/actuator/info",
+                                                "/actuator/prometheus")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()
