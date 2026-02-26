@@ -1,0 +1,92 @@
+// =============================================================================
+// Grafana Alloy Configuration
+// Receives OTLP (traces + logs) from the app, scrapes Prometheus metrics,
+// and forwards to Tempo / Loki / Prometheus respectively.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. OTLP Receiver - App -> Alloy (traces + logs)
+// -----------------------------------------------------------------------------
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.batch.default.input]
+    logs   = [otelcol.processor.resourcedetection.default.input]
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 2. Processors
+// -----------------------------------------------------------------------------
+otelcol.processor.batch "default" {
+  send_batch_size = 1024
+  timeout         = "5s"
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+    logs   = []
+  }
+}
+
+otelcol.processor.resourcedetection "default" {
+  detectors = ["env", "system"]
+
+  system {
+    hostname_sources = ["os"]
+  }
+
+  output {
+    logs = [otelcol.exporter.loki.default.input]
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3. Traces -> Tempo (OTLP gRPC)
+// -----------------------------------------------------------------------------
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "168.107.40.214:4317"
+
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Logs -> Loki (OTLP to Loki format conversion)
+// -----------------------------------------------------------------------------
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://168.107.40.214:3100/loki/api/v1/push"
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 5. Metrics - Scrape App /actuator/prometheus -> Prometheus
+// -----------------------------------------------------------------------------
+prometheus.scrape "app" {
+  targets = [{
+    __address__ = "localhost:8080",
+  }]
+  metrics_path  = "/actuator/prometheus"
+  scrape_interval = "15s"
+
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://168.107.35.108:9090/api/v1/write"
+  }
+}

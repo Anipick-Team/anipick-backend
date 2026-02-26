@@ -11,4 +11,13 @@ spring:
       local: local-mysql
       dev: dev-mysql
       prod: prod-mysql
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
 ---
