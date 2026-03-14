@@ -10,4 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 public class SearchInitPageDto {
     private List<AnimeItemDto> popularAnimes;
+
+    public static SearchInitPageDto of(List<AnimeItemDto> dto) {
+        return new SearchInitPageDto(dto);
+    }
 }
