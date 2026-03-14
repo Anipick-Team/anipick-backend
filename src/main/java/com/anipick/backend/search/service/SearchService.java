@@ -40,13 +40,17 @@ public class SearchService {
 			JsonNode jsonNode = objectMapper.readTree(redisWeekBestAnimeIdsJsonStr);
 			List<Long> searchBestAnimeIds = objectMapper
 				.convertValue(jsonNode.get("search_anime_id"), new TypeReference<>() {});
+			// 레디스에 주간 검색 데이터가 하나도 없는 경우
+			if (searchBestAnimeIds.isEmpty()) {
+				return SearchInitPageDto.of(List.of());
+			}
 
 			List<AnimeItemDto> items = mapper.selectSearchWeekBestAnimes(searchBestAnimeIds)
 				.stream()
 				.map(AnimeItemDto::animeTitleTranslationPick)
 				.toList();
 
-			return new SearchInitPageDto(items);
+			return SearchInitPageDto.of(items);
 
 		} catch (JsonProcessingException e) {
 			throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
