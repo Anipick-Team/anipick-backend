@@ -15,6 +15,7 @@
         SELECT
             ual.anime_id AS animeId,
             ual.anime_like_id AS animeLikeId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
@@ -51,6 +52,7 @@
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
@@ -73,6 +75,7 @@
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
@@ -95,6 +98,7 @@
         SELECT
             a.anime_id AS animeId,
             uas.user_anime_status_id AS userAnimeStatusId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
@@ -124,6 +128,7 @@
     <select id="getMyAnimesReviewsAll" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
         SELECT
             a.anime_id AS animeId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
@@ -196,6 +201,7 @@
     <select id="getMyAnimesReviewsOnly" resultType="com.anipick.backend.mypage.dto.AnimesAllTitleReviewDto">
         SELECT
             a.anime_id AS animeId,
+            a.title_kor_manual AS titleMan,
             a.title_kor AS titleKor,
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
