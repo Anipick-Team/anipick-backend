@@ -17,6 +17,7 @@ public class HomeRecentReviewItemDto {
 
     public static HomeRecentReviewItemDto animeTitleTranslationPick(HomeRecentReviewAnimeAllTitleItemDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),
