@@ -25,6 +25,7 @@ public class RecentReviewItemDto {
 
     public static RecentReviewItemDto animeTitleTranslationPick(RecentReviewItemAnimeAllTitleDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),
