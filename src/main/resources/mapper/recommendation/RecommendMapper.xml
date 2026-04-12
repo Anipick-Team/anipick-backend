@@ -7,6 +7,7 @@
             parameterType="com.anipick.backend.recommendation.dto.RecentHighCountOnlyRequest"
             resultType="com.anipick.backend.recommendation.dto.AnimeAllTitleItemRecommendTagCountDto">
         SELECT a.anime_id AS animeId,
+               an.title_kor_manual AS titleMan,
                an.title_kor AS titleKor,
                an.title_english AS titleEng,
                an.title_romaj AS titleRom,
@@ -68,6 +69,7 @@
             parameterType="com.anipick.backend.recommendation.dto.TagBasedCountOnlyRequest"
             resultType="com.anipick.backend.recommendation.dto.AnimeAllTitleItemRecommendTagCountDto">
         SELECT a.anime_id AS animeId,
+               an.title_kor_manual AS titleMan,
                an.title_kor AS titleKor,
                an.title_english AS titleEng,
                an.title_romaj AS titleRom,
