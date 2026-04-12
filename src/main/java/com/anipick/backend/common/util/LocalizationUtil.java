@@ -43,7 +43,7 @@ public class LocalizationUtil {
             return descriptionKor;
         }
 
-        return "소개 정보 없음";
+        return "줄거리 정보 없음";
     }
 
     /**
