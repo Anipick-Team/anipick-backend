@@ -15,6 +15,7 @@ public class PersonAnimeWorkDto {
 
     public static PersonAnimeWorkDto animeTitleAndCharacterNameTranslationPick(PersonAnimeWorkAllTitleAndNameDto dto) {
         String animeTitle = LocalizationUtil.pickTitle(
+                dto.getAnimeTitleMan(),
                 dto.getAnimeTitleKor(),
                 dto.getAnimeTitleEng(),
                 dto.getAnimeTitleRom(),
