@@ -6,6 +6,7 @@ import lombok.Getter;
 public class PersonAnimeWorkAllTitleAndNameDto {
     private Long animeId;
     private Long popularity;
+    private String animeTitleMan;
     private String animeTitleKor;
     private String animeTitleEng;
     private String animeTitleRom;
