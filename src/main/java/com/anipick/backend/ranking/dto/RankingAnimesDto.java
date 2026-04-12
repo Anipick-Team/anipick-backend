@@ -19,6 +19,7 @@ public class RankingAnimesDto {
 
     public static RankingAnimesDto from(Long displayRank, RankingAnimesFromQueryDto dto, List<String> genres) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class RealTimeRankingAnimesFromQueryDto {
     private Long animeId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

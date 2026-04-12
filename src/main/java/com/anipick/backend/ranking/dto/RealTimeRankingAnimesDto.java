@@ -21,6 +21,7 @@ public class RealTimeRankingAnimesDto {
 
     public static RealTimeRankingAnimesDto from(Long rank, String change, String trend, RealTimeRankingAnimesFromQueryDto dto, List<String> genres) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),
