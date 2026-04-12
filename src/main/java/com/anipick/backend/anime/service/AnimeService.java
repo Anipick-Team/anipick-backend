@@ -209,10 +209,16 @@ public class AnimeService {
                 .toList();
 
         String pickTitle = LocalizationUtil.pickTitle(
+                animeDetailInfoItemDto.getTitleMan(),
                 animeDetailInfoItemDto.getTitleKor(),
                 animeDetailInfoItemDto.getTitleEng(),
                 animeDetailInfoItemDto.getTitleRom(),
                 animeDetailInfoItemDto.getTitleNat()
+        );
+
+        String pickDescription = LocalizationUtil.pickDescription(
+                animeDetailInfoItemDto.getDescriptionMan(),
+                animeDetailInfoItemDto.getDescriptionKor()
         );
 
         return AnimeDetailInfoResultDto.builder()
@@ -220,7 +226,7 @@ public class AnimeService {
                 .title(pickTitle)
                 .coverImageUrl(animeDetailInfoItemDto.getCoverImageUrl())
                 .bannerImageUrl(animeDetailInfoItemDto.getBannerImageUrl())
-                .description(animeDetailInfoItemDto.getDescription())
+                .description(pickDescription)
                 .averageRating(animeDetailInfoItemDto.getAverageRatingAsString())
                 .isLiked(animeDetailInfoItemDto.getIsLiked())
                 .watchStatus(animeDetailInfoItemDto.getWatchStatus())
