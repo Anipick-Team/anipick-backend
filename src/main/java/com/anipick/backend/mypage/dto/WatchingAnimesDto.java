@@ -14,6 +14,7 @@ public class WatchingAnimesDto {
 
     public static WatchingAnimesDto animeTitleTranslationPick(WatchingAnimesAllTitleDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),
