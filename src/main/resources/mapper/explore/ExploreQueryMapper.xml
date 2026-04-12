@@ -68,6 +68,7 @@
             resultType="com.anipick.backend.explore.dto.ExploreAllTitleItemDto">
         SELECT
         a.anime_id AS id,
+        a.title_kor_manual AS titleMan,
         a.title_kor AS titleKor,
         a.title_english AS titleEng,
         a.title_romaj AS titleRom,

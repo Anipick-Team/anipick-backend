@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ExploreAllTitleItemDto {
     private Long id;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;
