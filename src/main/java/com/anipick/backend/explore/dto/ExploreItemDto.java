@@ -15,6 +15,7 @@ public class ExploreItemDto {
 
     public static ExploreItemDto animeTitleTranslationPick(ExploreAllTitleItemDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),
