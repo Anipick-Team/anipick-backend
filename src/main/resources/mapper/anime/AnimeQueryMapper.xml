@@ -8,6 +8,7 @@
             parameterType="com.anipick.backend.anime.dto.RangeDateRequestDto"
             resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -40,6 +41,7 @@
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
             resultType="com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -69,6 +71,7 @@
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
             resultType="com.anipick.backend.anime.dto.ComingSoonItemPopularityAlltitleDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -99,6 +102,7 @@
             parameterType="com.anipick.backend.anime.dto.ComingSoonRequestDto"
             resultType="com.anipick.backend.anime.dto.ComingSoonItemAllTitleDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -136,12 +140,14 @@
 
     <select id="selectAnimeByAnimeId" resultType="com.anipick.backend.anime.domain.Anime">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
                a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.banner_image_url AS bannerImageUrl,
+               a.description_kor_manual AS descriptionMan,
                a.description_kor AS descriptionKor,
                a.start_date AS startDate,
                a.end_date AS endDate,
@@ -252,13 +258,15 @@
 
     <select id="selectAnimeInfoDetail" resultType="com.anipick.backend.anime.dto.AnimeDetailInfoItemDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
                a.title_native AS titleNat,
                a.cover_image_url AS coverImageUrl,
                a.banner_image_url AS bannerImageUrl,
-               a.description_kor AS description,
+               a.description_kor_manual AS descriptionMan,
+               a.description_kor AS descriptionKor,
                a.review_average_score AS averageRating,
                IF(ual.user_id IS NULL, FALSE, TRUE) AS isLiked,
                us.status AS watchStatus,
@@ -280,6 +288,7 @@
 
     <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -303,6 +312,7 @@
 
     <select id="selectAnimeInfoSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -467,6 +477,7 @@
 
     <select id="selectRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,
@@ -502,6 +513,7 @@
 
     <select id="selectSeriesByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleDateDto">
         SELECT a.anime_id AS animeId,
+               a.title_kor_manual AS titleMan,
                a.title_kor AS titleKor,
                a.title_english AS titleEng,
                a.title_romaj AS titleRom,

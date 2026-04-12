@@ -11,6 +11,7 @@ public class AnimeAllTitleImgDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long animeId;
+	private String titleMan;
 	private String titleKor;
 	private String titleEng;
 	private String titleRom;

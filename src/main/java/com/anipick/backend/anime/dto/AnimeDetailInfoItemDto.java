@@ -9,13 +9,15 @@ import java.time.LocalDate;
 @Getter
 public class AnimeDetailInfoItemDto {
     private Long animeId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;
     private String titleNat;
     private String coverImageUrl;
     private String bannerImageUrl;
-    private String description;
+    private String descriptionMan;
+    private String descriptionKor;
     private Double averageRating;
     private Boolean isLiked;
     private UserAnimeOfStatus watchStatus;

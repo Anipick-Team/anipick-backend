@@ -16,6 +16,7 @@ public class AnimeDateItemDto {
 
     public static AnimeDateItemDto animeTitleTranslationPick(AnimeAllTitleDateDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),
