@@ -19,6 +19,7 @@ public class SignUpPopularAnimeItemDto  {
 
     public static SignUpPopularAnimeItemDto animeTitleTranslationPick(SignUpPopularAnimeAllTitleItemDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

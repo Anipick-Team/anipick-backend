@@ -10,6 +10,7 @@ import java.util.List;
 public class SignUpPopularAnimeAllTitleItemDto {
     private Long animeId;
     private Long score;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

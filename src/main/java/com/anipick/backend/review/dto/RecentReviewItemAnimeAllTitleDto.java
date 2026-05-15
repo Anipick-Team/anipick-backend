@@ -11,6 +11,7 @@ public class RecentReviewItemAnimeAllTitleDto {
     private Long reviewId;
     private Long userId;
     private Long animeId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

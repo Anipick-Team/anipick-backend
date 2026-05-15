@@ -14,6 +14,7 @@ public class AnimeItemRecommendTagCountDto {
 
     public static AnimeItemRecommendTagCountDto animeTitleTranslationPick(AnimeAllTitleItemRecommendTagCountDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

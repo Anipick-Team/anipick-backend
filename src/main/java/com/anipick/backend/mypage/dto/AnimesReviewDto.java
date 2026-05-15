@@ -19,6 +19,7 @@ public class AnimesReviewDto {
 
     public static AnimesReviewDto animeTitleTranslationPick(AnimesAllTitleReviewDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),

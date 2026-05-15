@@ -13,7 +13,7 @@ public class HomeTrendingRankingDto {
     private String coverImageUrl;
 
     public static HomeTrendingRankingDto of(TrendingRankingFromQueryDto dto, Long rank) {
-        String title = LocalizationUtil.pickTitle(dto.getTitleKor(), dto.getTitleEng(), dto.getTitleRom(), dto.getTitleNat());
+        String title = LocalizationUtil.pickTitle(dto.getTitleMan(), dto.getTitleKor(), dto.getTitleEng(), dto.getTitleRom(), dto.getTitleNat());
 
         return new HomeTrendingRankingDto(
                 dto.getAnimeId(),

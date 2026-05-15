@@ -14,6 +14,7 @@ public class StudioAnimeItemDto {
 
     public static StudioAnimeItemDto animeTitleTranslationPick(StudioAnimeAllTitleItemDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),

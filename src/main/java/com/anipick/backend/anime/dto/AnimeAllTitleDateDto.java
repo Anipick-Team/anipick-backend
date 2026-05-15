@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Getter
 public class AnimeAllTitleDateDto {
     private Long animeId;
+    private String titleMan;
     private String titleKor;
 	private String titleEng;
 	private String titleRom;

@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ComingSoonItemAllTitleDto {
     private Long animeId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

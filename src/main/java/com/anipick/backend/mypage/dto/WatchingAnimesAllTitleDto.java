@@ -6,6 +6,7 @@ import lombok.Getter;
 public class WatchingAnimesAllTitleDto {
     private Long animeId;
     private Long userAnimeStatusId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

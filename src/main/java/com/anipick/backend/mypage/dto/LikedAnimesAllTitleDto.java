@@ -6,6 +6,7 @@ import lombok.Getter;
 public class LikedAnimesAllTitleDto {
     private Long animeId;
     private Long animeLikeId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

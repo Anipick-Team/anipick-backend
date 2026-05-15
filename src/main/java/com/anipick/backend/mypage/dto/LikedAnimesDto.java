@@ -14,6 +14,7 @@ public class LikedAnimesDto {
 
     public static LikedAnimesDto animeTitleTranslationPick(LikedAnimesAllTitleDto dto) {
         String title = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
 				dto.getTitleKor(),
 				dto.getTitleEng(),
 				dto.getTitleRom(),

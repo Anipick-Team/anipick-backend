@@ -25,6 +25,7 @@ public class ComingSoonItemPopularityDto {
 
     public static ComingSoonItemPopularityDto animeTitleTranslationPick(ComingSoonItemPopularityAlltitleDto dto) {
         String finalTitle = LocalizationUtil.pickTitle(
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

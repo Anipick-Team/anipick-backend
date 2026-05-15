@@ -14,12 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Anime {
 	private Long animeId;
+	private String titleMan;
 	private String titleKor;
 	private String titleEng;
 	private String titleRom;
 	private String titleNat;
 	private String coverImageUrl;
 	private String bannerImageUrl;
+	private String descriptionMan;
 	private String descriptionKor;
 	private LocalDate startDate;
 	private LocalDate endDate;
@@ -42,10 +44,18 @@ public class Anime {
 
 	public String getTitlePick() {
 		return LocalizationUtil.pickTitle(
+				this.getTitleMan(),
                 this.getTitleKor(),
                 this.getTitleEng(),
                 this.getTitleRom(),
                 this.getTitleNat()
         );
+	}
+
+	public String getDescriptionPick() {
+		return LocalizationUtil.pickDescription(
+				this.getDescriptionMan(),
+				this.getDescriptionKor()
+		);
 	}
 }
