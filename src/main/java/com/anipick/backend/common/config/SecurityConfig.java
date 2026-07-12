@@ -1,6 +1,7 @@
 package com.anipick.backend.common.config;
 
 import com.anipick.backend.common.auth.JwtAuthFilter;
+import com.anipick.backend.common.auth.JwtAuthenticationEntryPoint;
 import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -37,7 +39,9 @@ public class SecurityConfig {
                                                 /**
                                                  * API
                                                  */
-                                                "/api/users/**",
+                                                "/api/users/login",
+                                                "/api/users/signup",
+                                                "/api/users/logout",
                                                 "/api/auth/**",
                                                 "/api/oauth/**",
                                                 "/api/animes/meta-data-group",
@@ -73,6 +77,10 @@ public class SecurityConfig {
                 .sessionManagement(
                         session ->
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(
+                        exception ->
+                                exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .addFilterBefore(new JwtAuthFilter(userDetailsService, jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();
