@@ -7,6 +7,8 @@ import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
 import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.like.mapper.LikeMapper;
+import com.anipick.backend.recommendation.domain.UserRecommendMode;
+import com.anipick.backend.recommendation.domain.UserRecommendState;
 import com.anipick.backend.recommendation.mapper.UserRecommendStateMapper;
 import com.anipick.backend.review.domain.Review;
 import com.anipick.backend.review.dto.*;
@@ -164,7 +166,12 @@ public class ReviewService {
                 .toList();
         animeMapper.updateReviewAverageScoresByAnimeIds(animeIds);
 
-        userRecommendStateMapper.insertTagBasedState(userId);
+        UserRecommendState recommendState = userRecommendStateMapper.findByUserId(userId);
+        if (recommendState == null) {
+            userRecommendStateMapper.insertTagBasedState(userId);
+        } else {
+            userRecommendStateMapper.updateMode(userId, UserRecommendMode.TAG_BASED, null);
+        }
 
         userMapper.updateReviewCompletedYn(userId);
     }
