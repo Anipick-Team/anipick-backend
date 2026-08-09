@@ -47,4 +47,14 @@ public class ImageController {
         ImageIdResponse response = imageService.updateProfileImage(user, profileImageFile);
         return ApiResponse.success(response);
     }
+
+    // 커뮤니티 게시글 첨부 이미지 업로드 (1회 호출당 1장). 반환한 imageId 를 게시글 작성 imageIds 에 포함.
+    @PostMapping("/community-post-image")
+    public ApiResponse<ImageIdResponse> uploadCommunityPostImage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestPart("postImageFile") MultipartFile postImageFile
+    ) {
+        ImageIdResponse response = imageService.uploadCommunityPostImage(user, postImageFile);
+        return ApiResponse.success(response);
+    }
 }
