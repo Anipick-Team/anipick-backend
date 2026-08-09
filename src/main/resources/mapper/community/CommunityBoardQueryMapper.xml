@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityBoardMapper">
+
+    <!--
+        애니 ID 기준으로 게시판(시리즈) 매핑 여부까지 판단.
+        anime 를 기준으로 LEFT JOIN 하므로 매핑이 없어도 애니가 존재하면 1건 반환된다.
+        (seriesId == null → 게시판 없음, 프론트 팝업용. 애니 자체 값으로 fallback)
+        애니 자체가 없으면 0건 → 서비스에서 ANIME_NOT_FOUND.
+        series_anime 는 anime_id UNIQUE 이므로 매핑 존재 시에도 1건.
+    -->
+    <select id="selectBoardByAnimeId" resultType="com.anipick.backend.community.dto.BoardInfoRawDto">
+        SELECT s.series_id          AS seriesId,
+               s.title_kor          AS titleKor,
+               s.title_eng          AS titleEng,
+               s.title_rom          AS titleRom,
+               s.title_nat          AS titleNat,
+               s.cover_image_url    AS coverImageUrl,
+               a.title_kor_manual   AS animeTitleMan,
+               a.title_kor          AS animeTitleKor,
+               a.title_english      AS animeTitleEng,
+               a.title_romaj        AS animeTitleRom,
+               a.title_native       AS animeTitleNat,
+               a.cover_image_url    AS animeCoverImageUrl
+        FROM anime a
+                 LEFT JOIN series_anime sa ON sa.anime_id = a.anime_id
+                 LEFT JOIN series s ON s.series_id = sa.series_id
+        WHERE a.anime_id = #{animeId}
+    </select>
+
+    <!-- 시리즈 대표작(sort_order 최소 = 1기)의 장르. 시리즈엔 장르가 없어 대표작 기준. -->
+    <select id="selectRepresentativeGenresBySeriesId" resultType="com.anipick.backend.anime.dto.GenreDto">
+        SELECT g.genre_id  AS id,
+               g.genre_kor AS name
+        FROM animegenres ag
+                 JOIN genres g ON g.genre_id = ag.genre_id
+        WHERE ag.anime_id = (SELECT sa.anime_id
+                             FROM series_anime sa
+                             WHERE sa.series_id = #{seriesId}
+                             ORDER BY sa.sort_order ASC, sa.anime_id ASC
+                             LIMIT 1)
+    </select>
+
+    <!-- 게시판 없을 때(팝업용) 애니 자체 장르. -->
+    <select id="selectGenresByAnimeId" resultType="com.anipick.backend.anime.dto.GenreDto">
+        SELECT g.genre_id  AS id,
+               g.genre_kor AS name
+        FROM animegenres ag
+                 JOIN genres g ON g.genre_id = ag.genre_id
+        WHERE ag.anime_id = #{animeId}
+    </select>
+
+    <select id="countPostsBySeriesId" resultType="long">
+        SELECT COUNT(*)
+        FROM community_post
+        WHERE series_id = #{seriesId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="existsSeries" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM series WHERE series_id = #{seriesId})
+    </select>
+</mapper>

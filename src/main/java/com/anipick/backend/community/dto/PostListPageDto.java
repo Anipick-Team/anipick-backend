@@ -1,0 +1,24 @@
+package com.anipick.backend.community.dto;
+
+import com.anipick.backend.common.dto.CursorDto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+
+import java.util.List;
+
+/**
+ * GET /api/community/boards/{seriesId}/posts 응답.
+ */
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostListPageDto {
+    private Long count;
+    private CursorDto cursor;
+    private List<PostListItemDto> posts;
+}
