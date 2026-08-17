@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityCommentMapper">
+
+    <!-- 프로필 이미지 = image.image_type = 'PROFILE' 인 이 유저의 image (유저당 1행 유지) -->
+    <sql id="profileImageIdSubquery">
+        (SELECT i.image_id
+         FROM image i
+         WHERE i.auth_id = c.user_id
+           AND i.image_type = 'PROFILE'
+         ORDER BY i.image_id ASC
+         LIMIT 1)
+    </sql>
+
+    <!-- 차단 여부 -->
+    <sql id="blockedExists">
+        EXISTS (SELECT 1
+                FROM blockeduser bu
+                WHERE bu.blocked_user_id = c.user_id
+                  AND bu.user_id = #{userId})
+    </sql>
+
+    <!-- 내가 신고한 댓글 여부 -->
+    <sql id="reportedExists">
+        EXISTS (SELECT 1
+                FROM community_report cr
+                WHERE cr.target_type = 'COMMENT'
+                  AND cr.target_id = c.comment_id
+                  AND cr.reporter_user_id = #{userId})
+    </sql>
+
+    <!-- 공통 SELECT 컬럼. isDeleted/isBlocked/isReported 는 서비스 마스킹 판단용 -->
+    <sql id="commentColumns">
+        c.comment_id                                                       AS commentId,
+        c.parent_comment_id                                                AS parentCommentId,
+        c.user_id                                                          AS userId,
+        u.nickname                                                         AS nickname,
+        <include refid="profileImageIdSubquery"/>                          AS profileImageId,
+        c.content                                                          AS content,
+        c.like_count                                                       AS likeCount,
+        CASE WHEN ccl.comment_like_id IS NOT NULL THEN TRUE ELSE FALSE END AS isLiked,
+        CASE WHEN c.updated_at IS NOT NULL THEN TRUE ELSE FALSE END       AS isEdited,
+        CASE WHEN c.deleted_at IS NOT NULL THEN TRUE ELSE FALSE END       AS isDeleted,
+        CASE WHEN <include refid="blockedExists"/> THEN TRUE ELSE FALSE END  AS isBlocked,
+        CASE WHEN <include refid="reportedExists"/> THEN TRUE ELSE FALSE END AS isReported,
+        c.created_at                                                       AS createdAt
+    </sql>
+
+    <!--
+        표시 가능한 댓글+대댓글 전체 수.
+        삭제/차단/신고 제외. 마스킹으로 표시되는 부모는 실제 댓글이 아니므로 포함하지 않는다.
+    -->
+    <select id="countVisibleComments" resultType="long">
+        SELECT COUNT(*)
+        FROM community_comment c
+        WHERE c.post_id = #{postId}
+          AND c.deleted_at IS NULL
+          AND NOT <include refid="blockedExists"/>
+          AND NOT <include refid="reportedExists"/>
+    </select>
+
+    <!--
+        부모 댓글 페이지 (등록순 = comment_id ASC 커서).
+        부모 자신이 표시 가능하거나, 숨김(삭제/차단/신고) 상태라도 표시 가능한 대댓글이
+        1개 이상 있으면 포함한다(서비스에서 마스킹 처리). 둘 다 아니면 행 자체를 제외.
+    -->
+    <select id="selectParentComments" resultType="com.anipick.backend.community.dto.CommentItemRawDto">
+        SELECT
+        <include refid="commentColumns"/>
+        FROM community_comment c
+                 JOIN user u ON u.user_id = c.user_id
+                 LEFT JOIN community_comment_like ccl
+                           ON ccl.comment_id = c.comment_id AND ccl.user_id = #{userId}
+        WHERE c.post_id = #{postId}
+          AND c.parent_comment_id IS NULL
+          AND (
+              (c.deleted_at IS NULL
+                  AND NOT <include refid="blockedExists"/>
+                  AND NOT <include refid="reportedExists"/>)
+              OR EXISTS (SELECT 1
+                         FROM community_comment r
+                         WHERE r.parent_comment_id = c.comment_id
+                           AND r.deleted_at IS NULL
+                           AND NOT EXISTS (SELECT 1
+                                           FROM blockeduser bu2
+                                           WHERE bu2.blocked_user_id = r.user_id
+                                             AND bu2.user_id = #{userId})
+                           AND NOT EXISTS (SELECT 1
+                                           FROM community_report cr2
+                                           WHERE cr2.target_type = 'COMMENT'
+                                             AND cr2.target_id = r.comment_id
+                                             AND cr2.reporter_user_id = #{userId}))
+          )
+        <if test="lastId != null">
+            AND c.comment_id &gt; #{lastId}
+        </if>
+        ORDER BY c.comment_id ASC
+        LIMIT #{size}
+    </select>
+
+    <!-- 부모 목록에 속한 표시 가능한 대댓글 전체. 숨김 대상 대댓글은 그냥 제외(마스킹 없음). -->
+    <select id="selectRepliesByParentIds" resultType="com.anipick.backend.community.dto.CommentItemRawDto">
+        SELECT
+        <include refid="commentColumns"/>
+        FROM community_comment c
+                 JOIN user u ON u.user_id = c.user_id
+                 LEFT JOIN community_comment_like ccl
+                           ON ccl.comment_id = c.comment_id AND ccl.user_id = #{userId}
+        WHERE c.parent_comment_id IN
+        <foreach collection="parentIds" item="parentId" open="(" separator="," close=")">
+            #{parentId}
+        </foreach>
+          AND c.deleted_at IS NULL
+          AND NOT <include refid="blockedExists"/>
+          AND NOT <include refid="reportedExists"/>
+        ORDER BY c.parent_comment_id ASC, c.comment_id ASC
+    </select>
+
+    <select id="selectCommentForCheck" resultType="com.anipick.backend.community.domain.CommunityComment">
+        SELECT comment_id        AS commentId,
+               post_id           AS postId,
+               user_id           AS userId,
+               parent_comment_id AS parentCommentId,
+               deleted_at        AS deletedAt
+        FROM community_comment
+        WHERE comment_id = #{commentId}
+    </select>
+</mapper>

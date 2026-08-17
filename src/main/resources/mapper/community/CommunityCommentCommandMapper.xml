@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityCommentMapper">
+
+    <insert id="insertComment" parameterType="com.anipick.backend.community.domain.CommunityComment"
+            useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO community_comment
+            (post_id, user_id, parent_comment_id, content, like_count, created_at)
+        VALUES (#{postId}, #{userId}, #{parentCommentId}, #{content}, 0, NOW())
+    </insert>
+
+    <!-- updated_at 갱신으로 isEdited=true 가 된다. 화면에는 최초 등록일자만 노출. -->
+    <update id="updateComment">
+        UPDATE community_comment
+        SET content    = #{request.content},
+            updated_at = NOW()
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="softDeleteComment">
+        UPDATE community_comment
+        SET deleted_at = NOW()
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="increaseLikeCount">
+        UPDATE community_comment
+        SET like_count = like_count + 1
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE community_comment
+        SET like_count = like_count - 1
+        WHERE comment_id = #{commentId}
+          AND like_count &gt; 0
+    </update>
+</mapper>
