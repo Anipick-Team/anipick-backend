@@ -272,4 +272,79 @@
         FROM userlikedvoiceactor AS ulva
         WHERE ulva.user_id = #{userId}
     </select>
+
+    <select id="getMyCommunityPostCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM community_post AS p
+        WHERE p.user_id = #{userId}
+          AND p.deleted_at IS NULL
+    </select>
+
+    <!-- 내가 작성한 게시글 최신순(post_id DESC). animeTitle/animeCoverImageUrl 은 시리즈(게시판) 제목/커버 사용 -->
+    <select id="getMyCommunityPosts" resultType="com.anipick.backend.mypage.dto.MyCommunityPostAllTitleDto">
+        SELECT p.post_id         AS postId,
+               p.series_id       AS seriesId,
+               s.title_kor       AS titleKor,
+               s.title_eng       AS titleEng,
+               s.title_rom       AS titleRom,
+               s.title_nat       AS titleNat,
+               s.cover_image_url AS coverImageUrl,
+               p.title           AS title,
+               p.content         AS content,
+               (SELECT cpi.image_id
+                FROM community_post_image cpi
+                WHERE cpi.post_id = p.post_id
+                ORDER BY cpi.image_order ASC
+                LIMIT 1)         AS thumbnailImageId,
+               p.is_spoiler      AS isSpoiler,
+               p.view_count      AS viewCount,
+               p.like_count      AS likeCount,
+               p.comment_count   AS commentCount,
+               DATE_FORMAT(p.created_at, '%Y. %m. %d') AS createdAt
+        FROM community_post AS p
+                 JOIN series AS s ON s.series_id = p.series_id
+        WHERE p.user_id = #{userId}
+          AND p.deleted_at IS NULL
+        <if test="lastId != null">
+            AND p.post_id &lt; #{lastId}
+        </if>
+        ORDER BY p.post_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!-- 삭제된 게시글의 댓글은 제외 (게시글 진입 불가) -->
+    <select id="getMyCommunityCommentCount" resultType="Long">
+        SELECT COUNT(*)
+        FROM community_comment AS c
+                 JOIN community_post AS p ON p.post_id = c.post_id
+        WHERE c.user_id = #{userId}
+          AND c.deleted_at IS NULL
+          AND p.deleted_at IS NULL
+    </select>
+
+    <!-- 내가 작성한 댓글/대댓글 최신순(comment_id DESC). 댓글과 대댓글을 동일하게 취급 -->
+    <select id="getMyCommunityComments" resultType="com.anipick.backend.mypage.dto.MyCommunityCommentAllTitleDto">
+        SELECT c.comment_id      AS commentId,
+               c.post_id         AS postId,
+               s.title_kor       AS titleKor,
+               s.title_eng       AS titleEng,
+               s.title_rom       AS titleRom,
+               s.title_nat       AS titleNat,
+               s.cover_image_url AS coverImageUrl,
+               p.title           AS postTitle,
+               c.content         AS content,
+               c.like_count      AS likeCount,
+               DATE_FORMAT(c.created_at, '%Y. %m. %d') AS createdAt
+        FROM community_comment AS c
+                 JOIN community_post AS p ON p.post_id = c.post_id
+                 JOIN series AS s ON s.series_id = p.series_id
+        WHERE c.user_id = #{userId}
+          AND c.deleted_at IS NULL
+          AND p.deleted_at IS NULL
+        <if test="lastId != null">
+            AND c.comment_id &lt; #{lastId}
+        </if>
+        ORDER BY c.comment_id DESC
+        LIMIT #{size}
+    </select>
 </mapper>
