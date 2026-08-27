@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityCommentLikeMapper">
+    <insert id="insertLikeComment">
+        INSERT INTO community_comment_like
+            (comment_id, user_id, created_at)
+        VALUES (#{commentId}, #{userId}, NOW())
+    </insert>
+
+    <delete id="deleteLikeComment">
+        DELETE FROM community_comment_like
+        WHERE user_id = #{userId}
+          AND comment_id = #{commentId}
+    </delete>
+</mapper>

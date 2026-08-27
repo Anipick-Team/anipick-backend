@@ -89,7 +89,16 @@ public enum ErrorCode {
 	COMMUNITY_POST_NOT_OWNER(1004, "본인이 작성한 게시글이 아님", null),
 	COMMUNITY_POST_TITLE_LENGTH_INVALID(1005, "게시글 제목 길이 오류", "제목은 1~50자로 입력해 주세요."),
 	COMMUNITY_POST_CONTENT_LENGTH_INVALID(1006, "게시글 내용 길이 오류", "내용은 1~1000자로 입력해 주세요."),
-	COMMUNITY_POST_IMAGE_COUNT_EXCEEDED(1007, "첨부 이미지 개수 초과", "이미지는 최대 5장까지 첨부할 수 있습니다.");
+	COMMUNITY_POST_IMAGE_COUNT_EXCEEDED(1007, "첨부 이미지 개수 초과", "이미지는 최대 5장까지 첨부할 수 있습니다."),
+	COMMUNITY_COMMENT_NOT_FOUND(1008, "댓글 찾을 수 없음", null),
+	COMMUNITY_PARENT_COMMENT_NOT_FOUND(1009, "부모 댓글 찾을 수 없음", null),
+	COMMUNITY_COMMENT_NESTING_INVALID(1010, "대댓글에는 대댓글을 작성할 수 없음", null),
+	COMMUNITY_COMMENT_CONTENT_LENGTH_INVALID(1011, "댓글 내용 길이 오류", "내용은 1~200자로 입력해 주세요."),
+	COMMUNITY_COMMENT_NOT_OWNER(1012, "본인이 작성한 댓글이 아님", null),
+	COMMUNITY_ALREADY_REPORTED(1013, "이미 신고한 대상", null),
+	COMMUNITY_SELF_REPORT_NOT_ALLOWED(1014, "본인 게시글/댓글은 신고할 수 없음", null),
+	COMMUNITY_REPORT_TARGET_NOT_FOUND(1015, "신고 대상 찾을 수 없음", null),
+	COMMUNITY_REPORT_CATEGORY_INVALID(1016, "유효하지 않은 신고 카테고리", null);
 
 	private final int code;
 	private final String errorReason;

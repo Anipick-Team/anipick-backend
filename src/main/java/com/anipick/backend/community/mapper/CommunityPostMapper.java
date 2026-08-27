@@ -84,4 +84,8 @@ public interface CommunityPostMapper {
     void increaseLikeCount(@Param("postId") Long postId);
 
     void decreaseLikeCount(@Param("postId") Long postId);
+
+    void increaseCommentCount(@Param("postId") Long postId);
+
+    void decreaseCommentCount(@Param("postId") Long postId);
 }

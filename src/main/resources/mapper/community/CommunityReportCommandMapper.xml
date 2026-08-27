@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityReportMapper">
+    <!-- UNIQUE(reporter_user_id, target_type, target_id) 로 중복 신고는 DuplicateKeyException -->
+    <insert id="insertReport">
+        INSERT INTO community_report
+            (reporter_user_id, target_type, target_id, report_category, created_at)
+        VALUES (#{reporterUserId}, #{targetType}, #{targetId}, #{reportCategory}, NOW())
+    </insert>
+</mapper>

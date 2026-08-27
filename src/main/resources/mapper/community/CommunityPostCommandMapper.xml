@@ -64,4 +64,17 @@
         WHERE post_id = #{postId}
           AND like_count &gt; 0
     </update>
+
+    <update id="increaseCommentCount">
+        UPDATE community_post
+        SET comment_count = comment_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <update id="decreaseCommentCount">
+        UPDATE community_post
+        SET comment_count = comment_count - 1
+        WHERE post_id = #{postId}
+          AND comment_count &gt; 0
+    </update>
 </mapper>
