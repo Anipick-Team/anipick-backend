@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityPostMapper">
+
+    <!-- 프로필 이미지 = image.image_type = 'PROFILE' 인 이 유저의 image (유저당 1행 유지) -->
+    <sql id="profileImageIdSubquery">
+        (SELECT i.image_id
+         FROM image i
+         WHERE i.auth_id = p.user_id
+           AND i.image_type = 'PROFILE'
+         ORDER BY i.image_id ASC
+         LIMIT 1)
+    </sql>
+
+    <!-- 게시글 대표 썸네일 = image_order 가 가장 앞선 첨부 이미지 -->
+    <sql id="thumbnailImageIdSubquery">
+        (SELECT cpi.image_id
+         FROM community_post_image cpi
+         WHERE cpi.post_id = p.post_id
+         ORDER BY cpi.image_order ASC
+         LIMIT 1)
+    </sql>
+
+    <!-- 게시글 첨부 이미지 개수 -->
+    <sql id="imageCountSubquery">
+        (SELECT COUNT(*)
+         FROM community_post_image cpi
+         WHERE cpi.post_id = p.post_id)
+    </sql>
+
+    <!-- 차단한 유저의 게시글 제외 -->
+    <sql id="blockFilter">
+        AND NOT EXISTS (SELECT 1
+                        FROM blockeduser bu
+                        WHERE bu.blocked_user_id = p.user_id
+                          AND bu.user_id = #{userId})
+    </sql>
+
+    <select id="countBoardPosts" resultType="long">
+        SELECT COUNT(*)
+        FROM community_post p
+        WHERE p.series_id = #{seriesId}
+          AND p.deleted_at IS NULL
+        <include refid="blockFilter"/>
+    </select>
+
+    <!-- 최신순: post_id DESC (autoincrement 라 생성 시각과 동일 순서) -->
+    <select id="selectLatestPosts" resultType="com.anipick.backend.community.dto.PostListItemDto">
+        SELECT p.post_id                     AS postId,
+               p.user_id                     AS userId,
+               u.nickname                    AS nickname,
+               <include refid="profileImageIdSubquery"/>   AS profileImageId,
+               p.title                       AS title,
+               p.content                     AS content,
+               <include refid="thumbnailImageIdSubquery"/> AS thumbnailImageId,
+               <include refid="imageCountSubquery"/>       AS imageCount,
+               p.is_spoiler                  AS isSpoiler,
+               p.view_count                  AS viewCount,
+               p.like_count                  AS likeCount,
+               p.comment_count               AS commentCount,
+               p.created_at                  AS createdAt
+        FROM community_post p
+                 JOIN user u ON u.user_id = p.user_id
+        WHERE p.series_id = #{seriesId}
+          AND p.deleted_at IS NULL
+        <include refid="blockFilter"/>
+        <if test="lastId != null">
+            AND p.post_id &lt; #{lastId}
+        </if>
+        ORDER BY p.post_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!--
+        인기순: 기간 내(created_at &gt;= periodStart) 좋아요 수로 정렬.
+        커서 = (periodLikeCount, post_id). 동점이면 post_id 낮은 순으로 이어붙임.
+    -->
+    <select id="selectPopularPosts" resultType="com.anipick.backend.community.dto.PostListItemDto">
+        SELECT p.post_id                     AS postId,
+               p.user_id                     AS userId,
+               u.nickname                    AS nickname,
+               <include refid="profileImageIdSubquery"/>   AS profileImageId,
+               p.title                       AS title,
+               p.content                     AS content,
+               <include refid="thumbnailImageIdSubquery"/> AS thumbnailImageId,
+               <include refid="imageCountSubquery"/>       AS imageCount,
+               p.is_spoiler                  AS isSpoiler,
+               p.view_count                  AS viewCount,
+               p.like_count                  AS likeCount,
+               p.comment_count               AS commentCount,
+               p.created_at                  AS createdAt,
+               COALESCE(pl.periodCnt, 0)     AS periodLikeCount
+        FROM community_post p
+                 JOIN user u ON u.user_id = p.user_id
+                 LEFT JOIN (SELECT post_id, COUNT(*) AS periodCnt
+                            FROM community_post_like
+                            WHERE created_at &gt;= #{periodStart}
+                            GROUP BY post_id) pl ON pl.post_id = p.post_id
+        WHERE p.series_id = #{seriesId}
+          AND p.deleted_at IS NULL
+        <include refid="blockFilter"/>
+        <!-- lastId/lastValue 는 서비스에서 둘 다 있거나 둘 다 없도록 보장(한쪽만 오면 BAD_REQUEST) -->
+        <if test="lastId != null and lastValue != null">
+            AND (
+                COALESCE(pl.periodCnt, 0) &lt; #{lastValue}
+                OR (COALESCE(pl.periodCnt, 0) = #{lastValue} AND p.post_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY periodLikeCount DESC, p.post_id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="selectPostDetail" resultType="com.anipick.backend.community.dto.PostDetailRawDto">
+        SELECT p.post_id       AS postId,
+               p.series_id     AS seriesId,
+               s.title_kor     AS seriesTitleKor,
+               s.title_eng     AS seriesTitleEng,
+               s.title_rom     AS seriesTitleRom,
+               s.title_nat     AS seriesTitleNat,
+               p.user_id       AS userId,
+               u.nickname      AS nickname,
+               <include refid="profileImageIdSubquery"/> AS profileImageId,
+               p.title         AS title,
+               p.content       AS content,
+               p.is_spoiler    AS isSpoiler,
+               p.view_count    AS viewCount,
+               p.like_count    AS likeCount,
+               p.comment_count AS commentCount,
+               CASE WHEN cpl.post_like_id IS NOT NULL THEN TRUE ELSE FALSE END AS isLiked,
+               CASE WHEN bu.user_id IS NOT NULL THEN TRUE ELSE FALSE END       AS isAuthorBlocked,
+               p.created_at    AS createdAt
+        FROM community_post p
+                 JOIN user u ON u.user_id = p.user_id
+                 JOIN series s ON s.series_id = p.series_id
+                 LEFT JOIN community_post_like cpl
+                           ON cpl.post_id = p.post_id AND cpl.user_id = #{userId}
+                 LEFT JOIN blockeduser bu
+                           ON bu.blocked_user_id = p.user_id AND bu.user_id = #{userId}
+        WHERE p.post_id = #{postId}
+          AND p.deleted_at IS NULL
+    </select>
+
+    <select id="selectPostImageIds" resultType="long">
+        SELECT cpi.image_id
+        FROM community_post_image cpi
+        WHERE cpi.post_id = #{postId}
+        ORDER BY cpi.image_order ASC
+    </select>
+
+    <select id="selectPostForCheck" resultType="com.anipick.backend.community.domain.CommunityPost">
+        SELECT post_id    AS postId,
+               series_id  AS seriesId,
+               user_id    AS userId,
+               deleted_at AS deletedAt
+        FROM community_post
+        WHERE post_id = #{postId}
+    </select>
+</mapper>

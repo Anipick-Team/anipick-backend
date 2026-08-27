@@ -11,4 +11,5 @@ public class Image {
     private Long authId;
     private String imageName;
     private String imagePath;
+    private ImageType imageType;
 }

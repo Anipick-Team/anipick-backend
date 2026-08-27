@@ -78,7 +78,18 @@ public enum ErrorCode {
 	 * Image
 	 */
 	INVAILD_IMAGE_EXTENSION(901, "유효한 이미지 확장자가 아님", null),
-	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null);
+	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null),
+	IMAGE_SIZE_EXCEEDED(903, "이미지 용량 초과", "이미지 용량은 10MB 이하만 업로드할 수 있습니다."),
+	/**
+	 * Community
+	 */
+	ANIME_NOT_FOUND(1001, "애니 찾을 수 없음", null),
+	SERIES_NOT_FOUND(1002, "시리즈 찾을 수 없음", null),
+	COMMUNITY_POST_NOT_FOUND(1003, "게시글 찾을 수 없음", null),
+	COMMUNITY_POST_NOT_OWNER(1004, "본인이 작성한 게시글이 아님", null),
+	COMMUNITY_POST_TITLE_LENGTH_INVALID(1005, "게시글 제목 길이 오류", "제목은 1~50자로 입력해 주세요."),
+	COMMUNITY_POST_CONTENT_LENGTH_INVALID(1006, "게시글 내용 길이 오류", "내용은 1~1000자로 입력해 주세요."),
+	COMMUNITY_POST_IMAGE_COUNT_EXCEEDED(1007, "첨부 이미지 개수 초과", "이미지는 최대 5장까지 첨부할 수 있습니다.");
 
 	private final int code;
 	private final String errorReason;

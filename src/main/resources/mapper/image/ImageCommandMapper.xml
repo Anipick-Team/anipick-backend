@@ -5,9 +5,9 @@
 <mapper namespace="com.anipick.backend.image.mapper.ImageMapper">
     <insert id="insertImage" parameterType="com.anipick.backend.image.domain.Image" useGeneratedKeys="true" keyProperty="imageId">
         INSERT INTO Image
-            (auth_id, image_name, image_path)
+            (auth_id, image_name, image_path, image_type)
         VALUES
-            (#{authId}, #{imageName}, #{imagePath})
+            (#{authId}, #{imageName}, #{imagePath}, #{imageType})
     </insert>
 
     <update id="updateImageByUserId" parameterType="com.anipick.backend.image.domain.Image">
@@ -16,6 +16,7 @@
             image_name = #{image.imageName},
             image_path = #{image.imagePath}
         WHERE auth_id = #{userId}
+          AND image_type = 'PROFILE'
     </update>
 
     <delete id="deleteImage">

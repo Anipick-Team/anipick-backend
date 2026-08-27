@@ -21,5 +21,6 @@
             i.image_path AS imagePath
         FROM Image AS i
         WHERE auth_id = #{userId}
+          AND i.image_type = 'PROFILE'
     </select>
 </mapper>

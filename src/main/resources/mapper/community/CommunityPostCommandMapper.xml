@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityPostMapper">
+
+    <insert id="insertPost" parameterType="com.anipick.backend.community.domain.CommunityPost"
+            useGeneratedKeys="true" keyProperty="postId">
+        INSERT INTO community_post
+            (series_id, user_id, title, content, is_spoiler, view_count, like_count, comment_count, created_at)
+        VALUES (#{seriesId}, #{userId}, #{title}, #{content}, #{isSpoiler}, 0, 0, 0, NOW())
+    </insert>
+
+    <!-- 첨부 이미지 벌크 삽입. image_order 는 배열 순서(0-based) + 1 = 1~5 -->
+    <insert id="insertPostImages">
+        INSERT INTO community_post_image
+            (post_id, image_id, image_order, created_at)
+        VALUES
+        <foreach collection="imageIds" item="imageId" index="idx" separator=",">
+            (#{postId}, #{imageId}, #{idx} + 1, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deletePostImages">
+        DELETE FROM community_post_image
+        WHERE post_id = #{postId}
+    </delete>
+
+    <update id="updatePost">
+        UPDATE community_post
+        SET title      = #{request.title},
+            content    = #{request.content},
+            is_spoiler = COALESCE(#{request.isSpoiler}, false),
+            updated_at = NOW()
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="softDeletePost">
+        UPDATE community_post
+        SET deleted_at = NOW()
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="increaseViewCount">
+        UPDATE community_post
+        SET view_count = view_count + 1
+        WHERE post_id = #{postId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="increaseLikeCount">
+        UPDATE community_post
+        SET like_count = like_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE community_post
+        SET like_count = like_count - 1
+        WHERE post_id = #{postId}
+          AND like_count &gt; 0
+    </update>
+</mapper>
