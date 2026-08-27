@@ -87,6 +87,28 @@ public class MyPageController {
         return ApiResponse.success(response);
     }
 
+    @GetMapping("/community/posts")
+    public ApiResponse<MyCommunityPostsResponse> getMyCommunityPosts(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size
+    ) {
+        Long userId = user.getUserId();
+        MyCommunityPostsResponse response = myPageService.getMyCommunityPosts(userId, lastId, size);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/community/comments")
+    public ApiResponse<MyCommunityCommentsResponse> getMyCommunityComments(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size
+    ) {
+        Long userId = user.getUserId();
+        MyCommunityCommentsResponse response = myPageService.getMyCommunityComments(userId, lastId, size);
+        return ApiResponse.success(response);
+    }
+
     @GetMapping("/persons/like")
     public ApiResponse<LikedPersonsResponse> getMyPersonsLiked(
             @AuthenticationPrincipal CustomUserDetails user,

@@ -192,6 +192,44 @@ public class MyPageService {
         return LikedPersonsResponse.from(count, cursorDto, likedPersons);
     }
 
+    public MyCommunityPostsResponse getMyCommunityPosts(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyCommunityPostCount(userId);
+        List<MyCommunityPostDto> posts = myPageMapper.getMyCommunityPosts(userId, lastId, size)
+                .stream()
+                .map(MyCommunityPostDto::seriesTitleTranslationPick)
+                .toList();
+        Long newLastId;
+
+        if (posts.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = posts.getLast().getPostId();
+        }
+
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return MyCommunityPostsResponse.from(count, cursorDto, posts);
+    }
+
+    public MyCommunityCommentsResponse getMyCommunityComments(Long userId, Long lastId, Integer size) {
+        Long count = myPageMapper.getMyCommunityCommentCount(userId);
+        List<MyCommunityCommentDto> comments = myPageMapper.getMyCommunityComments(userId, lastId, size)
+                .stream()
+                .map(MyCommunityCommentDto::seriesTitleTranslationPick)
+                .toList();
+        Long newLastId;
+
+        if (comments.isEmpty()) {
+            newLastId = null;
+        } else {
+            newLastId = comments.getLast().getCommentId();
+        }
+
+        CursorDto cursorDto = CursorDto.of(newLastId);
+
+        return MyCommunityCommentsResponse.from(count, cursorDto, comments);
+    }
+
     private CursorDto getCursorBySortOption(Long lastId, Long lastCount, Double lastRating, String sort, SortOption sortOption) {
         CursorDto cursorDto;
         switch (sortOption) {

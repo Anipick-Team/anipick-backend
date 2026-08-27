@@ -67,4 +67,23 @@ public interface MyPageMapper {
     Long getMyAnimesLikeCount(@Param("userId") Long userId);
 
     Long getMyPersonsLikeCount(@Param("userId") Long userId);
+
+    Long getMyCommunityPostCount(@Param("userId") Long userId);
+
+    List<MyCommunityPostAllTitleDto> getMyCommunityPosts(
+            @Param("userId") Long userId,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
+    );
+
+    /**
+     * 삭제된 게시글에 달린 댓글은 카운트/목록 모두에서 제외.
+     */
+    Long getMyCommunityCommentCount(@Param("userId") Long userId);
+
+    List<MyCommunityCommentAllTitleDto> getMyCommunityComments(
+            @Param("userId") Long userId,
+            @Param("lastId") Long lastId,
+            @Param("size") Integer size
+    );
 }
