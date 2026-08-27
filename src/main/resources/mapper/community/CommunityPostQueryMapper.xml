@@ -23,6 +23,13 @@
          LIMIT 1)
     </sql>
 
+    <!-- 게시글 첨부 이미지 개수 -->
+    <sql id="imageCountSubquery">
+        (SELECT COUNT(*)
+         FROM community_post_image cpi
+         WHERE cpi.post_id = p.post_id)
+    </sql>
+
     <!-- 차단한 유저의 게시글 제외 -->
     <sql id="blockFilter">
         AND NOT EXISTS (SELECT 1
@@ -48,6 +55,7 @@
                p.title                       AS title,
                p.content                     AS content,
                <include refid="thumbnailImageIdSubquery"/> AS thumbnailImageId,
+               <include refid="imageCountSubquery"/>       AS imageCount,
                p.is_spoiler                  AS isSpoiler,
                p.view_count                  AS viewCount,
                p.like_count                  AS likeCount,
@@ -77,6 +85,7 @@
                p.title                       AS title,
                p.content                     AS content,
                <include refid="thumbnailImageIdSubquery"/> AS thumbnailImageId,
+               <include refid="imageCountSubquery"/>       AS imageCount,
                p.is_spoiler                  AS isSpoiler,
                p.view_count                  AS viewCount,
                p.like_count                  AS likeCount,

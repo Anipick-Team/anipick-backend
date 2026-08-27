@@ -24,6 +24,7 @@ public class PostListItemDto {
     private String title;
     private String content;
     private Long thumbnailImageId;
+    private Long imageCount;
     private Boolean isSpoiler;
     private Long viewCount;
     private Long likeCount;

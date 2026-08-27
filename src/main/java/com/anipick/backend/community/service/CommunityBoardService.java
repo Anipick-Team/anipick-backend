@@ -146,6 +146,7 @@ public class CommunityBoardService {
                 .title(raw.getTitle())
                 .content(raw.getContent())
                 .thumbnailImageId(raw.getThumbnailImageId())
+                .imageCount(raw.getImageCount())
                 .isSpoiler(raw.getIsSpoiler())
                 .viewCount(raw.getViewCount())
                 .likeCount(raw.getLikeCount())
