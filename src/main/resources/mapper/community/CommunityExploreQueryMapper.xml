@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityExploreMapper">
+
+    <!-- 시리즈 제목 한글/영문 LIKE 검색 (탐색은 빈 키워드 허용 → 서비스에서 blank 는 null 로 정규화) -->
+    <sql id="keywordFilter">
+        <if test="keyword != null">
+            AND (s.title_kor LIKE CONCAT('%', #{keyword}, '%')
+                OR s.title_eng LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </sql>
+
+    <sql id="boardColumns">
+        s.series_id       AS seriesId,
+        s.title_kor       AS titleKor,
+        s.title_eng       AS titleEng,
+        s.title_rom       AS titleRom,
+        s.title_nat       AS titleNat,
+        s.cover_image_url AS coverImageUrl
+    </sql>
+
+    <select id="countExploreBoards" resultType="long">
+        SELECT COUNT(*)
+        FROM series s
+        WHERE 1 = 1
+        <include refid="keywordFilter"/>
+    </select>
+
+    <!--
+        인기순: 최근 1주일 내 활성 게시글 수 DESC. 게시글 없는 시리즈는 0으로 동률 처리.
+        커서 = (periodPostCount, series_id). lastId/lastValue 는 서비스에서 쌍으로 보장.
+    -->
+    <select id="selectPopularBoards" resultType="com.anipick.backend.community.dto.ExploreBoardRawDto">
+        SELECT
+        <include refid="boardColumns"/>,
+        COALESCE(pc.cnt, 0) AS periodPostCount
+        FROM series s
+                 LEFT JOIN (SELECT series_id, COUNT(*) AS cnt
+                            FROM community_post
+                            WHERE deleted_at IS NULL
+                              AND created_at &gt;= #{periodStart}
+                            GROUP BY series_id) pc ON pc.series_id = s.series_id
+        WHERE 1 = 1
+        <include refid="keywordFilter"/>
+        <if test="lastId != null and lastValue != null">
+            AND (
+                COALESCE(pc.cnt, 0) &lt; #{lastValue}
+                OR (COALESCE(pc.cnt, 0) = #{lastValue} AND s.series_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY periodPostCount DESC, s.series_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!--
+        최신순: 가장 최근 활성 게시글 시각 DESC. 게시글 없는 시리즈는 맨 뒤(NULL 구간).
+        커서:
+        - lastValue + lastId : 값 구간 진행 중 (더 오래된 시각 → 동률이면 낮은 series_id → NULL 구간)
+        - lastId 만          : NULL 구간 진행 중
+    -->
+    <select id="selectLatestBoards" resultType="com.anipick.backend.community.dto.ExploreBoardRawDto">
+        SELECT
+        <include refid="boardColumns"/>,
+        lp.lastPostedAt AS lastPostedAt
+        FROM series s
+                 LEFT JOIN (SELECT series_id, MAX(created_at) AS lastPostedAt
+                            FROM community_post
+                            WHERE deleted_at IS NULL
+                            GROUP BY series_id) lp ON lp.series_id = s.series_id
+        WHERE 1 = 1
+        <include refid="keywordFilter"/>
+        <choose>
+            <when test="lastValue != null">
+                AND (
+                    lp.lastPostedAt &lt; #{lastValue}
+                    OR (lp.lastPostedAt = #{lastValue} AND s.series_id &lt; #{lastId})
+                    OR lp.lastPostedAt IS NULL
+                )
+            </when>
+            <when test="lastId != null">
+                AND lp.lastPostedAt IS NULL
+                AND s.series_id &lt; #{lastId}
+            </when>
+        </choose>
+        ORDER BY (lp.lastPostedAt IS NULL) ASC, lp.lastPostedAt DESC, s.series_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!-- 시리즈별 대표작(sort_order 최소, 동률 시 anime_id 최소) 애니의 장르. 기존 selectRepresentativeGenresBySeriesId 의 벌크 버전. -->
+    <select id="selectRepresentativeGenresBySeriesIds" resultType="com.anipick.backend.community.dto.SeriesGenreRawDto">
+        SELECT sa.series_id AS seriesId,
+               g.genre_id   AS id,
+               g.genre_kor  AS name
+        FROM series_anime sa
+                 JOIN animegenres ag ON ag.anime_id = sa.anime_id
+                 JOIN genres g ON g.genre_id = ag.genre_id
+        WHERE sa.series_id IN
+        <foreach collection="seriesIds" item="seriesId" open="(" separator="," close=")">
+            #{seriesId}
+        </foreach>
+          AND sa.anime_id = (SELECT sa2.anime_id
+                             FROM series_anime sa2
+                             WHERE sa2.series_id = sa.series_id
+                             ORDER BY sa2.sort_order ASC, sa2.anime_id ASC
+                             LIMIT 1)
+        ORDER BY sa.series_id ASC, g.genre_id ASC
+    </select>
+</mapper>
