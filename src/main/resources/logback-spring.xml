@@ -13,7 +13,7 @@
     <conversionRule conversionWord="correlationId"
                     class="org.springframework.boot.logging.logback.CorrelationIdConverter"/>
 
-    <property name="appLogPath" value="/home/logs"/>
+    <property name="appLogPath" value="${APP_LOG_PATH:-/home/logs}"/>
     <property name="appLogFilePath" value="${appLogPath}/springboot"/>
 
     <springProfile name="local">
