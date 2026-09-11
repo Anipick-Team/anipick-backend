@@ -9,10 +9,10 @@ import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.image.domain.ImageType;
 import com.anipick.backend.image.dto.ImageIdResponse;
 import com.anipick.backend.image.mapper.ImageMapper;
+import com.anipick.backend.image.storage.ImageStorage;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Optional;
@@ -34,17 +31,14 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ImageService {
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     private final ImageMapper imageMapper;
+    private final ImageStorage imageStorage;
 
     private static final Set<String> COMMUNITY_IMAGE_ALLOWED_EXTENSIONS =
             Set.of("png", "jpg", "jpeg", "heic");
 
-    public File compressAndSaveImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
+    public String compressAndSaveImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
         String originalFilename = imageFile.getOriginalFilename();
-        String uploadImageUrl;
 
         BufferedImage bufferedImage = ImageIO.read(imageFile.getInputStream());
         if (bufferedImage == null) {
@@ -52,26 +46,16 @@ public class ImageService {
         }
 
         byte[] compressedBytes = compressImageWithThumbnailator(imageFile);
-        uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
+        String fileName = getUploadImageUrl(originalFilename, user.getUserId());
 
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File outputFile = new File(directory, uploadImageUrl);
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
-            fileOutputStream.write(compressedBytes);
-        }
-
-        return outputFile;
+        return imageStorage.save(compressedBytes, fileName);
     }
 
-    public Image insertImage(CustomUserDetails user, String originalFilename, File outputFile, ImageType imageType) {
+    public Image insertImage(CustomUserDetails user, String originalFilename, String storageKey, ImageType imageType) {
         Image image = Image.builder()
                 .authId(user.getUserId())
                 .imageName(originalFilename)
-                .imagePath(outputFile.getAbsolutePath())
+                .imagePath(storageKey)
                 .imageType(imageType)
                 .build();
 
@@ -85,8 +69,11 @@ public class ImageService {
             final String imagePath = imageMapper.findByImageId(imageId)
                     .map(Image::getImagePath)
                     .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_DATA_NOT_FOUND));
-            final Path filePath = Paths.get(imagePath);
-            return new FileSystemResource(filePath);
+
+            if (imagePath.startsWith("/")) {
+                return new FileSystemResource(Paths.get(imagePath));
+            }
+            return imageStorage.load(imagePath);
         });
     }
 
@@ -108,7 +95,7 @@ public class ImageService {
         Image image;
 
         try {
-            File outputFile = compressAndSaveImageToServer(user, profileImageFile);
+            String storageKey = compressAndSaveImageToServer(user, profileImageFile);
             Optional<Image> existedImage = imageMapper.findByUserId(user.getUserId());
 
             if(existedImage.isPresent()) {
@@ -116,14 +103,14 @@ public class ImageService {
                         .imageId(existedImage.get().getImageId())
                         .authId(user.getUserId())
                         .imageName(originalFilename)
-                        .imagePath(outputFile.getAbsolutePath())
+                        .imagePath(storageKey)
                         .imageType(ImageType.PROFILE)
                         .build();
                 updateImage(updatedImage, user.getUserId());
 
                 return ImageIdResponse.from(updatedImage.getImageId());
             } else {
-                image = insertImage(user, originalFilename, outputFile, ImageType.PROFILE);
+                image = insertImage(user, originalFilename, storageKey, ImageType.PROFILE);
 
                 return ImageIdResponse.from(image.getImageId());
             }
@@ -167,8 +154,8 @@ public class ImageService {
         validateCommunityImageExtension(postImageFile.getOriginalFilename());
 
         try {
-            File outputFile = compressAndSaveCommunityImageToServer(user, postImageFile);
-            Image image = insertImage(user, postImageFile.getOriginalFilename(), outputFile, ImageType.COMMUNITY_POST);
+            String storageKey = compressAndSaveCommunityImageToServer(user, postImageFile);
+            Image image = insertImage(user, postImageFile.getOriginalFilename(), storageKey, ImageType.COMMUNITY_POST);
             return ImageIdResponse.from(image.getImageId());
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -183,7 +170,7 @@ public class ImageService {
         }
     }
 
-    private File compressAndSaveCommunityImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
+    private String compressAndSaveCommunityImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
         String originalFilename = imageFile.getOriginalFilename();
 
         // TODO(image): heic 는 ImageIO 기본 디코더가 없어 read 결과가 null 이 된다.
@@ -194,19 +181,9 @@ public class ImageService {
         }
 
         byte[] compressedBytes = compressCommunityImageWithThumbnailator(imageFile);
-        String uploadImageUrl = getUploadImageUrl(originalFilename, user.getUserId());
+        String fileName = getUploadImageUrl(originalFilename, user.getUserId());
 
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File outputFile = new File(directory, uploadImageUrl);
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
-            fileOutputStream.write(compressedBytes);
-        }
-
-        return outputFile;
+        return imageStorage.save(compressedBytes, fileName);
     }
 
     // 게시글 이미지는 프로필(200x200 썸네일)과 달리 본문 표시용이므로 더 큰 해상도를 유지한다.

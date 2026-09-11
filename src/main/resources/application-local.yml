@@ -61,3 +61,10 @@ file:
 
 log:
   base-url: ${LOG_BASE_URL}
+
+oci:
+  object-storage:
+    enabled: ${OCI_OS_ENABLED:false}
+    namespace: ${OCI_OS_NAMESPACE:}
+    bucket: ${OCI_OS_BUCKET:}
+    prefix: ${OCI_OS_PREFIX:user-profile-image/}
