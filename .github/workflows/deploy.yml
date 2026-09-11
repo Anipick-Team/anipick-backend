@@ -5,10 +5,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
+env:
+  LB_BACKEND_SET: api-backendset
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -33,10 +39,82 @@ jobs:
           mkdir -p dist && cp "$JAR" dist/backend.jar
           ls -l dist/
 
-      - name: Upload JAR to server
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: dist/backend.jar
+          retention-days: 3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        node:
+          - { name: tyo5-api, host: 161.33.179.241, backend: '10.50.1.37:8080' }
+          - { name: tyo3-api, host: 155.248.182.139, backend: '10.30.1.227:8080' }
+          - { name: tyo2-api, host: 161.33.130.25, backend: '10.20.1.55:8080' }
+
+    env:
+      OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+      OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+      LB_ID: ${{ secrets.OCI_LB_OCID }}
+      BACKEND: ${{ matrix.node.backend }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: dist
+
+      - name: Install OCI CLI
+        run: pip install --quiet oci-cli
+
+      - name: Check LB membership
+        id: lb
+        run: |
+          set -euo pipefail
+          BS=$(oci lb backend-set get \
+                 --load-balancer-id "$LB_ID" \
+                 --backend-set-name "$LB_BACKEND_SET")
+          TOTAL=$(echo "$BS" | jq '.data.backends | length')
+          MINE=$(echo "$BS" | jq --arg n "$BACKEND" \
+                   '[.data.backends[] | select(.name == $n)] | length')
+
+          if [ "$MINE" -eq 0 ]; then
+            echo "drain=false" >> "$GITHUB_OUTPUT"
+            echo "아직 LB 백엔드가 아니다 — drain 생략"
+          elif [ "$TOTAL" -lt 2 ]; then
+            echo "drain=false" >> "$GITHUB_OUTPUT"
+            echo "백엔드가 ${TOTAL} 대뿐 — drain 하면 전면 중단이므로 생략"
+          else
+            echo "drain=true" >> "$GITHUB_OUTPUT"
+            echo "백엔드 ${TOTAL} 대 — drain 후 배포"
+          fi
+
+      - name: Drain from LB
+        if: steps.lb.outputs.drain == 'true'
+        run: |
+          set -euo pipefail
+          oci lb backend update \
+            --load-balancer-id "$LB_ID" \
+            --backend-set-name "$LB_BACKEND_SET" \
+            --backend-name "$BACKEND" \
+            --drain true --backup false --offline false --weight 1 \
+            --wait-for-state SUCCEEDED
+          sleep 15
+
+      - name: Upload JAR
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ matrix.node.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
@@ -47,7 +125,7 @@ jobs:
       - name: Swap, restart, verify (rollback on failure)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ matrix.node.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
@@ -80,3 +158,30 @@ jobs:
               sudo systemctl restart backend
             fi
             exit 1
+
+      - name: Return to LB
+        if: always() && steps.lb.outputs.drain == 'true'
+        run: |
+          set -euo pipefail
+          oci lb backend update \
+            --load-balancer-id "$LB_ID" \
+            --backend-set-name "$LB_BACKEND_SET" \
+            --backend-name "$BACKEND" \
+            --drain false --backup false --offline false --weight 1 \
+            --wait-for-state SUCCEEDED
+
+      - name: Wait for LB health
+        if: success() && steps.lb.outputs.drain == 'true'
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            ST=$(oci lb backend-health get \
+                   --load-balancer-id "$LB_ID" \
+                   --backend-set-name "$LB_BACKEND_SET" \
+                   --backend-name "$BACKEND" | jq -r '.data.status')
+            echo "  ${{ matrix.node.name }}: $ST"
+            [ "$ST" = "OK" ] && exit 0
+            sleep 10
+          done
+          echo "LB 가 ${{ matrix.node.name }} 를 정상으로 보지 않는다 — 롤아웃 중단"
+          exit 1
