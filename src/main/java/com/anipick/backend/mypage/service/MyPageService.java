@@ -1,9 +1,12 @@
 package com.anipick.backend.mypage.service;
 
+import com.anipick.backend.anime.dto.GenreDto;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
+import com.anipick.backend.community.dto.SeriesGenreRawDto;
+import com.anipick.backend.community.mapper.CommunityExploreMapper;
 import com.anipick.backend.image.domain.Image;
 import com.anipick.backend.image.service.ImageService;
 import com.anipick.backend.mypage.domain.MyPageDefaults;
@@ -16,8 +19,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,7 @@ public class MyPageService {
 
     private final MyPageMapper myPageMapper;
     private final UserMapper userMapper;
+    private final CommunityExploreMapper communityExploreMapper;
 
     public MyPageResponse getMyPage(Long userId) {
         User user = userMapper.findByUserId(userId)
@@ -194,9 +201,16 @@ public class MyPageService {
 
     public MyCommunityPostsResponse getMyCommunityPosts(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyCommunityPostCount(userId);
-        List<MyCommunityPostDto> posts = myPageMapper.getMyCommunityPosts(userId, lastId, size)
-                .stream()
-                .map(MyCommunityPostDto::seriesTitleTranslationPick)
+        List<MyCommunityPostAllTitleDto> rawPosts = myPageMapper.getMyCommunityPosts(userId, lastId, size);
+
+        List<Long> seriesIds = rawPosts.stream()
+                .map(MyCommunityPostAllTitleDto::getSeriesId)
+                .toList();
+        Map<Long, List<GenreDto>> genresBySeries = findGenresBySeries(seriesIds);
+
+        List<MyCommunityPostDto> posts = rawPosts.stream()
+                .map(dto -> MyCommunityPostDto.seriesTitleTranslationPick(
+                        dto, genresBySeries.getOrDefault(dto.getSeriesId(), Collections.emptyList())))
                 .toList();
         Long newLastId;
 
@@ -213,9 +227,16 @@ public class MyPageService {
 
     public MyCommunityCommentsResponse getMyCommunityComments(Long userId, Long lastId, Integer size) {
         Long count = myPageMapper.getMyCommunityCommentCount(userId);
-        List<MyCommunityCommentDto> comments = myPageMapper.getMyCommunityComments(userId, lastId, size)
-                .stream()
-                .map(MyCommunityCommentDto::seriesTitleTranslationPick)
+        List<MyCommunityCommentAllTitleDto> rawComments = myPageMapper.getMyCommunityComments(userId, lastId, size);
+
+        List<Long> seriesIds = rawComments.stream()
+                .map(MyCommunityCommentAllTitleDto::getSeriesId)
+                .toList();
+        Map<Long, List<GenreDto>> genresBySeries = findGenresBySeries(seriesIds);
+
+        List<MyCommunityCommentDto> comments = rawComments.stream()
+                .map(dto -> MyCommunityCommentDto.seriesTitleTranslationPick(
+                        dto, genresBySeries.getOrDefault(dto.getSeriesId(), Collections.emptyList())))
                 .toList();
         Long newLastId;
 
@@ -228,6 +249,20 @@ public class MyPageService {
         CursorDto cursorDto = CursorDto.of(newLastId);
 
         return MyCommunityCommentsResponse.from(count, cursorDto, comments);
+    }
+
+    /**
+     * 시리즈엔 장르가 없어 대표작(sort_order 최소) 기준으로 벌크 조회 후 seriesId 로 그룹핑.
+     */
+    private Map<Long, List<GenreDto>> findGenresBySeries(List<Long> seriesIds) {
+        if (seriesIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return communityExploreMapper.selectRepresentativeGenresBySeriesIds(seriesIds).stream()
+                .collect(Collectors.groupingBy(
+                        SeriesGenreRawDto::getSeriesId,
+                        Collectors.mapping(raw -> new GenreDto(raw.getId(), raw.getName()), Collectors.toList())
+                ));
     }
 
     private CursorDto getCursorBySortOption(Long lastId, Long lastCount, Double lastRating, String sort, SortOption sortOption) {
