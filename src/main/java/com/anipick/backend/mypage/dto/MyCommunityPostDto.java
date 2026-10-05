@@ -1,8 +1,11 @@
 package com.anipick.backend.mypage.dto;
 
+import com.anipick.backend.anime.dto.GenreDto;
 import com.anipick.backend.common.util.LocalizationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -11,6 +14,7 @@ public class MyCommunityPostDto {
     private Long seriesId;
     private String animeTitle;
     private String animeCoverImageUrl;
+    private List<GenreDto> genres;
     private String title;
     private String content;
     private Long thumbnailImageId;
@@ -20,7 +24,7 @@ public class MyCommunityPostDto {
     private Long commentCount;
     private String createdAt;
 
-    public static MyCommunityPostDto seriesTitleTranslationPick(MyCommunityPostAllTitleDto dto) {
+    public static MyCommunityPostDto seriesTitleTranslationPick(MyCommunityPostAllTitleDto dto, List<GenreDto> genres) {
         String animeTitle = LocalizationUtil.pickTitle(
                 null,
                 dto.getTitleKor(),
@@ -33,6 +37,9 @@ public class MyCommunityPostDto {
                 dto.getSeriesId(),
                 animeTitle,
                 dto.getCoverImageUrl(),
+                genres.stream()
+                        .limit(3)
+                        .toList(),
                 dto.getTitle(),
                 dto.getContent(),
                 dto.getThumbnailImageId(),

@@ -326,6 +326,7 @@
     <select id="getMyCommunityComments" resultType="com.anipick.backend.mypage.dto.MyCommunityCommentAllTitleDto">
         SELECT c.comment_id      AS commentId,
                c.post_id         AS postId,
+               p.series_id       AS seriesId,
                s.title_kor       AS titleKor,
                s.title_eng       AS titleEng,
                s.title_rom       AS titleRom,
