@@ -54,6 +54,8 @@ app:
     google:
       android-client-id: ${ANDROID_CLIENT_ID}
       ios-client-id: ${IOS_CLIENT_ID}
+    apple:
+      client-id: ${APPLE_CLIENT_ID}
 
 file:
   upload-dir: ${FILE_UPLOAD_DIR}
