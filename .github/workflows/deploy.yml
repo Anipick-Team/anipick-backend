@@ -124,14 +124,24 @@ jobs:
 
       - name: Swap, restart, verify (rollback on failure)
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID }}
         with:
           host: ${{ matrix.node.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          envs: APPLE_CLIENT_ID
           script: |
             set -euo pipefail
             APP=/opt/backend
+
+            test -n "${APPLE_CLIENT_ID:-}" || { echo "APPLE_CLIENT_ID secret 이 비어 있습니다"; exit 1; }
+            sudo mkdir -p /etc/systemd/system/backend.service.d
+            printf '[Service]\nEnvironment="APPLE_CLIENT_ID=%s"\n' "$APPLE_CLIENT_ID" \
+              | sudo tee /etc/systemd/system/backend.service.d/apple.conf >/dev/null
+            sudo chmod 600 /etc/systemd/system/backend.service.d/apple.conf
+            sudo systemctl daemon-reload
             NEW=$APP/incoming/backend.jar
             CUR=$APP/backend.jar
             PREV=$APP/backend.jar.prev
