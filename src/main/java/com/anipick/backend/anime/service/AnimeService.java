@@ -11,15 +11,21 @@ import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.image.domain.ImageDefaults;
 import com.anipick.backend.search.dto.StudioItemDto;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +37,14 @@ public class AnimeService {
     private final AnimeCacheService animeCacheService;
     private final GenreMapper genreMapper;
     private final StudioMapper studioMapper;
-    private static final int ITEM_DEFAULT_SIZE = 10;
+    private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Value("${anime.default-cover-url}")
     private String defaultCoverUrl;
+
+    private static final int ITEM_DEFAULT_SIZE = 10;
+    private static final String DAY_WEEK_CURRENT_KEY = "schedule:week:current";
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -489,6 +500,66 @@ public class AnimeService {
     }
 
     /**
+     * 요일 별 애니 리스트
+     * 기본 정렬은 popularity (인기순)
+     * @param day 요일
+     * @param sort POPULARITY, LATEST
+     * @param lastId 마지막 animeId
+     * @param size 리턴 요소 개수
+     */
+    public AnimeDayOfTheWeekPageDto getDayOfTheWeekAnimes(Day day, String sort, Long lastId, Long size) {
+        SortOption sortOption = SortOption.of(sort);
+
+        String jsonString = (String) redisTemplate.opsForHash().get(DAY_WEEK_CURRENT_KEY, day.name());
+
+        if (!StringUtils.hasText(jsonString)) {
+            return AnimeDayOfTheWeekPageDto.empty();
+        }
+        List<AnimeWeekScheduleDto> animeWeekScheduleDtos;
+
+        try {
+            animeWeekScheduleDtos = objectMapper.readValue(jsonString, new TypeReference<List<AnimeWeekScheduleDto>>() {});
+        } catch (Exception e) {
+            log.error("Redis 장애 또는 데이터 파싱 오류 : {}", e.getMessage(), e);
+            return AnimeDayOfTheWeekPageDto.empty();
+        }
+
+        List<AnimeItemDto> animeItemDtoList;
+
+        // 기본값은 인기순이기에 default 로 설정
+        switch (sortOption) {
+            case LATEST -> animeItemDtoList = animeWeekScheduleDtos.stream()
+                                                    .sorted(Comparator.comparing(AnimeWeekScheduleDto::getLatestRank))
+                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
+                                                    .toList();
+            default -> animeItemDtoList = animeWeekScheduleDtos.stream()
+                                                    .sorted(Comparator.comparing(AnimeWeekScheduleDto::getPopularityRank))
+                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
+                                                    .toList();
+        }
+
+        int index = getIndex(animeItemDtoList, lastId);
+
+        List<AnimeItemDto> result = new ArrayList<>();
+
+        int end = (int) Math.min(index + size, animeItemDtoList.size());
+
+        for (int i = index; i < end; i++) {
+            result.add(animeItemDtoList.get(i));
+        }
+
+        CursorDto cursorDto;
+
+        if (result.isEmpty()) {
+            cursorDto = CursorDto.of(sort, null);
+        } else {
+            cursorDto = CursorDto.of(sort, result.getLast().getAnimeId());
+        }
+
+        return new AnimeDayOfTheWeekPageDto((long) animeItemDtoList.size(), cursorDto, result);
+    }
+
+    /**
      * 해당 애니의 내 리뷰 보기
      *
      * @param animeId 애니 ID
@@ -750,5 +821,23 @@ public class AnimeService {
      */
     private String getImageUrlEndpoint(Long imageId) {
         return ImageDefaults.IMAGE_ENDPOINT + imageId;
+    }
+
+    /**
+     * 인덱스 찾기
+     *
+     */
+    private static int getIndex(List<AnimeItemDto> dtos, Long lastId) {
+        int index = 0;
+        if (lastId == null) {
+            return index;
+        }
+        for (int i = 0; i < dtos.size(); i++) {
+            Long animeId = dtos.get(i).getAnimeId();
+            if (lastId.equals(animeId)) {
+                return i + 1;
+            }
+        }
+        return index;
     }
 }
