@@ -41,7 +41,10 @@ public enum ErrorCode {
 	ALREADY_BLOCKED_USER(130, "이미 차단한 유저", null),
 	SELF_BLOCKED_USER_ERROR(131, "본인 자신은 차단 불가", null),
     ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS(132, "30일 이전에 삭제된 계정", "계정 탈퇴 후 30일 동안 동일한 이메일로 재가입할 수 없습니다."),
-    ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN(133, "로컬 계정으로 소셜 로그인 불가", "이메일 회원가입된 계정은 소셜 로그인이 불가합니다."),
+    ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN(133, "로컬 계정으로 소셜 로그인 불가", "이메일로 가입된 계정입니다. 이메일로 로그인해주세요."),
+    ACCOUNT_EXISTS_WITH_KAKAO(134, "카카오 계정으로 다른 소셜 로그인 불가", "카카오로 가입된 계정입니다."),
+    ACCOUNT_EXISTS_WITH_GOOGLE(135, "구글 계정으로 다른 소셜 로그인 불가", "구글로 가입된 계정입니다."),
+    ACCOUNT_EXISTS_WITH_APPLE(136, "애플 계정으로 다른 소셜 로그인 불가", "애플로 가입된 계정입니다."),
 	/**
 	 * Review
 	 */

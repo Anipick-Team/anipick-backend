@@ -33,7 +33,7 @@ public class CommonLogin {
 
             LoginFormat userLoginFormat = user.getLoginFormat();
             if(userLoginFormat != null && userLoginFormat != requestLoginFormat) {
-                throw new CustomException(ErrorCode.ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN);
+                throw new CustomException(toDuplicateAccountErrorCode(userLoginFormat));
             }
 
             TokenResponse response = tokenService.generateAndSaveTokens(email);
@@ -57,6 +57,16 @@ public class CommonLogin {
             TokenResponse response = tokenService.generateAndSaveTokens(email);
             return LoginResponse.from(user.getReviewCompletedYn(), user.getUserId(), user.getNickname(), response);
         }
+    }
+
+    // 기존 가입 수단별로 중복 계정 에러 코드 분기
+    private ErrorCode toDuplicateAccountErrorCode(LoginFormat userLoginFormat) {
+        return switch (userLoginFormat) {
+            case LOCAL -> ErrorCode.ACCOUNT_EXISTS_WITH_DIFFERENT_LOGIN;
+            case KAKAO -> ErrorCode.ACCOUNT_EXISTS_WITH_KAKAO;
+            case GOOGLE -> ErrorCode.ACCOUNT_EXISTS_WITH_GOOGLE;
+            case APPLE -> ErrorCode.ACCOUNT_EXISTS_WITH_APPLE;
+        };
     }
 
     private boolean checkExistsEmail(String email) {
