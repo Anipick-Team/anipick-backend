@@ -2,6 +2,7 @@ package com.anipick.backend.anime.controller;
 
 
 import com.anipick.backend.anime.domain.AnimeCharacterRole;
+import com.anipick.backend.anime.domain.Day;
 import com.anipick.backend.anime.dto.*;
 import com.anipick.backend.anime.service.AnimeService;
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
@@ -134,6 +135,18 @@ public class AnimeController {
 	) {
 		Long userId = user.getUserId();
 		AnimeMyReviewResultDto result = animeService.getAnimeMyReview(animeId, userId);
+		return ApiResponse.success(result);
+	}
+
+	@GetMapping
+	public ApiResponse<AnimeDayOfTheWeekPageDto> getDayOfTheWeekAnimes(
+		@RequestParam(value = "day", defaultValue = "MON") Day day,
+		@RequestParam(value = "sort", defaultValue = "popularity") String sort,
+		@RequestParam(value = "size", defaultValue = "18") Long size,
+		@RequestParam(value = "lastId", required = false) Long lastId,
+		@AuthenticationPrincipal CustomUserDetails user
+	) {
+		AnimeDayOfTheWeekPageDto result = animeService.getDayOfTheWeekAnimes(day, sort, lastId, size);
 		return ApiResponse.success(result);
 	}
 }
