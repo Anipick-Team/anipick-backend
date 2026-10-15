@@ -5,6 +5,7 @@ import com.anipick.backend.common.auth.JwtAuthenticationEntryPoint;
 import com.anipick.backend.common.auth.JwtTokenProvider;
 import com.anipick.backend.common.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,10 +67,9 @@ public class SecurityConfig {
                                                 "/image/**",
                                                 "./upload/image/anipick_mascot.png",
                                                 "./upload/image/default.jpg",
-                                                "/images/profile/**",
-                                                "/actuator/health",
-                                                "/actuator/info",
-                                                "/actuator/prometheus")
+                                                "/images/profile/**")
+                                        .permitAll()
+                                        .requestMatchers(EndpointRequest.to("health", "info", "prometheus"))
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()

@@ -13,6 +13,8 @@ spring:
       prod: prod-mysql
 
 management:
+  server:
+    port: 8090
   endpoints:
     web:
       exposure:
