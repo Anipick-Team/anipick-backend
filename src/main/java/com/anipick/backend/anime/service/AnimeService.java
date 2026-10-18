@@ -23,10 +23,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -512,7 +509,7 @@ public class AnimeService {
 
         String jsonString = (String) redisTemplate.opsForHash().get(DAY_WEEK_CURRENT_KEY, day.name());
 
-        log.info("[요일별 애니] Redis 조회 결과 - key={}, day={}, sort={}, lastId={}, size={}, isNull={}, isBlank={}, jsonLength={}",
+        log.debug("[요일별 애니] Redis 조회 결과 - key={}, day={}, sort={}, lastId={}, size={}, isNull={}, isBlank={}, jsonLength={}",
                 DAY_WEEK_CURRENT_KEY, day.name(), sort, lastId, size, jsonString == null,
                 !StringUtils.hasText(jsonString), jsonString == null ? null : jsonString.length());
 
@@ -530,28 +527,55 @@ public class AnimeService {
             return AnimeDayOfTheWeekPageDto.empty();
         }
 
+        if (animeWeekScheduleDtos.isEmpty()) {
+            return AnimeDayOfTheWeekPageDto.empty();
+        }
+
+        // animeWeekScheduleDtos에서 성인 애니 제외한 anime id들을 가져오기
+        List<Long> animeIds = animeWeekScheduleDtos.stream()
+                .map(AnimeWeekScheduleDto::getAnimeId)
+                .toList();
+
+        Map<Long, AnimeAllTitleImgDto> map = mapper.selectNotAdultInAnimeIds(animeIds).stream()
+                .collect(Collectors.toMap(
+                        AnimeAllTitleImgDto::getAnimeId,
+                        item -> item
+                ));
+
         List<AnimeItemDto> animeItemDtoList;
 
         // 기본값은 인기순이기에 default 로 설정
         switch (sortOption) {
             case LATEST -> animeItemDtoList = animeWeekScheduleDtos.stream()
+                                                    .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getLatestRank))
                                                     .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
             default -> animeItemDtoList = animeWeekScheduleDtos.stream()
+                                                    .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getPopularityRank))
                                                     .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
         }
 
-        int index = getIndex(animeItemDtoList, lastId);
+        List<AnimeItemDto> sortedResults = new ArrayList<>();
+
+        for (AnimeItemDto animeItemDto : animeItemDtoList) {
+            Long animeId = animeItemDto.getAnimeId();
+            AnimeAllTitleImgDto animeAllTitleImgDto = map.get(animeId);
+
+            AnimeItemDto result = AnimeItemDto.animeTitleTranslationPick(animeAllTitleImgDto);
+            sortedResults.add(result);
+        }
+
+        int index = getIndex(sortedResults, lastId);
 
         List<AnimeItemDto> result = new ArrayList<>();
 
-        int end = (int) Math.min(index + size, animeItemDtoList.size());
+        int end = (int) Math.min(index + size, sortedResults.size());
 
         for (int i = index; i < end; i++) {
-            result.add(animeItemDtoList.get(i));
+            result.add(sortedResults.get(i));
         }
 
         CursorDto cursorDto;
@@ -562,10 +586,10 @@ public class AnimeService {
             cursorDto = CursorDto.of(sort, result.getLast().getAnimeId());
         }
 
-        log.info("[요일별 애니] 응답 생성 - day={}, totalCount={}, resultSize={}, lastId={}, size={}",
-                day.name(), animeItemDtoList.size(), result.size(), lastId, size);
+        log.debug("[요일별 애니] 응답 생성 - day={}, totalCount={}, resultSize={}, lastId={}, size={}",
+                day.name(), sortedResults.size(), result.size(), lastId, size);
 
-        return new AnimeDayOfTheWeekPageDto((long) animeItemDtoList.size(), cursorDto, result);
+        return new AnimeDayOfTheWeekPageDto((long) sortedResults.size(), cursorDto, result);
     }
 
     /**

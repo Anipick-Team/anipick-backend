@@ -82,4 +82,6 @@ public interface AnimeMapper {
             @Param(value = "animeId") Long animeId,
             @Param(value = "userId") Long userId
     );
+
+    List<AnimeAllTitleImgDto> selectNotAdultInAnimeIds(@Param(value = "animeIds") List<Long> animeIds);
 }
