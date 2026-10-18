@@ -43,6 +43,9 @@ public class RedisConfig {
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+
         return redisTemplate;
     }
 
