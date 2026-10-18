@@ -512,7 +512,12 @@ public class AnimeService {
 
         String jsonString = (String) redisTemplate.opsForHash().get(DAY_WEEK_CURRENT_KEY, day.name());
 
+        log.info("[요일별 애니] Redis 조회 결과 - key={}, day={}, sort={}, lastId={}, size={}, isNull={}, isBlank={}, jsonLength={}",
+                DAY_WEEK_CURRENT_KEY, day.name(), sort, lastId, size, jsonString == null,
+                !StringUtils.hasText(jsonString), jsonString == null ? null : jsonString.length());
+
         if (!StringUtils.hasText(jsonString)) {
+            log.warn("[요일별 애니] Redis 데이터 없음 - key={}, day={}", DAY_WEEK_CURRENT_KEY, day.name());
             return AnimeDayOfTheWeekPageDto.empty();
         }
         List<AnimeWeekScheduleDto> animeWeekScheduleDtos;
@@ -520,7 +525,8 @@ public class AnimeService {
         try {
             animeWeekScheduleDtos = objectMapper.readValue(jsonString, new TypeReference<List<AnimeWeekScheduleDto>>() {});
         } catch (Exception e) {
-            log.error("Redis 장애 또는 데이터 파싱 오류 : {}", e.getMessage(), e);
+            log.error("[요일별 애니] JSON 파싱 실패 - key={}, day={}, jsonLength={}",
+                    DAY_WEEK_CURRENT_KEY, day.name(), jsonString.length(), e);
             return AnimeDayOfTheWeekPageDto.empty();
         }
 
@@ -555,6 +561,9 @@ public class AnimeService {
         } else {
             cursorDto = CursorDto.of(sort, result.getLast().getAnimeId());
         }
+
+        log.info("[요일별 애니] 응답 생성 - day={}, totalCount={}, resultSize={}, lastId={}, size={}",
+                day.name(), animeItemDtoList.size(), result.size(), lastId, size);
 
         return new AnimeDayOfTheWeekPageDto((long) animeItemDtoList.size(), cursorDto, result);
     }
