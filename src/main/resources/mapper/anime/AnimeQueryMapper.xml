@@ -547,4 +547,26 @@
         WHERE r.anime_id = #{animeId}
         AND r.user_id = #{userId}
     </select>
+
+    <select id="selectNotAdultInAnimeIds" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
+        SELECT a.anime_id AS animeId,
+               a.cover_image_url AS coverImageUrl,
+               a.title_kor AS titleKor,
+               a.title_english AS titleEng,
+               a.title_kor_manual AS titleMan,
+               a.title_romaj AS titleRom,
+               a.title_native AS titleNat
+        FROM Anime a
+        WHERE a.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" close=")" separator=",">
+            #{animeId}
+        </foreach>
+        <!-- 성인 애니 제거 -->
+            AND NOT EXISTS(
+            SELECT 1
+            FROM animegenres ag
+            WHERE ag.anime_id = a.anime_id
+            AND ag.genre_id = 638
+        )
+    </select>
 </mapper>
