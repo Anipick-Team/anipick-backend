@@ -14,6 +14,7 @@ public class AnimeWeekScheduleDto {
     private Integer episode;
     private Integer popularityRank;
     private Integer latestRank;
+    private Boolean isAdult;
 
     public static AnimeItemDto toAnimeItem(AnimeWeekScheduleDto dto) {
         return new AnimeItemDto(dto.animeId, dto.titleKor, dto.coverImageUrl);
