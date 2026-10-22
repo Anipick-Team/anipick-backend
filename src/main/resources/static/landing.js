@@ -18,18 +18,19 @@
     // ==========================
 
     // iOS용 커스텀 스킴 (앱에 등록되어 있어야 함)
-    const IOS_DEEP_LINK_SCHEME = 'anipick://app/anime/detail/';
+    const IOS_DEEP_LINK_SCHEME = 'anipick://app/';
 
     // Android App Links용 HTTPS URL prefix (Manifest에 설정한 값과 일치)
-    const ANDROID_WEB_LINK_PREFIX = 'https://anipick.p-e.kr/app/anime/detail/';
+    const ANDROID_WEB_LINK_PREFIX = 'https://anipick.p-e.kr/app/';
 
     // Android 패키지명
     const ANDROID_PACKAGE_NAME = 'com.jparkbro.anipick'; // 실제 패키지명으로 맞게 수정
 
-    const animeId = getAnimeIdFromPath();
+    // 예: anime/detail/12345, community/post/19
+    const appPath = getAppPathFromPath();
 
-    const iosDeepLinkUrl = animeId ? `${IOS_DEEP_LINK_SCHEME}${animeId}` : '';
-    const androidWebDeepLinkUrl = animeId ? `${ANDROID_WEB_LINK_PREFIX}${animeId}` : '';
+    const iosDeepLinkUrl = appPath ? `${IOS_DEEP_LINK_SCHEME}${appPath}` : '';
+    const androidWebDeepLinkUrl = appPath ? `${ANDROID_WEB_LINK_PREFIX}${appPath}` : '';
 
     const storeUrls = {
       ios: (body.dataset.iosStore || '').trim(),
@@ -44,14 +45,12 @@
         (uaRaw.includes('Macintosh') && 'ontouchend' in document);
 
     // Android intent:// 링크 (https 스킴 + host + pathPrefix=/app)
-    const androidIntentUrl = animeId
-        ? `intent://anipick.p-e.kr/app/anime/detail/${encodeURIComponent(
-            animeId
-        )}#Intent;scheme=https;package=${ANDROID_PACKAGE_NAME};end`
+    const androidIntentUrl = appPath
+        ? `intent://anipick.p-e.kr/app/${appPath}#Intent;scheme=https;package=${ANDROID_PACKAGE_NAME};end`
         : '';
 
-    if (!animeId) {
-      handleMissingAnimeId();
+    if (!appPath) {
+      handleMissingAppPath();
       return;
     }
 
@@ -172,8 +171,8 @@
       statusElement.innerHTML = message;
     }
 
-    function handleMissingAnimeId() {
-      announceStatus('애니 정보를 확인할 수 없어 앱 열기를 건너뜁니다.');
+    function handleMissingAppPath() {
+      announceStatus('이동할 화면 정보를 확인할 수 없어 앱 열기를 건너뜁니다.');
       const openAppButton = document.querySelector('[data-open-app]');
       if (openAppButton) {
         openAppButton.disabled = true;
@@ -222,16 +221,13 @@
       return null;
     }
 
-    function getAnimeIdFromPath() {
-      // 예: /app/anime/detail/12345 → 12345
-      const match = window.location.pathname.match(/\/app\/anime\/detail\/([^/]+)/);
+    function getAppPathFromPath() {
+      // 예: /app/anime/detail/12345 → anime/detail/12345
+      //     /app/community/post/19 → community/post/19
+      // pathname은 이미 URL 인코딩된 상태라 그대로 사용
+      const match = window.location.pathname.match(/^\/app\/(.+?)\/?$/);
       if (match && match[1]) {
-        try {
-          return decodeURIComponent(match[1]);
-        } catch (error) {
-          console.warn('[landing] decodeURIComponent failed, using raw value', error);
-          return match[1];
-        }
+        return match[1];
       }
       return null;
     }
