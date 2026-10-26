@@ -1,5 +1,9 @@
 package com.anipick.backend.image.service;
 
+import app.photofox.vipsffm.VBlob;
+import app.photofox.vipsffm.VImage;
+import app.photofox.vipsffm.VipsError;
+import app.photofox.vipsffm.VipsOption;
 import com.anipick.backend.common.auth.dto.CustomUserDetails;
 import com.anipick.backend.common.exception.CustomException;
 import com.anipick.backend.common.exception.ErrorCode;
@@ -11,7 +15,7 @@ import com.anipick.backend.image.dto.ImageIdResponse;
 import com.anipick.backend.image.mapper.ImageMapper;
 import com.anipick.backend.image.storage.ImageStorage;
 import lombok.RequiredArgsConstructor;
-import net.coobird.thumbnailator.Thumbnails;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -19,37 +23,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.foreign.Arena;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageService {
-    private final ImageMapper imageMapper;
-    private final ImageStorage imageStorage;
-
     private static final Set<String> COMMUNITY_IMAGE_ALLOWED_EXTENSIONS =
             Set.of("png", "jpg", "jpeg", "heic");
-
-    public String compressAndSaveImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
-        String originalFilename = imageFile.getOriginalFilename();
-
-        BufferedImage bufferedImage = ImageIO.read(imageFile.getInputStream());
-        if (bufferedImage == null) {
-            throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
-        }
-
-        byte[] compressedBytes = compressImageWithThumbnailator(imageFile);
-        String fileName = getUploadImageUrl(originalFilename, user.getUserId());
-
-        return imageStorage.save(compressedBytes, fileName);
-    }
+    private static final int PROFILE_IMAGE_MAX_DIMENSION = 200;
+    private static final int PROFILE_IMAGE_QUALITY = 70;
+    private static final int COMMUNITY_IMAGE_MAX_DIMENSION = 1080;
+    private static final int COMMUNITY_IMAGE_QUALITY = 80;
+    private static final long MAX_IMAGE_PIXELS = 40_000_000L;
+    private final ImageMapper imageMapper;
+    private final ImageStorage imageStorage;
 
     public Image insertImage(CustomUserDetails user, String originalFilename, String storageKey, ImageType imageType) {
         Image image = Image.builder()
@@ -91,29 +84,25 @@ public class ImageService {
 
     @Transactional
     public ImageIdResponse updateProfileImage(CustomUserDetails user, MultipartFile profileImageFile) {
-        String originalFilename = profileImageFile.getOriginalFilename();
-        Image image;
-
+        final String originalFilename = profileImageFile.getOriginalFilename();
         try {
-            String storageKey = compressAndSaveImageToServer(user, profileImageFile);
+            final String storageKey = compressAndSave(user, profileImageFile, PROFILE_IMAGE_MAX_DIMENSION, PROFILE_IMAGE_QUALITY);
             Optional<Image> existedImage = imageMapper.findByUserId(user.getUserId());
 
-            if(existedImage.isPresent()) {
-                Image updatedImage = Image.builder()
-                        .imageId(existedImage.get().getImageId())
-                        .authId(user.getUserId())
-                        .imageName(originalFilename)
-                        .imagePath(storageKey)
-                        .imageType(ImageType.PROFILE)
-                        .build();
-                updateImage(updatedImage, user.getUserId());
-
-                return ImageIdResponse.from(updatedImage.getImageId());
-            } else {
-                image = insertImage(user, originalFilename, storageKey, ImageType.PROFILE);
-
+            if (existedImage.isEmpty()) {
+                final Image image = insertImage(user, originalFilename, storageKey, ImageType.PROFILE);
                 return ImageIdResponse.from(image.getImageId());
             }
+            final Image updatedImage = Image.builder()
+                    .imageId(existedImage.get().getImageId())
+                    .authId(user.getUserId())
+                    .imageName(originalFilename)
+                    .imagePath(storageKey)
+                    .imageType(ImageType.PROFILE)
+                    .build();
+            updateImage(updatedImage, user.getUserId());
+
+            return ImageIdResponse.from(updatedImage.getImageId());
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -127,21 +116,9 @@ public class ImageService {
         imageMapper.deleteImage(imageId);
     }
 
-    private String getUploadImageUrl(String fileName, Long userId) {
+    private String getUploadImageUrl(final String fileName, final String extension, Long userId) {
         String baseName = FilenameUtils.getBaseName(fileName);
-        String extension = FilenameUtils.getExtension(fileName);
         return userId + System.currentTimeMillis() + baseName + "." + extension;
-    }
-
-    private byte[] compressImageWithThumbnailator(MultipartFile file) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        Thumbnails.of(file.getInputStream())
-                .size(200, 200)
-                .outputQuality(0.7)
-                .toOutputStream(outputStream);
-
-        return outputStream.toByteArray();
     }
 
     /**
@@ -154,7 +131,7 @@ public class ImageService {
         validateCommunityImageExtension(postImageFile.getOriginalFilename());
 
         try {
-            String storageKey = compressAndSaveCommunityImageToServer(user, postImageFile);
+            String storageKey = compressAndSave(user, postImageFile, COMMUNITY_IMAGE_MAX_DIMENSION, COMMUNITY_IMAGE_QUALITY);
             Image image = insertImage(user, postImageFile.getOriginalFilename(), storageKey, ImageType.COMMUNITY_POST);
             return ImageIdResponse.from(image.getImageId());
         } catch (IOException e) {
@@ -170,32 +147,41 @@ public class ImageService {
         }
     }
 
-    private String compressAndSaveCommunityImageToServer(CustomUserDetails user, MultipartFile imageFile) throws IOException {
-        String originalFilename = imageFile.getOriginalFilename();
+    private String compressAndSave(final CustomUserDetails user, final MultipartFile imageFile, int maxDimension, int quality) throws IOException {
+        final CompressedImage compressed = compress(imageFile, maxDimension, quality);
+        final String fileName = getUploadImageUrl(imageFile.getOriginalFilename(), compressed.extension(), user.getUserId());
+        return imageStorage.save(compressed.bytes(), fileName);
+    }
 
-        // TODO(image): heic 는 ImageIO 기본 디코더가 없어 read 결과가 null 이 된다.
-        //  현재는 확장자 허용 후 여기서 INVAILD_IMAGE_EXTENSION 으로 떨어짐. heic 지원 시 별도 디코더 필요.
-        BufferedImage bufferedImage = ImageIO.read(imageFile.getInputStream());
-        if (bufferedImage == null) {
+    private CompressedImage compress(final MultipartFile imageFile, final int maxDimension, int quality) throws IOException {
+        final byte[] source = imageFile.getBytes();
+        try (Arena arena = Arena.ofConfined()) {
+            validateResolution(arena, source, imageFile.getOriginalFilename());
+            final VImage thumbnail = VImage.thumbnailBuffer(
+                    arena, VBlob.newFromBytes(arena, source), maxDimension,
+                    VipsOption.Int("height", maxDimension));
+            if (thumbnail.hasAlpha()) {
+                return new CompressedImage(thumbnail.pngsaveBuffer(VipsOption.Boolean("strip", true)).getBytes(), "png");
+            }
+            final byte[] jpeg = thumbnail.jpegsaveBuffer(VipsOption.Int("Q", quality), VipsOption.Boolean("strip", true)).getBytes();
+            return new CompressedImage(jpeg, "jpg");
+        } catch (VipsError e) {
+            log.warn("이미지 변환 실패: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
         }
-
-        byte[] compressedBytes = compressCommunityImageWithThumbnailator(imageFile);
-        String fileName = getUploadImageUrl(originalFilename, user.getUserId());
-
-        return imageStorage.save(compressedBytes, fileName);
     }
 
-    // 게시글 이미지는 프로필(200x200 썸네일)과 달리 본문 표시용이므로 더 큰 해상도를 유지한다.
-    private byte[] compressCommunityImageWithThumbnailator(MultipartFile file) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        Thumbnails.of(file.getInputStream())
-                .size(1080, 1080)
-                .outputQuality(0.8)
-                .toOutputStream(outputStream);
-
-        return outputStream.toByteArray();
+    private void validateResolution(final Arena arena, final byte[] source, final String originalFilename) {
+        final VImage header = VImage.newFromBytes(arena, source);
+        final int width = header.getWidth();
+        final int height = header.getHeight();
+        if ((long) width * height > MAX_IMAGE_PIXELS) {
+            log.warn("이미지 해상도 초과로 거절: file={}, width={}, height={}, bytes={}",
+                    originalFilename, width, height, source.length);
+            throw new CustomException(ErrorCode.IMAGE_RESOLUTION_EXCEEDED);
+        }
     }
 
+    private record CompressedImage(byte[] bytes, String extension) {
+    }
 }

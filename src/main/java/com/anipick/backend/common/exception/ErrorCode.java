@@ -83,6 +83,7 @@ public enum ErrorCode {
 	INVAILD_IMAGE_EXTENSION(901, "유효한 이미지 확장자가 아님", null),
 	IMAGE_DATA_NOT_FOUND(902, "이미지 데이터 찾을 수 없음", null),
 	IMAGE_SIZE_EXCEEDED(903, "이미지 용량 초과", "이미지 용량은 10MB 이하만 업로드할 수 있습니다."),
+	IMAGE_RESOLUTION_EXCEEDED(904, "이미지 해상도 초과", "해상도가 너무 큰 이미지는 업로드할 수 없습니다."),
 	/**
 	 * Community
 	 */
