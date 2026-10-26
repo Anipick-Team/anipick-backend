@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.39.0'
     implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
     implementation 'commons-io:commons-io:2.14.0'
-    implementation 'net.coobird:thumbnailator:0.4.14'
+    implementation 'app.photofox.vips-ffm:vips-ffm-core:1.9.9'
     implementation 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
     implementation 'ch.qos.logback.contrib:logback-jackson:0.1.5'
 
@@ -59,6 +59,12 @@ dependencies {
     implementation 'org.redisson:redisson-spring-boot-starter:3.52.0'
     implementation 'io.github.suppierk:spring-boot-multilevel-cache-starter:3.5.7.1'
     implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.3.0'
+}
+
+tasks.named('bootJar') {
+    manifest {
+        attributes 'Enable-Native-Access': 'ALL-UNNAMED'
+    }
 }
 
 tasks.named('test') {

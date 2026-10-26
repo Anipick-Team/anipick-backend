@@ -138,10 +138,13 @@ jobs:
 
             test -n "${APPLE_CLIENT_ID:-}" || { echo "APPLE_CLIENT_ID secret 이 비어 있습니다"; exit 1; }
             /usr/bin/java -version 2>&1 | grep 'version "25' >/dev/null || { echo "/usr/bin/java 가 JDK 25 가 아닙니다 — JAR 교체 없이 중단"; exit 1; }
+            /usr/sbin/ldconfig -p | grep 'libvips.so.42' >/dev/null || { echo "libvips 미설치 — JAR 교체 없이 중단"; exit 1; }
             sudo mkdir -p /etc/systemd/system/backend.service.d
             printf '[Service]\nEnvironment="APPLE_CLIENT_ID=%s"\n' "$APPLE_CLIENT_ID" \
               | sudo tee /etc/systemd/system/backend.service.d/apple.conf >/dev/null
             sudo chmod 600 /etc/systemd/system/backend.service.d/apple.conf
+            printf '[Service]\nEnvironment="MALLOC_ARENA_MAX=2"\nEnvironment="VIPS_CONCURRENCY=1"\n' \
+              | sudo tee /etc/systemd/system/backend.service.d/native-memory.conf >/dev/null
             sudo systemctl daemon-reload
             NEW=$APP/incoming/backend.jar
             CUR=$APP/backend.jar
