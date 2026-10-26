@@ -40,6 +40,7 @@ public class ImageService {
     private static final int PROFILE_IMAGE_QUALITY = 70;
     private static final int COMMUNITY_IMAGE_MAX_DIMENSION = 1080;
     private static final int COMMUNITY_IMAGE_QUALITY = 80;
+    private static final long MAX_IMAGE_PIXELS = 40_000_000L;
     private final ImageMapper imageMapper;
     private final ImageStorage imageStorage;
 
@@ -155,6 +156,7 @@ public class ImageService {
     private CompressedImage compress(final MultipartFile imageFile, final int maxDimension, int quality) throws IOException {
         final byte[] source = imageFile.getBytes();
         try (Arena arena = Arena.ofConfined()) {
+            validateResolution(arena, source, imageFile.getOriginalFilename());
             final VImage thumbnail = VImage.thumbnailBuffer(
                     arena, VBlob.newFromBytes(arena, source), maxDimension,
                     VipsOption.Int("height", maxDimension));
@@ -166,6 +168,17 @@ public class ImageService {
         } catch (VipsError e) {
             log.warn("이미지 변환 실패: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVAILD_IMAGE_EXTENSION);
+        }
+    }
+
+    private void validateResolution(final Arena arena, final byte[] source, final String originalFilename) {
+        final VImage header = VImage.newFromBytes(arena, source);
+        final int width = header.getWidth();
+        final int height = header.getHeight();
+        if ((long) width * height > MAX_IMAGE_PIXELS) {
+            log.warn("이미지 해상도 초과로 거절: file={}, width={}, height={}, bytes={}",
+                    originalFilename, width, height, source.length);
+            throw new CustomException(ErrorCode.IMAGE_RESOLUTION_EXCEEDED);
         }
     }
 
