@@ -143,7 +143,7 @@ jobs:
             printf '[Service]\nEnvironment="APPLE_CLIENT_ID=%s"\n' "$APPLE_CLIENT_ID" \
               | sudo tee /etc/systemd/system/backend.service.d/apple.conf >/dev/null
             sudo chmod 600 /etc/systemd/system/backend.service.d/apple.conf
-            printf '[Service]\nEnvironment="MALLOC_ARENA_MAX=2"\nEnvironment="VIPS_CONCURRENCY=1"\n' \
+            printf '[Service]\nEnvironment="MALLOC_ARENA_MAX=2"\nEnvironment="MALLOC_MMAP_THRESHOLD_=131072"\nEnvironment="MALLOC_TRIM_THRESHOLD_=262144"\nEnvironment="VIPS_CONCURRENCY=1"\nEnvironment="JAVA_TOOL_OPTIONS=-Djdk.nio.maxCachedBufferSize=262144"\n' \
               | sudo tee /etc/systemd/system/backend.service.d/native-memory.conf >/dev/null
             sudo systemctl daemon-reload
             NEW=$APP/incoming/backend.jar
