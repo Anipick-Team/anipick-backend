@@ -29,28 +29,34 @@
     </select>
 
     <!--
-        인기순: 최근 1주일 내 활성 게시글 수 DESC. 게시글 없는 시리즈는 0으로 동률 처리.
-        커서 = (periodPostCount, series_id). lastId/lastValue 는 서비스에서 쌍으로 보장.
+        인기순: 실시간 랭킹(anime.trending DESC, anime.popularity DESC)과 같은 기준.
+        시리즈 점수는 소속 애니의 MAX(trending), MAX(popularity). 소속 애니가 없으면 0.
+        실시간 랭킹과 같이 성인 장르(genre_id = 638) 애니는 점수 집계에서 제외한다.
+        커서 = (seriesTrending, seriesPopularity, series_id). 세 값은 서비스에서 함께 보장.
     -->
     <select id="selectPopularBoards" resultType="com.anipick.backend.community.dto.ExploreBoardRawDto">
         SELECT
         <include refid="boardColumns"/>,
-        COALESCE(pc.cnt, 0) AS periodPostCount
+        COALESCE(rk.trending, 0)   AS seriesTrending,
+        COALESCE(rk.popularity, 0) AS seriesPopularity
         FROM series s
-                 LEFT JOIN (SELECT series_id, COUNT(*) AS cnt
-                            FROM community_post
-                            WHERE deleted_at IS NULL
-                              AND created_at &gt;= #{periodStart}
-                            GROUP BY series_id) pc ON pc.series_id = s.series_id
+                 LEFT JOIN (SELECT sa.series_id,
+                                   MAX(a.trending)   AS trending,
+                                   MAX(a.popularity) AS popularity
+                            FROM series_anime sa
+                                     JOIN anime a ON a.anime_id = sa.anime_id
+                            WHERE NOT EXISTS(SELECT 1
+                                             FROM animegenres ag
+                                             WHERE ag.anime_id = a.anime_id
+                                               AND ag.genre_id = 638)
+                            GROUP BY sa.series_id) rk ON rk.series_id = s.series_id
         WHERE 1 = 1
         <include refid="keywordFilter"/>
-        <if test="lastId != null and lastValue != null">
-            AND (
-                COALESCE(pc.cnt, 0) &lt; #{lastValue}
-                OR (COALESCE(pc.cnt, 0) = #{lastValue} AND s.series_id &lt; #{lastId})
-            )
+        <if test="lastId != null and lastTrending != null and lastPopularity != null">
+            AND (COALESCE(rk.trending, 0), COALESCE(rk.popularity, 0), s.series_id)
+                &lt; (#{lastTrending}, #{lastPopularity}, #{lastId})
         </if>
-        ORDER BY periodPostCount DESC, s.series_id DESC
+        ORDER BY seriesTrending DESC, seriesPopularity DESC, s.series_id DESC
         LIMIT #{size}
     </select>
 

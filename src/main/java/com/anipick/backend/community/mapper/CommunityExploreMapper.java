@@ -5,7 +5,6 @@ import com.anipick.backend.community.dto.SeriesGenreRawDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -17,13 +16,13 @@ public interface CommunityExploreMapper {
     Long countExploreBoards(@Param("keyword") String keyword);
 
     /**
-     * 인기순: 최근 1주일 내 활성 게시글 수 DESC, series_id DESC 커서.
-     * 게시글 없는 시리즈는 0으로 집계되어 뒤에 온다.
+     * 인기순: 실시간 랭킹 기준(시리즈 소속 애니의 MAX(trending) DESC, MAX(popularity) DESC), series_id DESC 커서.
+     * 소속 애니가 없는 시리즈는 0으로 집계되어 뒤에 온다.
      */
     List<ExploreBoardRawDto> selectPopularBoards(
             @Param("keyword") String keyword,
-            @Param("periodStart") LocalDateTime periodStart,
-            @Param("lastValue") Long lastValue,
+            @Param("lastTrending") Long lastTrending,
+            @Param("lastPopularity") Long lastPopularity,
             @Param("lastId") Long lastId,
             @Param("size") int size
     );
