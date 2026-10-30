@@ -23,7 +23,7 @@ public class MyCommunityCommentDto {
 
     public static MyCommunityCommentDto seriesTitleTranslationPick(MyCommunityCommentAllTitleDto dto, List<GenreDto> genres) {
         String animeTitle = LocalizationUtil.pickTitle(
-                null,
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

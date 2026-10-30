@@ -11,6 +11,7 @@ import lombok.Getter;
 public class BoardInfoRawDto {
     // 게시판(시리즈) 존재 시 사용
     private Long seriesId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

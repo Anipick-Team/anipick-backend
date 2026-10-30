@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 public class ExploreBoardRawDto {
     private Long seriesId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

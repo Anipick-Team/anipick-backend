@@ -26,7 +26,7 @@ public class MyCommunityPostDto {
 
     public static MyCommunityPostDto seriesTitleTranslationPick(MyCommunityPostAllTitleDto dto, List<GenreDto> genres) {
         String animeTitle = LocalizationUtil.pickTitle(
-                null,
+                dto.getTitleMan(),
                 dto.getTitleKor(),
                 dto.getTitleEng(),
                 dto.getTitleRom(),

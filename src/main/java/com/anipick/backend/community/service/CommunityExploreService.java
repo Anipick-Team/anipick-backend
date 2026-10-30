@@ -145,7 +145,7 @@ public class CommunityExploreService {
 
     private ExploreBoardItemDto toItemDto(ExploreBoardRawDto raw, List<GenreDto> genres) {
         String title = LocalizationUtil.pickTitle(
-                null, raw.getTitleKor(), raw.getTitleEng(), raw.getTitleRom(), raw.getTitleNat());
+                raw.getTitleMan(), raw.getTitleKor(), raw.getTitleEng(), raw.getTitleRom(), raw.getTitleNat());
         return ExploreBoardItemDto.builder()
                 .seriesId(raw.getSeriesId())
                 .title(title)

@@ -9,6 +9,7 @@ import lombok.Getter;
 public class PostDetailRawDto {
     private Long postId;
     private Long seriesId;
+    private String seriesTitleMan;
     private String seriesTitleKor;
     private String seriesTitleEng;
     private String seriesTitleRom;

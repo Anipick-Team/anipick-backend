@@ -75,7 +75,7 @@ public class CommunityPostService {
 
         List<Long> imageIds = communityPostMapper.selectPostImageIds(postId);
         String seriesTitle = LocalizationUtil.pickTitle(
-                null, raw.getSeriesTitleKor(), raw.getSeriesTitleEng(), raw.getSeriesTitleRom(), raw.getSeriesTitleNat());
+                raw.getSeriesTitleMan(), raw.getSeriesTitleKor(), raw.getSeriesTitleEng(), raw.getSeriesTitleRom(), raw.getSeriesTitleNat());
 
         return PostDetailDto.builder()
                 .postId(raw.getPostId())

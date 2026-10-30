@@ -10,6 +10,7 @@ public class MyCommunityCommentAllTitleDto {
     private Long commentId;
     private Long postId;
     private Long seriesId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

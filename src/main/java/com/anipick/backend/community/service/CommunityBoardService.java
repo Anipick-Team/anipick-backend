@@ -56,7 +56,7 @@ public class CommunityBoardService {
         }
 
         String title = LocalizationUtil.pickTitle(
-                null, raw.getTitleKor(), raw.getTitleEng(), raw.getTitleRom(), raw.getTitleNat());
+                raw.getTitleMan(), raw.getTitleKor(), raw.getTitleEng(), raw.getTitleRom(), raw.getTitleNat());
         List<GenreDto> genres = communityBoardMapper.selectRepresentativeGenresBySeriesId(raw.getSeriesId());
         Long postCount = communityBoardMapper.countPostsBySeriesId(raw.getSeriesId());
 
