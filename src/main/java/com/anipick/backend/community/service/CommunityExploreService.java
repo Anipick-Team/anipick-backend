@@ -30,6 +30,8 @@ public class CommunityExploreService {
     private final CommunityExploreMapper communityExploreMapper;
 
     private static final DateTimeFormatter PARSER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    // 인기순 커서 lastValue = "trending:popularity". 클라이언트는 받은 값을 그대로 되돌려 보낸다
+    private static final String POPULAR_CURSOR_SEPARATOR = ":";
 
     @Transactional(readOnly = true)
     public ExploreBoardPageDto getBoards(String sortCode, String keyword, String lastValue, Long lastId, int size) {
@@ -41,9 +43,10 @@ public class CommunityExploreService {
 
         List<ExploreBoardRawDto> rawItems;
         if (sort == CommunityBoardSort.POPULAR) {
-            Long lastValueLong = parsePopularCursorValue(lastValue, lastId);
-            LocalDateTime periodStart = LocalDateTime.now().minusWeeks(1);
-            rawItems = communityExploreMapper.selectPopularBoards(normalizedKeyword, periodStart, lastValueLong, lastId, size);
+            PopularCursorValue cursorValue = parsePopularCursorValue(lastValue, lastId);
+            Long lastTrending = cursorValue == null ? null : cursorValue.trending;
+            Long lastPopularity = cursorValue == null ? null : cursorValue.popularity;
+            rawItems = communityExploreMapper.selectPopularBoards(normalizedKeyword, lastTrending, lastPopularity, lastId, size);
         } else {
             String lastValueDateTime = parseLatestCursorValue(lastValue, lastId);
             rawItems = communityExploreMapper.selectLatestBoards(normalizedKeyword, lastValueDateTime, lastId, size);
@@ -65,9 +68,10 @@ public class CommunityExploreService {
     }
 
     /**
-     * 인기순 커서(lastValue = 최근 1주일 게시글 수, lastId = series_id) 파싱. 둘은 항상 쌍으로 와야 한다.
+     * 인기순 커서(lastValue = "trending:popularity", lastId = series_id) 파싱. 둘은 항상 쌍으로 와야 한다.
+     * 첫 페이지면 null.
      */
-    private Long parsePopularCursorValue(String lastValue, Long lastId) {
+    private PopularCursorValue parsePopularCursorValue(String lastValue, Long lastId) {
         boolean hasLastValue = lastValue != null && !lastValue.isBlank();
 
         // 첫 페이지
@@ -78,10 +82,24 @@ public class CommunityExploreService {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
+        String[] parts = lastValue.trim().split(POPULAR_CURSOR_SEPARATOR, -1);
+        if (parts.length != 2) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
         try {
-            return Long.parseLong(lastValue.trim());
+            return new PopularCursorValue(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
         } catch (NumberFormatException e) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+    }
+
+    private static class PopularCursorValue {
+        private final Long trending;
+        private final Long popularity;
+
+        private PopularCursorValue(Long trending, Long popularity) {
+            this.trending = trending;
+            this.popularity = popularity;
         }
     }
 
@@ -142,7 +160,8 @@ public class CommunityExploreService {
         }
         ExploreBoardRawDto last = rawItems.get(rawItems.size() - 1);
         if (sort == CommunityBoardSort.POPULAR) {
-            return CursorDto.of(sort.getCode(), last.getSeriesId(), String.valueOf(last.getPeriodPostCount()));
+            String popularLastValue = last.getSeriesTrending() + POPULAR_CURSOR_SEPARATOR + last.getSeriesPopularity();
+            return CursorDto.of(sort.getCode(), last.getSeriesId(), popularLastValue);
         }
         // latest: NULL 구간이면 lastValue 없이 lastId 로만 이어감 (lastPostedAt null → NON_NULL 로 응답에서 제외)
         return CursorDto.of(sort.getCode(), last.getSeriesId(), last.getLastPostedAt());

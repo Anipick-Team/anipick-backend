@@ -8,7 +8,7 @@ import lombok.Getter;
 
 /**
  * 커뮤니티 탐색 게시판 정렬 옵션.
- * - popular: 최근 1주일간 게시글이 많이 올라온 시리즈 순
+ * - popular: 실시간 랭킹 기준(소속 애니의 trending, popularity) 시리즈 순
  * - latest: 가장 최근에 게시글이 올라온 시리즈 순 (게시글 없는 시리즈는 맨 뒤)
  */
 @Getter
