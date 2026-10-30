@@ -11,6 +11,7 @@ import lombok.Getter;
 public class MyCommunityPostAllTitleDto {
     private Long postId;
     private Long seriesId;
+    private String titleMan;
     private String titleKor;
     private String titleEng;
     private String titleRom;

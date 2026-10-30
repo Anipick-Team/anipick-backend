@@ -13,11 +13,12 @@
     -->
     <select id="selectBoardByAnimeId" resultType="com.anipick.backend.community.dto.BoardInfoRawDto">
         SELECT s.series_id          AS seriesId,
+               s.title_kor_manual   AS titleMan,
                s.title_kor          AS titleKor,
                s.title_eng          AS titleEng,
                s.title_rom          AS titleRom,
                s.title_nat          AS titleNat,
-               s.cover_image_url    AS coverImageUrl,
+               COALESCE(NULLIF(s.cover_image_url_manual, ''), s.cover_image_url) AS coverImageUrl,
                a.title_kor_manual   AS animeTitleMan,
                a.title_kor          AS animeTitleKor,
                a.title_english      AS animeTitleEng,

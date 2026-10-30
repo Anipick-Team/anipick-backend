@@ -127,6 +127,7 @@
     <select id="selectPostDetail" resultType="com.anipick.backend.community.dto.PostDetailRawDto">
         SELECT p.post_id       AS postId,
                p.series_id     AS seriesId,
+               s.title_kor_manual AS seriesTitleMan,
                s.title_kor     AS seriesTitleKor,
                s.title_eng     AS seriesTitleEng,
                s.title_rom     AS seriesTitleRom,
