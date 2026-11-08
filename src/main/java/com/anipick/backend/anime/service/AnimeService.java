@@ -10,6 +10,7 @@ import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.common.dto.CursorDto;
 import com.anipick.backend.common.util.LocalizationUtil;
 import com.anipick.backend.image.domain.ImageDefaults;
+import com.anipick.backend.ranking.service.RankingService;
 import com.anipick.backend.search.dto.StudioItemDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ public class AnimeService {
     private final StudioMapper studioMapper;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RankingService rankingService;
 
     @Value("${anime.default-cover-url}")
     private String defaultCoverUrl;
@@ -192,12 +194,16 @@ public class AnimeService {
         AnimeDetailInfoItemDto animeDetailInfoItemDto = mapper.selectAnimeInfoDetail(animeId, userId);
 
         String airDate;
+        AnimeDetailYearSeasonRankingDto yearSeasonRanking;
         if (animeDetailInfoItemDto.getStartDate() == null) {
             airDate = "미정";
+            // 방영 미정 애니는 연도-분기 별 랭킹 제외 대상
+            yearSeasonRanking = null;
         } else {
             LocalDate startDate = animeDetailInfoItemDto.getStartDate();
             Season season = Season.containsSeason(startDate);
             airDate = animeDetailInfoItemDto.getStartDate().getYear() + "년 " + season.getName();
+            yearSeasonRanking = getYearSeasonRanking(animeId, startDate.getYear(), season);
         }
 
         Long episodeCount;
@@ -243,10 +249,24 @@ public class AnimeService {
                 .genres(genres)
                 .episode(episodeCount)
                 .airDate(airDate)
+                .yearSeasonRanking(yearSeasonRanking)
                 .status(animeDetailInfoItemDto.getStatus().getStatusName())
                 .age(animeDetailInfoItemDto.getAge())
                 .studios(studios)
                 .build();
+    }
+
+    /**
+     * 애니 상세의 연도-분기 별 랭킹 순위
+     *
+     * @return 랭킹 제외 대상(성인, 장르 없음)이면 null
+     */
+    private AnimeDetailYearSeasonRankingDto getYearSeasonRanking(Long animeId, int year, Season season) {
+        Long rank = rankingService.getYearSeasonRank(animeId, year, season.getCode());
+        if (rank == null) {
+            return null;
+        }
+        return AnimeDetailYearSeasonRankingDto.of(year, season.getCode(), rank);
     }
 
     /**
