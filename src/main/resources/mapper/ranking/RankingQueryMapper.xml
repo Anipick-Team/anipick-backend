@@ -64,6 +64,52 @@
         LIMIT #{size}
     </select>
 
+    <!--
+        애니 상세의 연도-분기 별 순위.
+        getYearSeasonRankingPaging과 같은 제외 조건(장르 없음, 성인 장르 638)을 적용하고,
+        목록과 같이 popularity 내림차순으로 순위를 이어서 매긴다(동점끼리는 anime_id 순).
+        대상 애니가 제외 조건에 해당하면 NULL을 반환한다.
+    -->
+    <select id="getYearSeasonRankByAnimeId" resultType="java.lang.Long">
+        SELECT
+            CASE
+                WHEN EXISTS(
+                        SELECT 1
+                        FROM AnimeGenres AS tg
+                        WHERE tg.anime_id = t.anime_id
+                     )
+                 AND NOT EXISTS(
+                        SELECT 1
+                        FROM AnimeGenres AS tg2
+                        WHERE tg2.anime_id = t.anime_id
+                          AND tg2.genre_id = 638
+                     )
+                THEN (
+                    SELECT COUNT(*) + 1
+                    FROM Anime AS a
+                    WHERE a.start_date BETWEEN #{startDate} AND #{endDate}
+                      AND (
+                            a.popularity &gt; t.popularity
+                            OR (a.popularity = t.popularity AND a.anime_id &lt; t.anime_id)
+                      )
+                      AND EXISTS(
+                            SELECT 1
+                            FROM AnimeGenres AS ag
+                            WHERE ag.anime_id = a.anime_id
+                      )
+                      <!-- 성인 애니 제거 -->
+                      AND NOT EXISTS(
+                            SELECT 1
+                            FROM AnimeGenres AS ag2
+                            WHERE ag2.anime_id = a.anime_id
+                              AND ag2.genre_id = 638
+                      )
+                )
+            END AS yearSeasonRank
+        FROM Anime AS t
+        WHERE t.anime_id = #{animeId}
+    </select>
+
     <select id="getAllTimeRankingPaging" resultMap="RankingResultMap">
         SELECT
             DISTINCT(a.anime_id) AS animeId,
