@@ -105,22 +105,24 @@ public class MyPageService {
         return WatchingAnimesResponse.from(count, cursorDto, watchingAnimes);
     }
 
-    public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, Long lastId, Integer size) {
+    public FinishedAnimesResponse getMyAnimesFinished(Long userId, String status, String sort, Long lastId, String lastValue, Integer size) {
+        SortOption sortOption = SortOption.of(sort);
+        FinishedAnimesCursorDto cursor = FinishedAnimesCursorDto.of(sortOption, lastId, lastValue);
+
         Long count = myPageMapper.getMyWatchCount(userId, status);
-        List<FinishedAnimesDto> finishedAnimes = myPageMapper.getMyFinishedAnimes(userId, status, lastId, size)
-                .stream()
+        List<FinishedAnimesAllTitleDto> rawAnimes = myPageMapper.getMyFinishedAnimes(userId, status, cursor, size);
+        List<FinishedAnimesDto> finishedAnimes = rawAnimes.stream()
                 .map(FinishedAnimesDto::animeTitleTranslationPick)
                 .toList();
 
-        Long newLastId;
+        CursorDto cursorDto;
 
-        if(finishedAnimes.isEmpty()) {
-            newLastId = null;
+        if(rawAnimes.isEmpty()) {
+            cursorDto = CursorDto.of(sortOption.getCode(), null);
         } else {
-            newLastId = finishedAnimes.getLast().getUserAnimeStatusId();
+            FinishedAnimesAllTitleDto last = rawAnimes.getLast();
+            cursorDto = CursorDto.of(sortOption.getCode(), last.getUserAnimeStatusId(), FinishedAnimesCursorDto.toLastValue(sortOption, last));
         }
-
-        CursorDto cursorDto = CursorDto.of(newLastId);
 
         return FinishedAnimesResponse.from(count, cursorDto, finishedAnimes);
     }

@@ -104,7 +104,9 @@
             a.title_romaj AS titleRom,
             a.title_native AS titleNat,
             a.cover_image_url AS coverImageUrl,
-            r.rating AS myRating
+            r.rating AS myRating,
+            <include refid="finishedSortedAt"/> AS sortedAt,
+            a.start_date AS startDate
         FROM anime AS a
         JOIN useranimestatus AS uas ON a.anime_id = uas.anime_id
         LEFT JOIN review AS r ON a.anime_id = r.anime_id AND r.user_id = uas.user_id
@@ -112,12 +114,70 @@
                 uas.status = #{status}
             AND
                 uas.user_id = #{userId}
-        <if test="lastId != null">
-            AND uas.user_anime_status_id &lt; #{lastId}
+        <if test="cursor.lastId != null">
+            <choose>
+                <when test="cursor.sortOption == 'startDate' and cursor.lastStartDate != null">
+                    AND (
+                        a.start_date IS NULL
+                        OR a.start_date &lt; #{cursor.lastStartDate}
+                        OR (a.start_date = #{cursor.lastStartDate} AND uas.user_anime_status_id &lt; #{cursor.lastId})
+                    )
+                </when>
+                <!-- 방영 미정 구간 -->
+                <when test="cursor.sortOption == 'startDate'">
+                    AND a.start_date IS NULL
+                    AND uas.user_anime_status_id &lt; #{cursor.lastId}
+                </when>
+                <when test="cursor.sortOption == 'ratingDesc' and cursor.lastRating != null">
+                    AND (
+                        r.rating IS NULL
+                        OR r.rating &lt; #{cursor.lastRating}
+                        OR (r.rating = #{cursor.lastRating} AND <include refid="finishedSortedAtCursor"/>)
+                    )
+                </when>
+                <when test="cursor.sortOption == 'ratingAsc' and cursor.lastRating != null">
+                    AND (
+                        r.rating IS NULL
+                        OR r.rating &gt; #{cursor.lastRating}
+                        OR (r.rating = #{cursor.lastRating} AND <include refid="finishedSortedAtCursor"/>)
+                    )
+                </when>
+                <!-- 평가 순 정렬의 평가 없는 애니 구간 -->
+                <when test="cursor.sortOption == 'ratingDesc' or cursor.sortOption == 'ratingAsc'">
+                    AND r.rating IS NULL
+                    AND <include refid="finishedSortedAtCursor"/>
+                </when>
+                <otherwise>
+                    AND <include refid="finishedSortedAtCursor"/>
+                </otherwise>
+            </choose>
         </if>
-        ORDER BY uas.user_anime_status_id DESC
+        <choose>
+            <when test="cursor.sortOption == 'startDate'">
+                ORDER BY a.start_date IS NULL ASC, a.start_date DESC, uas.user_anime_status_id DESC
+            </when>
+            <when test="cursor.sortOption == 'ratingDesc'">
+                ORDER BY r.rating IS NULL ASC, r.rating DESC, sortedAt DESC, uas.user_anime_status_id DESC
+            </when>
+            <when test="cursor.sortOption == 'ratingAsc'">
+                ORDER BY r.rating IS NULL ASC, r.rating ASC, sortedAt DESC, uas.user_anime_status_id DESC
+            </when>
+            <otherwise>
+                ORDER BY sortedAt DESC, uas.user_anime_status_id DESC
+            </otherwise>
+        </choose>
         LIMIT #{size}
     </select>
+
+    <!-- 평가한 시간, 평가가 없으면 다 본 애니가 된 시간 -->
+    <sql id="finishedSortedAt">COALESCE(r.updated_at, uas.updated_at)</sql>
+
+    <sql id="finishedSortedAtCursor">
+        (
+            <include refid="finishedSortedAt"/> &lt; #{cursor.lastSortedAt}
+            OR (<include refid="finishedSortedAt"/> = #{cursor.lastSortedAt} AND uas.user_anime_status_id &lt; #{cursor.lastId})
+        )
+    </sql>
 
     <select id="getMyReviewCount" resultType="Long">
         SELECT COUNT(*)

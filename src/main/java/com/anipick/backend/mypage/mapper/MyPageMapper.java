@@ -40,7 +40,7 @@ public interface MyPageMapper {
     List<FinishedAnimesAllTitleDto> getMyFinishedAnimes(
             @Param("userId") Long userId,
             @Param("status") String status,
-            @Param("lastId") Long lastId,
+            @Param("cursor") FinishedAnimesCursorDto cursor,
             @Param("size") Integer size
     );
 
