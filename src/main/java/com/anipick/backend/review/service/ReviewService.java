@@ -25,7 +25,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -104,12 +103,19 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateReview(Long animeId, ReviewRequest request, Long userId) {
-        Review review = reviewMapper.findByAnimeId(animeId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        if (request.getRating() == null
+                || request.getRating() < 0
+                || request.getRating() > 5
+                || request.getIsSpoiler() == null) {
+            throw new CustomException(ErrorCode.VALIDATION_FAIL);
+        }
 
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
+
+        Review review = reviewMapper.findByAnimeId(animeId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
