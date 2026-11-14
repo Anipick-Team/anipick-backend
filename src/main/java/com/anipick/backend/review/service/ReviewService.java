@@ -156,7 +156,23 @@ public class ReviewService {
             return;
         }
 
-        ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        List<Long> animeIds = ratingRequests.stream()
+                .map(SignupRatingRequest::getAnimeId)
+                .toList();
+        if (animeIds.stream().distinct().count() != animeIds.size()) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+
+        List<Long> existingAnimeIds = ratingMapper.findAnimeIdsByUserId(animeIds, userId);
+        if (!existingAnimeIds.isEmpty()) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+
+        try {
+            ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
 
         List<UserAnimeStatusInsertRequest> statusBulkList = ratingRequests.stream()
                 .map(r -> UserAnimeStatusInsertRequest.of(
@@ -167,9 +183,6 @@ public class ReviewService {
                 .toList();
         userAnimeStatusMapper.createUserAnimeStatusBulk(statusBulkList);
 
-        List<Long> animeIds = ratingRequests.stream()
-                .map(SignupRatingRequest::getAnimeId)
-                .toList();
         animeMapper.updateReviewAverageScoresByAnimeIds(animeIds);
 
         UserRecommendState recommendState = userRecommendStateMapper.findByUserId(userId);
