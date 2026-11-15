@@ -6,34 +6,46 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class GoogleVerifierProcessor {
-    @Value("${app.oauth2.google.android-client-id}")
-    private String androidClientId;
+    private final String androidClientId;
 
-    @Value("${app.oauth2.google.ios-client-id}")
-    private String iosClientId;
+    private final List<String> iosClientIds;
+
+    public GoogleVerifierProcessor(
+            @Value("${app.oauth2.google.android-client-id}") String androidClientId,
+            @Value("${app.oauth2.google.ios-client-id}") String iosClientIds) {
+        this.androidClientId = androidClientId;
+        this.iosClientIds = parseClientIds(iosClientIds);
+    }
 
     public GoogleIdToken.Payload verifyAndroidGoogleToken(String token) throws GeneralSecurityException, IOException {
-        return getPayload(token, androidClientId);
+        return getPayload(token, List.of(androidClientId));
     }
 
     public GoogleIdToken.Payload verifyIosGoogleToken(String token) throws GeneralSecurityException, IOException {
-        return getPayload(token, iosClientId);
+        return getPayload(token, iosClientIds);
     }
 
-    private static GoogleIdToken.Payload getPayload(String token, String clientId) throws GeneralSecurityException, IOException {
+    private static List<String> parseClientIds(String raw) {
+        return Arrays.stream(raw.split(","))
+                .map(String::trim)
+                .filter(id -> !id.isEmpty())
+                .toList();
+    }
+
+    private static GoogleIdToken.Payload getPayload(String token, Collection<String> audience) throws GeneralSecurityException, IOException {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList(clientId))
+                .setAudience(audience)
                 .build();
 
         GoogleIdToken googleIdToken = verifier.verify(token);
