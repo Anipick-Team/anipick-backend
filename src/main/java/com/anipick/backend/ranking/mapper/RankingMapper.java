@@ -21,6 +21,12 @@ public interface RankingMapper {
             @Param("animeIds") List<Long> animeIds
     );
 
+    Long getYearSeasonRankByAnimeId(
+            @Param("animeId") Long animeId,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate
+    );
+
     List<RankingAnimesFromQueryDto> getAllTimeRankingPaging(
             @Param("genreId") Long genreId,
             @Param("lastId") Long lastId,
