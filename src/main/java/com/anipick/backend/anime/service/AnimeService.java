@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class AnimeService {
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
     private static final String UNKNOWN_AIR_DATE = "미정";
+    private static final ZoneId SEOUL_ZONE = ZoneId.of("Asia/Seoul");
 
     /**
      * 다음 시즌 방영 예정 애니
@@ -229,6 +231,24 @@ public class AnimeService {
                 animeDetailInfoItemDto.getDescriptionKor()
         );
 
+        // JVM 기본 타임존과 무관하게 한국 날짜 기준으로 방영 초기 여부를 판정
+        LocalDate today = LocalDate.now(SEOUL_ZONE);
+        AnimeSocialCountDto socialCount = mapper.selectAnimeSocialCount(animeId);
+        AnimeSocialIndicator socialIndicator;
+        // 집계 쿼리는 항상 1행이지만, 결과가 없으면 상세 조회를 막지 않고 지표만 미노출
+        if (socialCount == null) {
+            socialIndicator = AnimeSocialIndicator.hidden();
+        } else {
+            socialIndicator = AnimeSocialIndicator.of(
+                    animeDetailInfoItemDto.getStatus(),
+                    animeDetailInfoItemDto.getStartDate(),
+                    today,
+                    socialCount.getWatchlistCount(),
+                    socialCount.getWatchingCount(),
+                    socialCount.getFinishedCount()
+            );
+        }
+
         return AnimeDetailInfoResultDto.builder()
                 .animeId(animeDetailInfoItemDto.getAnimeId())
                 .title(pickTitle)
@@ -246,6 +266,10 @@ public class AnimeService {
                 .status(animeDetailInfoItemDto.getStatus().getStatusName())
                 .age(animeDetailInfoItemDto.getAge())
                 .studios(studios)
+                .airingStatus(animeDetailInfoItemDto.getStatus())
+                .socialPhase(socialIndicator.getPhase())
+                .metric(socialIndicator.getMetric())
+                .count(socialIndicator.getCount())
                 .build();
     }
 
