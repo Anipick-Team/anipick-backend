@@ -13,7 +13,9 @@
                an.title_romaj AS titleRom,
                an.title_native AS titleNat,
                an.cover_image_url AS coverImageUrl,
-               a.tag_count AS tagCount
+               a.tag_count AS tagCount,
+               an.review_average_score AS averageRating,
+               an.next_episode AS nextEpisode
         FROM (
             SELECT at.anime_id,
                    COUNT(*) AS tag_count
@@ -75,7 +77,9 @@
                an.title_romaj AS titleRom,
                an.title_native AS titleNat,
                an.cover_image_url AS coverImageUrl,
-               a.tag_count AS tagCount
+               a.tag_count AS tagCount,
+               an.review_average_score AS averageRating,
+               an.next_episode AS nextEpisode
         FROM (
             SELECT at.anime_id,
                    COUNT(*) AS tag_count

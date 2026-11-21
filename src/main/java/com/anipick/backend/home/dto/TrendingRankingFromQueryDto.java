@@ -11,4 +11,6 @@ public class TrendingRankingFromQueryDto {
     private String titleRom;
     private String titleNat;
     private String coverImageUrl;
+    private Double averageRating;
+    private Long nextEpisode;
 }
