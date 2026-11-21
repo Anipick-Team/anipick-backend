@@ -107,12 +107,16 @@ public class HomeService {
                 .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                 .toList();
 
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                comingSoonItemBasicDtos.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
         List<HomeComingSoonItemDto> items = comingSoonItemBasicDtos.stream()
                 .map(dto -> HomeComingSoonItemDto.of(
                         dto.getAnimeId(),
                         dto.getTitle(),
                         dto.getCoverImageUrl(),
-                        dto.getStartDate()
+                        dto.getStartDate(),
+                        genresByAnimeId.getOrDefault(dto.getAnimeId(), List.of())
                 ))
                 .toList();
         return items;

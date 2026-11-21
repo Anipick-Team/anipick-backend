@@ -68,15 +68,23 @@ public class AnimeService {
                 .endDate(endDate)
                 .build();
 
-        List<AnimeItemDto> nextSeasonAnimes = animeCacheService.getUpcomingSeasonAnimes(rangeDateRequestDto)
-                .stream()
-                .map(AnimeItemDto::animeTitleTranslationPick)
+        List<AnimeAllTitleImgDto> upcomingSeasonAnimes = animeCacheService.getUpcomingSeasonAnimes(rangeDateRequestDto);
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                upcomingSeasonAnimes.stream().map(AnimeAllTitleImgDto::getAnimeId).toList()
+        );
+        List<UpcomingSeasonAnimeItemDto> nextSeasonAnimes = upcomingSeasonAnimes.stream()
+                .map(dto -> new UpcomingSeasonAnimeItemDto(
+                        dto.getAnimeId(),
+                        LocalizationUtil.pickTitle(dto.getTitleMan(), dto.getTitleKor(), dto.getTitleEng(), dto.getTitleRom(), dto.getTitleNat()),
+                        dto.getCoverImageUrl(),
+                        genresByAnimeId.getOrDefault(dto.getAnimeId(), List.of())
+                ))
                 .collect(Collectors.toList());
 
         Collections.shuffle(nextSeasonAnimes);
 
         if (nextSeasonAnimes.size() > 10) {
-            List<AnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
+            List<UpcomingSeasonAnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
             return UpcomingSeasonResultDto.of(season, seasonYear, animes10SubList);
         }
         return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);
@@ -643,6 +651,9 @@ public class AnimeService {
                 mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
                         .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                         .toList();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                latestSortAnimes.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
 
         List<ComingSoonItemDto> items = latestSortAnimes.stream()
                 .map(b -> new ComingSoonItemDto(
@@ -650,7 +661,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
@@ -679,6 +691,9 @@ public class AnimeService {
                         .stream()
                         .map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
                         .toList();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                popularitySortAnimes.stream().map(ComingSoonItemPopularityDto::getAnimeId).toList()
+        );
 
         Long nextId;
 
@@ -694,7 +709,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
@@ -724,6 +740,9 @@ public class AnimeService {
         List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
                 .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                 .collect(Collectors.toList());
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                typeCovertAnimes.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
 
         List<ComingSoonItemDto> items = typeCovertAnimes.stream()
                 .map(b -> new ComingSoonItemDto(
@@ -731,7 +750,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
