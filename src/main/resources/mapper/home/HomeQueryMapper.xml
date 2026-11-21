@@ -11,7 +11,9 @@
             a.title_english AS titleEng,
             a.title_romaj AS titleRom,
             a.title_native AS titleNat,
-            a.cover_image_url AS coverImageUrl
+            a.cover_image_url AS coverImageUrl,
+            a.review_average_score AS averageRating,
+            a.next_episode AS nextEpisode
         FROM Anime AS a
         WHERE 1 = 1
           <!-- 성인 애니 제거 -->

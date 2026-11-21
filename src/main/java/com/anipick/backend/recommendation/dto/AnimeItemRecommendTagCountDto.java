@@ -11,6 +11,8 @@ public class AnimeItemRecommendTagCountDto {
     private String title;
     private String coverImage;
     private Long tagCount;
+    private Double averageRating;
+    private Long nextEpisode;
 
     public static AnimeItemRecommendTagCountDto animeTitleTranslationPick(AnimeAllTitleItemRecommendTagCountDto dto) {
         String title = LocalizationUtil.pickTitle(
@@ -20,6 +22,13 @@ public class AnimeItemRecommendTagCountDto {
                 dto.getTitleRom(),
                 dto.getTitleNat()
         );
-        return new AnimeItemRecommendTagCountDto(dto.getAnimeId(), title, dto.getCoverImage(), dto.getTagCount());
+        return new AnimeItemRecommendTagCountDto(
+                dto.getAnimeId(),
+                title,
+                dto.getCoverImage(),
+                dto.getTagCount(),
+                dto.getAverageRating(),
+                dto.getNextEpisode()
+        );
     }
 }

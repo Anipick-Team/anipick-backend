@@ -12,6 +12,19 @@
         WHERE anime_id = #{animeId}
     </select>
 
+    <select id="selectGenresByAnimeIds" resultType="com.anipick.backend.anime.dto.AnimeGenreDto">
+        SELECT ag.anime_id AS animeId,
+               g.genre_id AS genreId,
+               g.genre_kor AS genreName
+        FROM genres g
+        JOIN animegenres ag ON ag.genre_id = g.genre_id
+        WHERE ag.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" separator="," close=")">
+            #{animeId}
+        </foreach>
+        ORDER BY ag.anime_id, g.genre_id
+    </select>
+
     <select id="findGenreIdByGenreName" resultType="long">
         SELECT g.genre_id AS genreId
         FROM genres AS g
