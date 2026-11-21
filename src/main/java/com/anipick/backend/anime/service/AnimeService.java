@@ -542,35 +542,48 @@ public class AnimeService {
                         item -> item
                 ));
 
-        List<AnimeItemDto> animeItemDtoList;
+        List<AnimeWeekScheduleDto> sortedSchedules;
 
         // 기본값은 인기순이기에 default 로 설정
         switch (sortOption) {
-            case LATEST -> animeItemDtoList = animeWeekScheduleDtos.stream()
+            case LATEST -> sortedSchedules = animeWeekScheduleDtos.stream()
                                                     .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getLatestRank))
-                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
-            default -> animeItemDtoList = animeWeekScheduleDtos.stream()
+            default -> sortedSchedules = animeWeekScheduleDtos.stream()
                                                     .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getPopularityRank))
-                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
         }
 
-        List<AnimeItemDto> sortedResults = new ArrayList<>();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                sortedSchedules.stream().map(AnimeWeekScheduleDto::getAnimeId).toList()
+        );
+        List<DayOfWeekAnimeItemDto> sortedResults = new ArrayList<>();
 
-        for (AnimeItemDto animeItemDto : animeItemDtoList) {
-            Long animeId = animeItemDto.getAnimeId();
+        for (AnimeWeekScheduleDto schedule : sortedSchedules) {
+            Long animeId = schedule.getAnimeId();
             AnimeAllTitleImgDto animeAllTitleImgDto = map.get(animeId);
 
-            AnimeItemDto result = AnimeItemDto.animeTitleTranslationPick(animeAllTitleImgDto);
+            DayOfWeekAnimeItemDto result = new DayOfWeekAnimeItemDto(
+                    animeId,
+                    LocalizationUtil.pickTitle(
+                            animeAllTitleImgDto.getTitleMan(),
+                            animeAllTitleImgDto.getTitleKor(),
+                            animeAllTitleImgDto.getTitleEng(),
+                            animeAllTitleImgDto.getTitleRom(),
+                            animeAllTitleImgDto.getTitleNat()
+                    ),
+                    animeAllTitleImgDto.getCoverImageUrl(),
+                    genresByAnimeId.getOrDefault(animeId, List.of()),
+                    animeAllTitleImgDto.getNextEpisode()
+            );
             sortedResults.add(result);
         }
 
         int index = getIndex(sortedResults, lastId);
 
-        List<AnimeItemDto> result = new ArrayList<>();
+        List<DayOfWeekAnimeItemDto> result = new ArrayList<>();
 
         int end = (int) Math.min(index + size, sortedResults.size());
 
@@ -847,6 +860,18 @@ public class AnimeService {
         return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
     }
 
+    private Map<Long, List<String>> getGenresByAnimeId(List<Long> animeIds) {
+        if (animeIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return genreMapper.selectGenresByAnimeIds(animeIds).stream()
+                .collect(Collectors.groupingBy(
+                        AnimeGenreDto::getAnimeId,
+                        Collectors.mapping(AnimeGenreDto::getGenreName, Collectors.toList())
+                ));
+    }
+
     /**
      * 유저의 프로필 사진 URL 생성
      *
@@ -860,7 +885,7 @@ public class AnimeService {
      * 인덱스 찾기
      *
      */
-    private static int getIndex(List<AnimeItemDto> dtos, Long lastId) {
+    private static int getIndex(List<DayOfWeekAnimeItemDto> dtos, Long lastId) {
         int index = 0;
         if (lastId == null) {
             return index;

@@ -17,4 +17,5 @@ public class AnimeAllTitleImgDto implements Serializable {
 	private String titleRom;
 	private String titleNat;
 	private String coverImageUrl;
+	private Long nextEpisode;
 }
