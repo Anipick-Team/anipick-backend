@@ -17,6 +17,7 @@ import com.anipick.backend.user.mapper.UserMapper;
 import com.anipick.backend.user.util.SignUpValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -87,14 +89,20 @@ public class UserService {
     }
 
     public LoginResponse doLogin(LoginRequest request) {
-        User user = userMapper.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL));
+        String email = request.getEmail();
+        User user = userMapper.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("[로그인 실패] email={}, reason={}", email, ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL.name());
+                    return new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_EMAIL);
+                });
 
         if(user.getDeletedAt() != null) {
+            log.warn("[로그인 실패] email={}, reason={}", email, ErrorCode.ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS.name());
             throw new CustomException(ErrorCode.ALREADY_DELETED_ACCOUNT_BEFORE_30DAYS);
         }
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("[로그인 실패] email={}, reason={}", email, ErrorCode.LOGIN_FAIL.name());
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
 
