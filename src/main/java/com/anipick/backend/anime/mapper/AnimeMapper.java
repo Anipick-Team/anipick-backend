@@ -35,6 +35,8 @@ public interface AnimeMapper {
             @Param(value = "userId") Long userId
     );
 
+    AnimeSocialCountDto selectAnimeSocialCount(@Param(value = "animeId") Long animeId);
+
     List<AnimeAllTitleImgDto> selectAnimeInfoRecommendationsByAnimeId(
             @Param("animeId") Long animeId,
             @Param("size") int size
