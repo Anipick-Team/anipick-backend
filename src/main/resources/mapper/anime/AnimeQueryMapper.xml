@@ -287,6 +287,19 @@
         WHERE a.anime_id = #{animeId}
     </select>
 
+    <select id="selectAnimeSocialCount" resultType="com.anipick.backend.anime.dto.AnimeSocialCountDto">
+        SELECT COALESCE(SUM(CASE WHEN uas.status = 'WATCHLIST' THEN 1 ELSE 0 END), 0) AS watchlistCount,
+               COALESCE(SUM(CASE WHEN uas.status = 'WATCHING' THEN 1 ELSE 0 END), 0) AS watchingCount,
+               COALESCE(SUM(CASE WHEN uas.status = 'FINISHED' THEN 1 ELSE 0 END), 0) AS finishedCount
+        FROM useranimestatus uas
+                 -- 일반 JOIN/EXISTS 는 옵티마이저가 user 풀스캔을 먼저 선택하므로 anime_id 인덱스를 먼저 타도록 조인 순서 고정
+                 STRAIGHT_JOIN user u
+                               ON u.user_id = uas.user_id
+        WHERE uas.anime_id = #{animeId}
+          -- 탈퇴 유저는 제외
+          AND u.deleted_at IS NULL
+    </select>
+
     <select id="selectAnimeInfoRecommendationsByAnimeId" resultType="com.anipick.backend.anime.dto.AnimeAllTitleImgDto">
         SELECT a.anime_id AS animeId,
                a.title_kor_manual AS titleMan,
