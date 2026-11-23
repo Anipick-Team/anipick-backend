@@ -17,19 +17,19 @@ import java.util.List;
 
 @Component
 public class GoogleVerifierProcessor {
-    private final String androidClientId;
+    private final List<String> androidClientIds;
 
     private final List<String> iosClientIds;
 
     public GoogleVerifierProcessor(
-            @Value("${app.oauth2.google.android-client-id}") String androidClientId,
+            @Value("${app.oauth2.google.android-client-id}") String androidClientIds,
             @Value("${app.oauth2.google.ios-client-id}") String iosClientIds) {
-        this.androidClientId = androidClientId;
+        this.androidClientIds = parseClientIds(androidClientIds);
         this.iosClientIds = parseClientIds(iosClientIds);
     }
 
     public GoogleIdToken.Payload verifyAndroidGoogleToken(String token) throws GeneralSecurityException, IOException {
-        return getPayload(token, List.of(androidClientId));
+        return getPayload(token, androidClientIds);
     }
 
     public GoogleIdToken.Payload verifyIosGoogleToken(String token) throws GeneralSecurityException, IOException {
