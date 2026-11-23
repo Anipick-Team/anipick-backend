@@ -53,11 +53,13 @@ public class MyPageController {
     public ApiResponse<FinishedAnimesResponse> getMyAnimesFinished(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "status") String status,
+            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
             @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "lastValue", required = false) String lastValue,
             @RequestParam(value = "size", required = false, defaultValue = "18") Integer size
     ) {
         Long userId = user.getUserId();
-        FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, lastId, size);
+        FinishedAnimesResponse response = myPageService.getMyAnimesFinished(userId, status, sort, lastId, lastValue, size);
         return ApiResponse.success(response);
     }
 

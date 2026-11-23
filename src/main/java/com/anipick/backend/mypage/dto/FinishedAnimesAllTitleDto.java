@@ -2,6 +2,9 @@ package com.anipick.backend.mypage.dto;
 
 import lombok.Getter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 public class FinishedAnimesAllTitleDto {
     private Long animeId;
@@ -13,4 +16,6 @@ public class FinishedAnimesAllTitleDto {
     private String titleNat;
     private String coverImageUrl;
     private Double myRating;
+    private LocalDateTime sortedAt;
+    private LocalDate startDate;
 }
