@@ -240,6 +240,20 @@ public class RankingService {
         }
     }
 
+    /**
+     * 연도-분기 별 랭킹에서 해당 애니의 순위
+     *
+     * @return 랭킹 제외 대상(성인, 장르 없음)이면 null
+     */
+    public Long getYearSeasonRank(Long animeId, int year, int season) {
+        RangeDate rangeDate = SeasonConverter.getRangDate(year, season);
+        if(rangeDate == null) {
+            return null;
+        }
+
+        return rankingMapper.getYearSeasonRankByAnimeId(animeId, rangeDate.getStartDate(), rangeDate.getEndDate());
+    }
+
     private String changeToTrend(String change) {
         Trend trend;
 
