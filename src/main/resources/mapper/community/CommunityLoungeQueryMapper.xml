@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityLoungeMapper">
+
+    <!--
+        오늘 방영 애니 → 시리즈 매핑.
+        성인 장르(genre_id = 638) 제외는 요일별 신작(AnimeQueryMapper.selectNotAdultInAnimeIds)과 같은 기준.
+        시리즈 표지는 manual 우선(다른 커뮤니티 쿼리와 동일).
+    -->
+    <select id="selectSeriesByAnimeIds" resultType="com.anipick.backend.community.dto.LoungeSeriesRawDto">
+        SELECT sa.anime_id         AS animeId,
+               s.series_id         AS seriesId,
+               s.title_kor_manual  AS titleMan,
+               s.title_kor         AS titleKor,
+               s.title_eng         AS titleEng,
+               s.title_rom         AS titleRom,
+               s.title_nat         AS titleNat,
+               COALESCE(NULLIF(s.cover_image_url_manual, ''), s.cover_image_url) AS coverImageUrl
+        FROM series_anime sa
+                 JOIN series s ON s.series_id = sa.series_id
+        WHERE sa.anime_id IN
+        <foreach collection="animeIds" item="animeId" open="(" close=")" separator=",">
+            #{animeId}
+        </foreach>
+          AND NOT EXISTS(SELECT 1
+                         FROM animegenres ag
+                         WHERE ag.anime_id = sa.anime_id
+                           AND ag.genre_id = 638)
+    </select>
+</mapper>

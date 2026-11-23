@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anipick.backend.community.mapper.CommunityFeedMapper">
+
+    <!--
+        이미지 서브쿼리, 차단/신고 필터는 게시판 목록(CommunityPostQueryMapper.xml)의 sql 조각을 그대로 쓴다.
+        조각은 게시글 별칭 p, 파라미터 #{userId} 를 전제로 한다.
+    -->
+    <sql id="feedColumns">
+        p.post_id           AS postId,
+        p.series_id         AS seriesId,
+        s.title_kor_manual  AS seriesTitleMan,
+        s.title_kor         AS seriesTitleKor,
+        s.title_eng         AS seriesTitleEng,
+        s.title_rom         AS seriesTitleRom,
+        s.title_nat         AS seriesTitleNat,
+        p.user_id           AS userId,
+        u.nickname          AS nickname,
+        <include refid="com.anipick.backend.community.mapper.CommunityPostMapper.profileImageIdSubquery"/>   AS profileImageId,
+        p.title             AS title,
+        p.content           AS content,
+        <include refid="com.anipick.backend.community.mapper.CommunityPostMapper.thumbnailImageIdSubquery"/> AS thumbnailImageId,
+        <include refid="com.anipick.backend.community.mapper.CommunityPostMapper.imageCountSubquery"/>       AS imageCount,
+        p.is_spoiler        AS isSpoiler,
+        p.view_count        AS viewCount,
+        p.like_count        AS likeCount,
+        p.comment_count     AS commentCount,
+        p.created_at        AS createdAt
+    </sql>
+
+    <sql id="activePostFilter">
+        AND p.deleted_at IS NULL
+        <include refid="com.anipick.backend.community.mapper.CommunityPostMapper.blockFilter"/>
+        <include refid="com.anipick.backend.community.mapper.CommunityPostMapper.reportFilter"/>
+    </sql>
+
+    <!-- 작성순: post_id DESC (autoincrement 라 created_at 과 같은 순서). PK 로 정렬 -->
+    <select id="selectAllFeedPosts" resultType="com.anipick.backend.community.dto.FeedPostRawDto">
+        SELECT
+        <include refid="feedColumns"/>
+        FROM community_post p
+                 JOIN user u ON u.user_id = p.user_id
+                 JOIN series s ON s.series_id = p.series_id
+        WHERE 1 = 1
+        <include refid="activePostFilter"/>
+        <if test="lastId != null">
+            AND p.post_id &lt; #{lastId}
+        </if>
+        ORDER BY p.post_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!--
+        시청중 피드: useranimestatus(user_id, status) → series_anime → 시리즈의 게시글.
+        series_anime.anime_id 가 UNIQUE 라 애니당 시리즈 1개. 같은 시리즈 애니를 여러 개 시청중이어도 IN 이라 게시글은 중복되지 않는다.
+    -->
+    <select id="selectWatchingFeedPosts" resultType="com.anipick.backend.community.dto.FeedPostRawDto">
+        SELECT
+        <include refid="feedColumns"/>
+        FROM community_post p
+                 JOIN user u ON u.user_id = p.user_id
+                 JOIN series s ON s.series_id = p.series_id
+        WHERE p.series_id IN (SELECT sa.series_id
+                              FROM useranimestatus uas
+                                       JOIN series_anime sa ON sa.anime_id = uas.anime_id
+                              WHERE uas.user_id = #{userId}
+                                AND uas.status = #{status})
+        <include refid="activePostFilter"/>
+        <if test="lastId != null">
+            AND p.post_id &lt; #{lastId}
+        </if>
+        ORDER BY p.post_id DESC
+        LIMIT #{size}
+    </select>
+
+    <!--
+        실시간 인기: periodStart 이후 생긴 좋아요 수(취소된 좋아요는 행이 삭제되어 제외) DESC.
+        INNER JOIN 이라 기간 내 좋아요가 1개 이상인 글만 나온다.
+        커서 = (periodLikeCount, post_id). 게시판 인기순(CommunityPostQueryMapper.selectPopularPosts)과 같은 방식.
+    -->
+    <select id="selectPopularFeedPosts" resultType="com.anipick.backend.community.dto.FeedPostRawDto">
+        SELECT
+        <include refid="feedColumns"/>,
+        pl.periodCnt AS periodLikeCount
+        FROM community_post p
+                 JOIN (SELECT post_id, COUNT(*) AS periodCnt
+                       FROM community_post_like
+                       WHERE created_at &gt;= #{periodStart}
+                       GROUP BY post_id) pl ON pl.post_id = p.post_id
+                 JOIN user u ON u.user_id = p.user_id
+                 JOIN series s ON s.series_id = p.series_id
+        WHERE 1 = 1
+        <include refid="activePostFilter"/>
+        <!-- lastId/lastValue 는 서비스에서 둘 다 있거나 둘 다 없도록 보장(한쪽만 오면 BAD_REQUEST) -->
+        <if test="lastId != null and lastValue != null">
+            AND (
+                pl.periodCnt &lt; #{lastValue}
+                OR (pl.periodCnt = #{lastValue} AND p.post_id &lt; #{lastId})
+            )
+        </if>
+        ORDER BY periodLikeCount DESC, p.post_id DESC
+        LIMIT #{size}
+    </select>
+</mapper>
