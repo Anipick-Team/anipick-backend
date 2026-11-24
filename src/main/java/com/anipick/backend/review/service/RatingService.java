@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +55,11 @@ public class RatingService {
         if (present) {
             throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
-        ratingMapper.createReviewRating(animeId, userId, request);
+        try {
+            ratingMapper.createReviewRating(animeId, userId, request);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
 
         UserAnimeStatus userAnimeStatus = userAnimeStatusMapper.findByUserId(userId, animeId);
         if (userAnimeStatus != null) {

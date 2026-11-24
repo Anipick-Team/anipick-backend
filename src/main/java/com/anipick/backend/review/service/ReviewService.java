@@ -25,7 +25,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -104,12 +103,19 @@ public class ReviewService {
 
     @Transactional
     public void createAndUpdateReview(Long animeId, ReviewRequest request, Long userId) {
-        Review review = reviewMapper.findByAnimeId(animeId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        if (request.getRating() == null
+                || request.getRating() < 0
+                || request.getRating() > 5
+                || request.getIsSpoiler() == null) {
+            throw new CustomException(ErrorCode.VALIDATION_FAIL);
+        }
 
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new CustomException(ErrorCode.REVIEW_CONTENT_NOT_PROVIDED);
         }
+
+        Review review = reviewMapper.findByAnimeId(animeId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         RLock lock = redissonClient.getLock("anime:" + animeId + ":lock");
         boolean isLocked = false;
@@ -150,7 +156,23 @@ public class ReviewService {
             return;
         }
 
-        ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        List<Long> animeIds = ratingRequests.stream()
+                .map(SignupRatingRequest::getAnimeId)
+                .toList();
+        if (animeIds.stream().distinct().count() != animeIds.size()) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+
+        List<Long> existingAnimeIds = ratingMapper.findAnimeIdsByUserId(animeIds, userId);
+        if (!existingAnimeIds.isEmpty()) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+
+        try {
+            ratingMapper.createSignupReviewRating(userId, ratingRequests);
+        } catch (DuplicateKeyException e) {
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
 
         List<UserAnimeStatusInsertRequest> statusBulkList = ratingRequests.stream()
                 .map(r -> UserAnimeStatusInsertRequest.of(
@@ -161,9 +183,6 @@ public class ReviewService {
                 .toList();
         userAnimeStatusMapper.createUserAnimeStatusBulk(statusBulkList);
 
-        List<Long> animeIds = ratingRequests.stream()
-                .map(SignupRatingRequest::getAnimeId)
-                .toList();
         animeMapper.updateReviewAverageScoresByAnimeIds(animeIds);
 
         UserRecommendState recommendState = userRecommendStateMapper.findByUserId(userId);
