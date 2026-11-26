@@ -14,4 +14,6 @@ public class AnimeAllTitleItemRecommendTagCountDto {
     private String titleNat;
     private String coverImage;
     private Long tagCount;
+    private Double averageRating;
+    private Long nextEpisode;
 }

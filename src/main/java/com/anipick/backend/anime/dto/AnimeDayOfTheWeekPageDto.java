@@ -11,7 +11,7 @@ import java.util.List;
 public class AnimeDayOfTheWeekPageDto {
     private Long count;
     private CursorDto cursor;
-    private List<AnimeItemDto> animes;
+    private List<DayOfWeekAnimeItemDto> animes;
 
     public static AnimeDayOfTheWeekPageDto empty() {
         return new AnimeDayOfTheWeekPageDto(0L, null, List.of());

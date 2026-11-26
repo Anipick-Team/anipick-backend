@@ -1,9 +1,10 @@
 package com.anipick.backend.home.service;
 
 import com.anipick.backend.anime.domain.Anime;
-import com.anipick.backend.anime.dto.AnimeItemDto;
+import com.anipick.backend.anime.dto.AnimeGenreDto;
 import com.anipick.backend.anime.dto.ComingSoonItemBasicDto;
 import com.anipick.backend.anime.mapper.AnimeMapper;
+import com.anipick.backend.anime.mapper.GenreMapper;
 import com.anipick.backend.common.domain.SortOption;
 import com.anipick.backend.home.dto.*;
 import com.anipick.backend.home.mapper.HomeMapper;
@@ -27,7 +28,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class HomeService {
     private final AnimeTagMapper animeTagMapper;
     private final RecommendMapper recommendMapper;
     private final AnimeMapper animeMapper;
+    private final GenreMapper genreMapper;
 
     private static final DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy. MM. dd");
@@ -49,6 +53,9 @@ public class HomeService {
 
     public List<HomeTrendingRankingDto> getTrendingRanking() {
         List<TrendingRankingFromQueryDto> trendingRanking = homeMapper.selectHomeTrendingRanking(LIMIT_SIZE);
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                trendingRanking.stream().map(TrendingRankingFromQueryDto::getAnimeId).toList()
+        );
         AtomicReference<Long> displayRank = new AtomicReference<>(0L);
 
         List<HomeTrendingRankingDto> homeTrendingRanking = trendingRanking.stream()
@@ -56,7 +63,11 @@ public class HomeService {
                     displayRank.set(displayRank.get() + 1);
                     Long rank = displayRank.get();
 
-                    return HomeTrendingRankingDto.of(dto, rank);
+                    return HomeTrendingRankingDto.of(
+                            dto,
+                            rank,
+                            genresByAnimeId.getOrDefault(dto.getAnimeId(), List.of()).stream().limit(3).toList()
+                    );
                 })
                 .toList();
 
@@ -96,12 +107,16 @@ public class HomeService {
                 .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                 .toList();
 
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                comingSoonItemBasicDtos.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
         List<HomeComingSoonItemDto> items = comingSoonItemBasicDtos.stream()
                 .map(dto -> HomeComingSoonItemDto.of(
                         dto.getAnimeId(),
                         dto.getTitle(),
                         dto.getCoverImageUrl(),
-                        dto.getStartDate()
+                        dto.getStartDate(),
+                        genresByAnimeId.getOrDefault(dto.getAnimeId(), List.of())
                 ))
                 .toList();
         return items;
@@ -134,7 +149,7 @@ public class HomeService {
             }
         }
 
-        List<AnimeItemDto> resultAnimes;
+        List<HomeRecommendationAnimeItemDto> resultAnimes;
         String referenceAnimeTitle;
 
         if (userState.getMode() == UserRecommendMode.RECENT_HIGH) {
@@ -157,13 +172,7 @@ public class HomeService {
                     .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
                     .toList();
 
-            resultAnimes = recommendAnimes.stream()
-                    .map(rec -> new AnimeItemDto(
-                            rec.getAnimeId(),
-                            rec.getTitle(),
-                            rec.getCoverImage()
-                    ))
-                    .toList();
+            resultAnimes = toRecommendationItems(recommendAnimes);
         } else {
             referenceAnimeTitle = null;
 
@@ -198,13 +207,7 @@ public class HomeService {
                     .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
                     .toList();
 
-            resultAnimes = recommendAnimes.stream()
-                    .map(rec -> new AnimeItemDto(
-                            rec.getAnimeId(),
-                            rec.getTitle(),
-                            rec.getCoverImage()
-                    ))
-                    .toList();
+            resultAnimes = toRecommendationItems(recommendAnimes);
         }
         return HomeRecommendationItemDto.of(referenceAnimeTitle, resultAnimes);
     }
@@ -218,7 +221,7 @@ public class HomeService {
 
         String referenceAnimeTitle = anime.getTitlePick();
 
-        List<AnimeItemDto> resultAnimes;
+        List<HomeRecommendationAnimeItemDto> resultAnimes;
 
         List<Long> tagIds = animeTagMapper.findTopTagsByAnime(animeId, 5);
         // 해당 애니의 태그가 없을 경우
@@ -234,14 +237,37 @@ public class HomeService {
                 .map(AnimeItemRecommendTagCountDto::animeTitleTranslationPick)
                 .toList();
 
-        resultAnimes = recommendAnimes.stream()
-                .map(rec -> new AnimeItemDto(
-                        rec.getAnimeId(),
-                        rec.getTitle(),
-                        rec.getCoverImage()
-                ))
-                .toList();
+        resultAnimes = toRecommendationItems(recommendAnimes);
 
         return HomeRecommendationItemDto.of(referenceAnimeTitle, resultAnimes);
+    }
+
+    private List<HomeRecommendationAnimeItemDto> toRecommendationItems(List<AnimeItemRecommendTagCountDto> recommendAnimes) {
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                recommendAnimes.stream().map(AnimeItemRecommendTagCountDto::getAnimeId).toList()
+        );
+
+        return recommendAnimes.stream()
+                .map(rec -> new HomeRecommendationAnimeItemDto(
+                        rec.getAnimeId(),
+                        rec.getTitle(),
+                        rec.getCoverImage(),
+                        rec.getAverageRating(),
+                        genresByAnimeId.getOrDefault(rec.getAnimeId(), List.of()).stream().limit(3).toList(),
+                        rec.getNextEpisode()
+                ))
+                .toList();
+    }
+
+    private Map<Long, List<String>> getGenresByAnimeId(List<Long> animeIds) {
+        if (animeIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return genreMapper.selectGenresByAnimeIds(animeIds).stream()
+                .collect(Collectors.groupingBy(
+                        AnimeGenreDto::getAnimeId,
+                        Collectors.mapping(AnimeGenreDto::getGenreName, Collectors.toList())
+                ));
     }
 }

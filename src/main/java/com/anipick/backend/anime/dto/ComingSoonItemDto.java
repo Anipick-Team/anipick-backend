@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 public class ComingSoonItemDto {
@@ -14,12 +16,14 @@ public class ComingSoonItemDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long popularId;
     private Boolean isAdult;
+    private List<String> genres;
 
-    public ComingSoonItemDto(Long animeId, String title, String coverImageUrl, String releaseDate, Boolean isAdult) {
+    public ComingSoonItemDto(Long animeId, String title, String coverImageUrl, String releaseDate, Boolean isAdult, List<String> genres) {
         this.animeId = animeId;
         this.title = title;
         this.coverImageUrl = coverImageUrl;
         this.releaseDate = releaseDate;
         this.isAdult = isAdult;
+        this.genres = genres;
     }
 }

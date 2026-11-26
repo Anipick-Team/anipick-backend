@@ -555,7 +555,8 @@
                a.title_english AS titleEng,
                a.title_kor_manual AS titleMan,
                a.title_romaj AS titleRom,
-               a.title_native AS titleNat
+               a.title_native AS titleNat,
+               a.next_episode AS nextEpisode
         FROM Anime a
         WHERE a.anime_id IN
         <foreach collection="animeIds" item="animeId" open="(" close=")" separator=",">

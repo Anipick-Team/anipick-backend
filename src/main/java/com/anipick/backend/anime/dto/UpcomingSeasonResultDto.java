@@ -10,9 +10,9 @@ import lombok.Getter;
 public class UpcomingSeasonResultDto {
 	private Integer season;
 	private Integer seasonYear;
-	private List<AnimeItemDto> animes;
+	private List<UpcomingSeasonAnimeItemDto> animes;
 
-	public static UpcomingSeasonResultDto of(Integer season, Integer seasonYear, List<AnimeItemDto> animes) {
+	public static UpcomingSeasonResultDto of(Integer season, Integer seasonYear, List<UpcomingSeasonAnimeItemDto> animes) {
 		return new UpcomingSeasonResultDto(season, seasonYear, animes);
 	}
 }

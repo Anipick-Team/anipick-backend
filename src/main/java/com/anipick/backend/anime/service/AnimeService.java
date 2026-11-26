@@ -68,15 +68,23 @@ public class AnimeService {
                 .endDate(endDate)
                 .build();
 
-        List<AnimeItemDto> nextSeasonAnimes = animeCacheService.getUpcomingSeasonAnimes(rangeDateRequestDto)
-                .stream()
-                .map(AnimeItemDto::animeTitleTranslationPick)
+        List<AnimeAllTitleImgDto> upcomingSeasonAnimes = animeCacheService.getUpcomingSeasonAnimes(rangeDateRequestDto);
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                upcomingSeasonAnimes.stream().map(AnimeAllTitleImgDto::getAnimeId).toList()
+        );
+        List<UpcomingSeasonAnimeItemDto> nextSeasonAnimes = upcomingSeasonAnimes.stream()
+                .map(dto -> new UpcomingSeasonAnimeItemDto(
+                        dto.getAnimeId(),
+                        LocalizationUtil.pickTitle(dto.getTitleMan(), dto.getTitleKor(), dto.getTitleEng(), dto.getTitleRom(), dto.getTitleNat()),
+                        dto.getCoverImageUrl(),
+                        genresByAnimeId.getOrDefault(dto.getAnimeId(), List.of())
+                ))
                 .collect(Collectors.toList());
 
         Collections.shuffle(nextSeasonAnimes);
 
         if (nextSeasonAnimes.size() > 10) {
-            List<AnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
+            List<UpcomingSeasonAnimeItemDto> animes10SubList = nextSeasonAnimes.subList(0, 10);
             return UpcomingSeasonResultDto.of(season, seasonYear, animes10SubList);
         }
         return UpcomingSeasonResultDto.of(season, seasonYear, nextSeasonAnimes);
@@ -542,35 +550,48 @@ public class AnimeService {
                         item -> item
                 ));
 
-        List<AnimeItemDto> animeItemDtoList;
+        List<AnimeWeekScheduleDto> sortedSchedules;
 
         // 기본값은 인기순이기에 default 로 설정
         switch (sortOption) {
-            case LATEST -> animeItemDtoList = animeWeekScheduleDtos.stream()
+            case LATEST -> sortedSchedules = animeWeekScheduleDtos.stream()
                                                     .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getLatestRank))
-                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
-            default -> animeItemDtoList = animeWeekScheduleDtos.stream()
+            default -> sortedSchedules = animeWeekScheduleDtos.stream()
                                                     .filter(item -> map.containsKey(item.getAnimeId()))
                                                     .sorted(Comparator.comparing(AnimeWeekScheduleDto::getPopularityRank))
-                                                    .map(AnimeWeekScheduleDto::toAnimeItem)
                                                     .toList();
         }
 
-        List<AnimeItemDto> sortedResults = new ArrayList<>();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                sortedSchedules.stream().map(AnimeWeekScheduleDto::getAnimeId).toList()
+        );
+        List<DayOfWeekAnimeItemDto> sortedResults = new ArrayList<>();
 
-        for (AnimeItemDto animeItemDto : animeItemDtoList) {
-            Long animeId = animeItemDto.getAnimeId();
+        for (AnimeWeekScheduleDto schedule : sortedSchedules) {
+            Long animeId = schedule.getAnimeId();
             AnimeAllTitleImgDto animeAllTitleImgDto = map.get(animeId);
 
-            AnimeItemDto result = AnimeItemDto.animeTitleTranslationPick(animeAllTitleImgDto);
+            DayOfWeekAnimeItemDto result = new DayOfWeekAnimeItemDto(
+                    animeId,
+                    LocalizationUtil.pickTitle(
+                            animeAllTitleImgDto.getTitleMan(),
+                            animeAllTitleImgDto.getTitleKor(),
+                            animeAllTitleImgDto.getTitleEng(),
+                            animeAllTitleImgDto.getTitleRom(),
+                            animeAllTitleImgDto.getTitleNat()
+                    ),
+                    animeAllTitleImgDto.getCoverImageUrl(),
+                    genresByAnimeId.getOrDefault(animeId, List.of()),
+                    animeAllTitleImgDto.getNextEpisode()
+            );
             sortedResults.add(result);
         }
 
         int index = getIndex(sortedResults, lastId);
 
-        List<AnimeItemDto> result = new ArrayList<>();
+        List<DayOfWeekAnimeItemDto> result = new ArrayList<>();
 
         int end = (int) Math.min(index + size, sortedResults.size());
 
@@ -630,6 +651,9 @@ public class AnimeService {
                 mapper.selectComingSoonLatestAnimes(comingSoonRequestDto).stream()
                         .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                         .toList();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                latestSortAnimes.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
 
         List<ComingSoonItemDto> items = latestSortAnimes.stream()
                 .map(b -> new ComingSoonItemDto(
@@ -637,7 +661,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
@@ -666,6 +691,9 @@ public class AnimeService {
                         .stream()
                         .map(ComingSoonItemPopularityDto::animeTitleTranslationPick)
                         .toList();
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                popularitySortAnimes.stream().map(ComingSoonItemPopularityDto::getAnimeId).toList()
+        );
 
         Long nextId;
 
@@ -681,7 +709,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
@@ -711,6 +740,9 @@ public class AnimeService {
         List<ComingSoonItemBasicDto> typeCovertAnimes = starDateSortAnimes.stream()
                 .map(ComingSoonItemBasicDto::animeTitleTranslationPick)
                 .collect(Collectors.toList());
+        Map<Long, List<String>> genresByAnimeId = getGenresByAnimeId(
+                typeCovertAnimes.stream().map(ComingSoonItemBasicDto::getAnimeId).toList()
+        );
 
         List<ComingSoonItemDto> items = typeCovertAnimes.stream()
                 .map(b -> new ComingSoonItemDto(
@@ -718,7 +750,8 @@ public class AnimeService {
                         b.getTitle(),
                         b.getCoverImageUrl(),
                         b.getStartDate(),
-                        b.getIsAdult()
+                        b.getIsAdult(),
+                        genresByAnimeId.getOrDefault(b.getAnimeId(), List.of())
                 ))
                 .collect(Collectors.toList());
 
@@ -847,6 +880,18 @@ public class AnimeService {
         return AnimeDetailInfoReviewsPageDto.of(totalCount, cursor, items);
     }
 
+    private Map<Long, List<String>> getGenresByAnimeId(List<Long> animeIds) {
+        if (animeIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return genreMapper.selectGenresByAnimeIds(animeIds).stream()
+                .collect(Collectors.groupingBy(
+                        AnimeGenreDto::getAnimeId,
+                        Collectors.mapping(AnimeGenreDto::getGenreName, Collectors.toList())
+                ));
+    }
+
     /**
      * 유저의 프로필 사진 URL 생성
      *
@@ -860,7 +905,7 @@ public class AnimeService {
      * 인덱스 찾기
      *
      */
-    private static int getIndex(List<AnimeItemDto> dtos, Long lastId) {
+    private static int getIndex(List<DayOfWeekAnimeItemDto> dtos, Long lastId) {
         int index = 0;
         if (lastId == null) {
             return index;
